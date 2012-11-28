@@ -29,6 +29,9 @@ AC_C_INLINE
 AC_CONFIG_FILES([
         Makefile
         lib/Makefile
+        include/Makefile
+        include/yipit/Makefile
+        include/yipit/hollow/Makefile
 ])
 
 AC_OUTPUT
