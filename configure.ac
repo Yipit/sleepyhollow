@@ -20,6 +20,14 @@ AC_PROG_LIBTOOL
 # AutoTroll with Qt.
 AT_WITH_QT([+network +webkit +gui])
 
+dnl python checks
+AM_PATH_PYTHON(2.7.0)
+PY_PREFIX=`$PYTHON -c 'import sys ; print sys.prefix'`
+PYTHON_LIBS="-lpython$PYTHON_VERSION"
+PYTHON_CFLAGS="-I$PY_PREFIX/include/python$PYTHON_VERSION"
+AC_SUBST([PYTHON_LIBS])
+AC_SUBST([PYTHON_CFLAGS])
+
 # Checks for typedefs, structures, and compiler characteristics.
 AC_CHECK_HEADER_STDBOOL
 AC_C_INLINE
@@ -32,6 +40,7 @@ AC_CONFIG_FILES([
         include/Makefile
         include/yipit/Makefile
         include/yipit/hollow/Makefile
+        python/Makefile
 ])
 
 AC_OUTPUT
