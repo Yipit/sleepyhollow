@@ -2,7 +2,7 @@ export PYTHONPATH:= /usr/local/lib/python2.7/site-packages:${PYTHONPATH}:${PWD}
 
 
 test: module
-	@nosetests --verbosity=2 -s tests.py
+	@nosetests --verbosity=2 -s tests
 
 module:
 	@printf "\033[1;37mBuilding the C++ module... \033[0"

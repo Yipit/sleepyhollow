@@ -4,3 +4,4 @@ ipdb>=0.7
 nose>=1.2.1
 sure>=1.1.4
 virtualenvwrapper>=3.6
+tornado==2.4.1
