@@ -1,0 +1,7 @@
+distribute>=0.6.32
+flake8>=1.6
+ipdb>=0.7
+nose>=1.2.1
+sure>=1.1.4
+virtualenvwrapper>=3.6
+sip==4.13.3
