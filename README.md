@@ -33,7 +33,7 @@ brew install sip
 
 ```console
 mkvirtualenv sleepy-hollow
-pip install -r requirements.txt
+make dependencies
 ```
 
 ### build it !
