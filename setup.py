@@ -1,5 +1,8 @@
+# -*- coding: utf-8 -*-
+
 from distutils.core import setup, Extension
-import sipdistutils
+from dist_helper import BuildExtension
+
 
 setup(
     name='sleepy-hollow',
@@ -8,4 +11,4 @@ setup(
         Extension("sleepy_hollow",
             sources=["sleepy-hollow.sip", "sleepy-hollow.cpp"],
             include_dirs=['.'])],
-    cmdclass={'build_ext': sipdistutils.build_ext})
+    cmdclass={'build_ext': BuildExtension})

@@ -7,6 +7,7 @@ class SleepyHollow
 
 %TypeHeaderCode
 #include "sleepy-hollow.h"
+#include <QApplication>
 %End
 
 public:

@@ -1,5 +1,7 @@
 #ifndef __SLEEPYHOLLOW_H__
 #define __SLEEPYHOLLOW_H__
+#include <QApplication>
+#include <QTextEdit>
 
 class SleepyHollow
 {
