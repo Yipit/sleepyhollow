@@ -12,3 +12,4 @@ def test_load(context):
 
     response = sl.load(context.route_to("/simple"))
     #expect(response).to.look_like('<div class="container"><header class="jumbotron subhead"><div class="row"><div class="span6"><h1>Simple</h1><p class="lead">Very Simple.</p></div></div></header></div>')
+
