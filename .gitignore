@@ -34,3 +34,6 @@ python/.deps/
 python/Makefile
 python/Makefile.in
 stamp-h1
+*.o
+*.lo
+.libs
