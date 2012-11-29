@@ -1,25 +1,26 @@
 #ifndef WEBVIEW_H
 #define WEBVIEW_H
 
-#include <QWebView>
 #include <QWebPage>
 
-class WebView : public QWebView
+class WebPage : public QWebPage
 {
   Q_OBJECT
 
 public:
-  WebView(QWidget *parent=0);
+  WebPage(QObject *parent=0);
   inline int progress() const { return m_progress; }
   QString getLoadedContent(void);
 
 private slots:
   void setProgress(int progress);
-  void loadFinished(bool);
+  void loadFinished(bool ok);
+
+signals:
+  void finishedProcessing(bool ok);
 
 private:
   int m_progress;
-  QWebPage *m_page;
   QString m_loadedContent;
 };
 

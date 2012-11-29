@@ -1,33 +1,27 @@
 #include <iostream>
 #include <qdebug.h>
 #include <QUrl>
-#include <QWidget>
 #include <QWebPage>
 #include <QWebFrame>
-#include "webview.h"
+#include "webpage.h"
 
 
-WebView::WebView(QWidget *parent)
-  : QWebView(parent)
+WebPage::WebPage(QObject *parent)
+  : QWebPage(parent)
   , m_progress(0)
-  , m_page(new QWebPage(this))
   , m_loadedContent()
 {
-  // A WebView must contain a WebPage, let's set our custom one
-  setPage(m_page);
-
   // Let's connect some signals
   connect(this, SIGNAL(loadProgress(int)), SLOT(setProgress(int)));
   connect(this, SIGNAL(loadFinished(bool)), SLOT(loadFinished(bool)));
 
-  // Some more configuration to the page and to the view itself
-  setAcceptDrops(true);
-  page()->setForwardUnsupportedContent(true);
+  // Some more configuration to the page and to the page itself
+  setForwardUnsupportedContent(true);
 }
 
 
 void
-WebView::setProgress(int progress)
+WebPage::setProgress(int progress)
 {
   std::cout << "progress reported " << progress << std::endl;
   m_progress = progress;
@@ -35,10 +29,11 @@ WebView::setProgress(int progress)
 
 
 void
-WebView::loadFinished(bool ok)
+WebPage::loadFinished(bool ok)
 {
   if (!ok) {
-    qWarning() << "Could not load the url" << url().toString();
+    qWarning() << "Could not load the url" << mainFrame()->url().toString();
+    emit finishedProcessing(false);
     return;
   }
 
@@ -55,12 +50,14 @@ WebView::loadFinished(bool ok)
   m_progress = 0;
 
   // Updating our internal container
-  m_loadedContent = page()->mainFrame()->toHtml().toAscii().data();
+  m_loadedContent = mainFrame()->toHtml().toAscii().data();
+
+  emit finishedProcessing(true);
 }
 
 
 QString
-WebView::getLoadedContent(void)
+WebPage::getLoadedContent(void)
 {
   return m_loadedContent;
 }

@@ -9,18 +9,54 @@ typedef struct {
 } SleepyHollow;
 
 
+static PyObject *
+SleepyHollow_new (PyTypeObject *type,
+                  PyObject     *args,
+                  PyObject     *kwargs)
+{
+  SleepyHollow *self = NULL;
+
+  if ((self = (SleepyHollow *) type->tp_alloc (type, 0)) == NULL)
+    return NULL;
+  if ((self->hollow = y_hollow_new ()) == NULL)
+    {
+      Py_DECREF (self);
+      return NULL;
+    }
+  return (PyObject *) self;
+}
+
+
 static void
 SleepyHollow_dealloc (SleepyHollow  *self)
 {
-  self->ob_type->tp_free ((PyObject *) self);
+  return;
+
+  if (self && self->hollow)
+    {
+      y_hollow_free (self->hollow);
+      self->ob_type->tp_free ((PyObject *) self);
+    }
 }
 
 
 static PyObject *
-SleepyHollow_load (SleepyHollow *self)
+SleepyHollow_load (SleepyHollow *self, PyObject *args)
 {
-  Py_INCREF (Py_None);
-  return Py_None;
+  char *url;
+  char *content = NULL;
+  if (!PyArg_ParseTuple (args, "s", &url))
+    return NULL;
+
+  if ((content = y_hollow_load (self->hollow, url)) != NULL)
+    {
+      return PyString_FromString (content);
+    }
+  else
+    {
+      Py_INCREF (Py_None);
+      return Py_None;
+    }
 }
 
 
@@ -77,7 +113,7 @@ static PyTypeObject SleepyHollowType = {
   0,                                        /* tp_dictoffset */
   0,                                        /* tp_init */
   0,                                        /* tp_alloc */
-  PyType_GenericNew,                        /* tp_new */
+  SleepyHollow_new,                         /* tp_new */
   0,
   0,
   0,

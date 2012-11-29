@@ -3,7 +3,7 @@
 
 AC_PREREQ([2.69])
 AC_INIT([sleepy-hollow], [0.0.1], [coders@yipit.com])
-AC_CONFIG_SRCDIR([lib/webview.cpp])
+AC_CONFIG_SRCDIR([lib/hollow.cpp])
 AC_CONFIG_HEADERS([config.h])
 AC_CONFIG_MACRO_DIR([m4])
 AC_CONFIG_AUX_DIR([build-aux])
@@ -15,6 +15,7 @@ AC_PROG_CXX
 AC_PROG_CC
 AC_LANG([C])
 AC_PROG_CC
+AM_PROG_CC_C_O
 AC_PROG_LIBTOOL
 
 # AutoTroll with Qt.

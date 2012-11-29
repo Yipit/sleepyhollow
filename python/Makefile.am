@@ -1,6 +1,6 @@
 pyexec_LTLIBRARIES = sleepy_hollow.la
 
-sleepy_hollow_la_SOURCES = sleepy_hollow.c
+sleepy_hollow_la_SOURCES = sleepy_hollow.cpp
 sleepy_hollow_la_CXXFLAGS = $(QT_CXXFLAGS)
 sleepy_hollow_la_CPPFLAGS = $(PYTHON_CFLAGS) -I$(top_srcdir)/include $(QT_CPPFLAGS) \
 	-fno-strict-aliasing -fno-common -dynamic -Wstrict-prototypes
