@@ -19,20 +19,21 @@ Manager::Manager(QObject *parent)
   page = new WebPage();
 
   // This app will die when we finish downloading our stuff
-  // QObject::connect((QObject *) page->mainFrame(), SIGNAL(loadStarted()), this, SLOT(proxyProcessEvents()));
-  QObject::connect((QObject *) page, SIGNAL(finishedProcessing(bool)), this, SLOT(proxyExit()));
+  QObject::connect((QObject *) page->mainFrame(), SIGNAL(loadFinished(bool)),
+                   this, SLOT(proxyExit()));
 }
 
 
 void
 Manager::proxyExit(void)
 {
-    QApplication::exit();
+  QApplication::exit();
 }
+
 
 Manager::~Manager()
 {
-    page->deleteLater();
+  page->deleteLater();
 }
 
 
