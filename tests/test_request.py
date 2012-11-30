@@ -12,3 +12,6 @@ def test_load(context):
 
     response = sl.load(context.route_to("/simple"))
     expect('Very Simple').to.be.within(response)
+
+    response = sl.load(context.route_to("/simple"))
+    expect('Very Simple').to.be.within(response)

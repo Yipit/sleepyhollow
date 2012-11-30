@@ -4,13 +4,14 @@
 #include "manager.h"
 #include "webpage.h"
 
+
+// Mocking the values to pass to QApplication
+static int argc = 1;
+static char *argv[] = { (char *) "sleepy-hollow", 0 };
+
 Manager::Manager(QObject *parent)
   : QObject(parent)
 {
-  // Mocking the values to pass to QApplication
-  int argc = 1;
-  char *argv[] = { (char *) "sleepy hollow", 0 };
-
   // Creating the app that will run untill we get the data
   app = new QApplication(argc, argv);
 
@@ -19,7 +20,7 @@ Manager::Manager(QObject *parent)
 
   // This app will die when we finish downloading our stuff
   // QObject::connect((QObject *) page->mainFrame(), SIGNAL(loadStarted()), this, SLOT(proxyProcessEvents()));
-  // QObject::connect((QObject *) page->mainFrame(), SIGNAL(loadFinished(bool)), this, SLOT(proxyProcessEvents()));
+  QObject::connect((QObject *) page->mainFrame(), SIGNAL(loadFinished(bool)), this, SLOT(proxyExit()));
 }
 
 
@@ -32,7 +33,7 @@ Manager::proxyExit(void)
 void
 Manager::proxyProcessEvents(void)
 {
-    QApplication::processEvents(QEventLoop::AllEvents, 42);
+    // QApplication::processEvents(QEventLoop::AllEvents);
 }
 
 Manager::~Manager()
@@ -45,6 +46,6 @@ QString
 Manager::getUrlContent(QUrl url)
 {
   page->mainFrame()->setUrl(url);
-  QApplication::processEvents(QEventLoop::AllEvents, 42);
+  app->exec();
   return page->mainFrame()->toHtml();
 }
