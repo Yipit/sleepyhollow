@@ -17,7 +17,6 @@ public:
 
 private slots:
   void proxyExit(void);
-  void proxyProcessEvents(void);
 
 signals:
   void finishedProcessing(bool ok);

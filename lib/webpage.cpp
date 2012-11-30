@@ -23,7 +23,7 @@ WebPage::WebPage(QObject *parent)
 void
 WebPage::setProgress(int progress)
 {
-  std::cout << "progress reported " << progress << std::endl;
+  // std::cout << "progress reported " << progress << std::endl;
   m_progress = progress;
 }
 
@@ -32,19 +32,18 @@ void
 WebPage::loadFinished(bool ok)
 {
   if (!ok) {
-    qWarning() << "Could not load the url" << mainFrame()->url().toString();
     emit finishedProcessing(false);
     return;
   }
 
-  if (m_progress != 100) {
-    qWarning() << "Url finished loading but progress still"
-               << progress();
-    return;
-  }
+  // if (m_progress != 100) {
+  //   qWarning() << "Url finished loading but progress still"
+  //              << progress();
+  //   return;
+  // }
 
   // Just a nice warning :)
-  std::cout << "Url finished successfuly" << std::endl;
+  // std::cout << "Url finished successfuly" << std::endl;
 
   // Reseting the state
   m_progress = 0;

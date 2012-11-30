@@ -100,7 +100,7 @@ static PyTypeObject SleepyHollowType = {
   0,                                        /* tp_setattro */
   0,                                        /* tp_as_buffer */
   Py_TPFLAGS_DEFAULT,                       /* tp_flags */
-  "SleepyHollow Objects",                   /* tp_doc */
+  "SleepyHollow is an amazing scrapper",    /* tp_doc */
   0,                                        /* tp_traverse */
   0,                                        /* tp_clear */
   0,                                        /* tp_richcompare */
@@ -134,14 +134,14 @@ static PyMethodDef module_methods[] = {
 };
 
 PyMODINIT_FUNC
-initsleepy_hollow (void)
+initsleepyhollow (void)
 {
   PyObject *m;
 
   if (PyType_Ready (&SleepyHollowType) < 0)
     return;
 
-  if ((m = Py_InitModule ("sleepy_hollow", module_methods)) == NULL)
+  if ((m = Py_InitModule ("sleepyhollow", module_methods)) == NULL)
     return;
 
   Py_INCREF (&SleepyHollowType);

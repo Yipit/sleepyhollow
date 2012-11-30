@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 from sure import expect
-from sleepy_hollow import SleepyHollow
+from sleepyhollow import SleepyHollow
 from tests.helpers import server_test_case
 
 

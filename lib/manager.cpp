@@ -20,7 +20,7 @@ Manager::Manager(QObject *parent)
 
   // This app will die when we finish downloading our stuff
   // QObject::connect((QObject *) page->mainFrame(), SIGNAL(loadStarted()), this, SLOT(proxyProcessEvents()));
-  QObject::connect((QObject *) page->mainFrame(), SIGNAL(loadFinished(bool)), this, SLOT(proxyExit()));
+  QObject::connect((QObject *) page, SIGNAL(finishedProcessing(bool)), this, SLOT(proxyExit()));
 }
 
 
@@ -28,12 +28,6 @@ void
 Manager::proxyExit(void)
 {
     QApplication::exit();
-}
-
-void
-Manager::proxyProcessEvents(void)
-{
-    // QApplication::processEvents(QEventLoop::AllEvents);
 }
 
 Manager::~Manager()
