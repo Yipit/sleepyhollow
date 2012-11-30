@@ -3,6 +3,10 @@
 
 #include <yipit/hollow/hollow.h>
 
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 typedef struct {
   PyObject_HEAD;
   y_hollow_t *hollow;
@@ -21,7 +25,7 @@ SleepyHollow_new (PyTypeObject *type,
   if ((self->hollow = y_hollow_new ()) == NULL)
     {
       Py_DECREF (self);
-      return NULL;
+      Py_RETURN_NONE;
     }
   return (PyObject *) self;
 }
@@ -143,3 +147,7 @@ initsleepy_hollow (void)
   Py_INCREF (&SleepyHollowType);
   PyModule_AddObject (m, "SleepyHollow", (PyObject *) &SleepyHollowType);
 }
+
+#ifdef __cplusplus
+}
+#endif

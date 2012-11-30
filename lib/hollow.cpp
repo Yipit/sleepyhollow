@@ -24,8 +24,8 @@ y_hollow_new (void)
 void
 y_hollow_free (y_hollow_t *hollow)
 {
-  delete hollow->manager;
-  free (hollow);
+    hollow->manager->deleteLater();
+    free (hollow);
 }
 
 

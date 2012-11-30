@@ -1,11 +1,8 @@
 #include <QObject>
 #include <QWebFrame>
 #include <QApplication>
-#include <QEventLoop>
 #include "manager.h"
 #include "webpage.h"
-
-QApplication *app = 0;
 
 Manager::Manager(QObject *parent)
   : QObject(parent)
@@ -15,30 +12,32 @@ Manager::Manager(QObject *parent)
   char *argv[] = { (char *) "sleepy hollow", 0 };
 
   // Creating the app that will run untill we get the data
-  if (qApp == 0) {
-    app = new QApplication(argc, argv);
-  }
-
-  loop = new QEventLoop();
+  app = new QApplication(argc, argv);
 
   // This must be instantiated *after* the app
   page = new WebPage();
 
   // This app will die when we finish downloading our stuff
-  QObject::connect ((QObject *) page->mainFrame(), SIGNAL(loadFinished(bool)),
-                    this, SLOT(proxy()));
+  // QObject::connect((QObject *) page->mainFrame(), SIGNAL(loadStarted()), this, SLOT(proxyProcessEvents()));
+  // QObject::connect((QObject *) page->mainFrame(), SIGNAL(loadFinished(bool)), this, SLOT(proxyProcessEvents()));
 }
 
 
 void
-Manager::proxy(void)
+Manager::proxyExit(void)
 {
-  loop->exit();
+    QApplication::exit();
+}
+
+void
+Manager::proxyProcessEvents(void)
+{
+    QApplication::processEvents(QEventLoop::AllEvents, 42);
 }
 
 Manager::~Manager()
 {
-  delete page;
+    page->deleteLater();
 }
 
 
@@ -46,6 +45,6 @@ QString
 Manager::getUrlContent(QUrl url)
 {
   page->mainFrame()->setUrl(url);
-  loop->exec();
+  QApplication::processEvents(QEventLoop::AllEvents, 42);
   return page->mainFrame()->toHtml();
 }

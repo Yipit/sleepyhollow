@@ -2,7 +2,7 @@
 #define MANAGER_H
 
 #include <QObject>
-#include <QEventLoop>
+#include <QApplication>
 #include "webpage.h"
 
 class Manager : public QObject
@@ -13,16 +13,17 @@ public:
   Manager (QObject *parent=0);
   ~Manager();
   QString getUrlContent(QUrl url);
+  QApplication *app;
 
 private slots:
-  void proxy(void);
+  void proxyExit(void);
+  void proxyProcessEvents(void);
 
 signals:
   void finishedProcessing(bool ok);
 
 private:
   WebPage *page;
-  QEventLoop *loop;
 };
 
 
