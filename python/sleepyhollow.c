@@ -7,6 +7,17 @@
 extern "C" {
 #endif
 
+
+#ifdef UNUSED
+#elif defined(__GNUC__)
+# define UNUSED(x) UNUSED_ ## x __attribute__((unused))
+#elif defined(__LCLINT__)
+# define UNUSED(x) /*@unused@*/ x
+#else
+# define UNUSED(x) x
+#endif
+
+
 typedef struct {
   PyObject_HEAD;
   y_hollow_t *hollow;
@@ -15,8 +26,8 @@ typedef struct {
 
 static PyObject *
 SleepyHollow_new (PyTypeObject *type,
-                  PyObject     *args,
-                  PyObject     *kwargs)
+                  PyObject *UNUSED(args),
+                  PyObject *UNUSED(kwargs))
 {
   SleepyHollow *self = NULL;
 
@@ -34,13 +45,8 @@ SleepyHollow_new (PyTypeObject *type,
 static void
 SleepyHollow_dealloc (SleepyHollow  *self)
 {
-  return;
-
-  if (self && self->hollow)
-    {
-      y_hollow_free (self->hollow);
-      self->ob_type->tp_free ((PyObject *) self);
-    }
+  y_hollow_free (self->hollow);
+  self->ob_type->tp_free ((PyObject *) self);
 }
 
 
@@ -65,7 +71,7 @@ SleepyHollow_load (SleepyHollow *self, PyObject *args)
 
 
 static struct PyMemberDef SleepyHollow_members[] = {
-  { NULL, 0, 0, 0 },   /* Sentinel */
+  { NULL, 0, 0, 0, 0 },   /* Sentinel */
 };
 
 
