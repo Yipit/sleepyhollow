@@ -3,11 +3,6 @@
 
 #include <yipit/hollow/hollow.h>
 
-#ifdef __cplusplus
-extern "C" {
-#endif
-
-
 #ifdef UNUSED
 #elif defined(__GNUC__)
 # define UNUSED(x) UNUSED_ ## x __attribute__((unused))
@@ -20,7 +15,7 @@ extern "C" {
 
 typedef struct {
   PyObject_HEAD;
-  y_hollow_t *hollow;
+  Hollow *hollow;
 } SleepyHollow;
 
 
@@ -33,7 +28,7 @@ SleepyHollow_new (PyTypeObject *type,
 
   if ((self = (SleepyHollow *) type->tp_alloc (type, 0)) == NULL)
     return NULL;
-  if ((self->hollow = y_hollow_new ()) == NULL)
+  if ((self->hollow = new Hollow) == NULL)
     {
       Py_DECREF (self);
       Py_RETURN_NONE;
@@ -45,7 +40,7 @@ SleepyHollow_new (PyTypeObject *type,
 static void
 SleepyHollow_dealloc (SleepyHollow  *self)
 {
-  y_hollow_free (self->hollow);
+  delete self->hollow;
   self->ob_type->tp_free ((PyObject *) self);
 }
 
@@ -54,15 +49,14 @@ static PyObject *
 SleepyHollow_load (SleepyHollow *self, PyObject *args)
 {
   char *url;
-  char *content = NULL;
   if (!PyArg_ParseTuple (args, "s", &url))
     return NULL;
-
-  if ((content = y_hollow_load (self->hollow, url)) != NULL)
+  try
     {
+      const char *content = self->hollow->getUrlContent (url);
       return PyString_FromString (content);
     }
-  else
+  catch (std::exception &exc)
     {
       Py_INCREF (Py_None);
       return Py_None;
@@ -153,7 +147,3 @@ initsleepyhollow (void)
   Py_INCREF (&SleepyHollowType);
   PyModule_AddObject (m, "SleepyHollow", (PyObject *) &SleepyHollowType);
 }
-
-#ifdef __cplusplus
-}
-#endif
