@@ -1,3 +1,5 @@
+// -*- Mode: c++; tab-width: 2 -*-
+
 #ifndef MANAGER_H
 #define MANAGER_H
 
@@ -16,13 +18,11 @@ public:
   QApplication *app;
 
 private slots:
-  void proxyExit(void);
-
-signals:
-  void finishedProcessing(bool ok);
+  void proxyExit(bool ok);
 
 private:
   WebPage *page;
+  bool hasErrors;
 };
 
 
