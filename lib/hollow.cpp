@@ -1,43 +1,60 @@
-#include <stdlib.h>
-#include <string.h>
-#include <QUrl>
+#include <iostream>
+#include <cstring>
+#include <QObject>
+#include <QWebFrame>
+#include <QApplication>
+
 #include <yipit/hollow/hollow.h>
-#include "manager.h"
-#include "error.h"
+#include <yipit/hollow/error.h>
+#include <yipit/hollow/webpage.h>
 
-struct y_hollow
+
+// Mocking the values to pass to QApplication
+static int argc = 1;
+static char *argv[] = { (char *) "sleepy-hollow", 0 };
+
+Hollow::Hollow(QObject *parent)
+  : QObject(parent)
+  , hasErrors(false)
 {
-  Manager *manager;
-};
+  // Creating the app that will run untill we get the data
+  app = new QApplication(argc, argv);
 
+  // This must be instantiated *after* the app
+  page = new WebPage();
 
-y_hollow_t *
-y_hollow_new (void)
-{
-  y_hollow_t *hollow;
-
-  hollow = (y_hollow_t *) malloc (sizeof (y_hollow_t));
-  hollow->manager = new Manager();
-  return hollow;
+  // This app will die when we finish downloading our stuff
+  QObject::connect((QObject *) page->mainFrame(), SIGNAL(loadFinished(bool)),
+                   this, SLOT(proxyExit(bool)));
 }
 
 
 void
-y_hollow_free (y_hollow_t *hollow)
+Hollow::proxyExit(bool ok)
 {
-  delete hollow->manager;
-  free (hollow);
+  QApplication::exit();
+
+  // Just marking the last request didn't work. The getUrlContent method
+  // will handle that.
+  hasErrors = !ok;
 }
 
 
-char *
-y_hollow_load (y_hollow_t *hollow, const char *url)
+Hollow::~Hollow()
 {
-  QUrl qurl(url);
-  try {
-    return strdup (hollow->manager->getUrlContent(qurl).toAscii().data());
-  } catch (UrlNotLoadedProperly& exc) {
-    fprintf (stderr, "Fuck! %s", exc.what());
-    return NULL;
-  }
+  delete page;
+}
+
+
+const char *
+Hollow::getUrlContent(const std::string url) throw (UrlNotLoadedProperly)
+{
+  QUrl qurl(QString::fromStdString(url));
+
+  page->mainFrame()->setUrl(qurl);
+  app->exec();
+  if (hasErrors)
+    throw UrlNotLoadedProperly(page->getCurrentError().toAscii().data());
+  else
+    return page->mainFrame()->toHtml().toUtf8().constData();
 }

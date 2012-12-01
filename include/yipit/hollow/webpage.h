@@ -1,7 +1,7 @@
 // -*- Mode: c++; tab-width: 2 -*-
 
-#ifndef WEBVIEW_H
-#define WEBVIEW_H
+#ifndef HOLLOW_WEBVIEW_H
+#define HOLLOW_WEBVIEW_H
 
 #include <QNetworkReply>
 #include <QWebPage>
@@ -22,4 +22,4 @@ private:
   QString m_currentError;
 };
 
-#endif
+#endif  // HOLLOW_WEBVIEW_H

@@ -1,18 +1,31 @@
-#ifndef YIPIT_HEADLESS_H
-#define YIPIT_HEADLESS_H
+// -*- Mode: c++; tab-width: 2 -*-
 
-#ifdef __cplusplus
-extern "C" {
-#endif
+#ifndef HOLLOW_H
+#define HOLLOW_H
 
-typedef struct y_hollow y_hollow_t;
+#include <QObject>
+#include <QApplication>
 
-y_hollow_t *y_hollow_new (void);
-void y_hollow_free (y_hollow_t *hollow);
-char *y_hollow_load (y_hollow_t *hollow, const char *url);
+#include <yipit/hollow/error.h>
+#include <yipit/hollow/webpage.h>
 
-#ifdef __cplusplus
-}
-#endif
+class Hollow : public QObject
+{
+  Q_OBJECT
+
+public:
+  Hollow (QObject *parent=0);
+  ~Hollow();
+  const char *getUrlContent(const std::string url) throw (UrlNotLoadedProperly);
+
+private slots:
+  void proxyExit(bool ok);
+
+private:
+  QApplication *app;
+  WebPage *page;
+  bool hasErrors;
+};
+
 
 #endif

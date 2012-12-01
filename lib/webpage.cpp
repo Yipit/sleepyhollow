@@ -3,7 +3,8 @@
 #include <QUrl>
 #include <QWebPage>
 #include <QWebFrame>
-#include "webpage.h"
+#include <QNetworkReply>
+#include <yipit/hollow/webpage.h>
 
 
 WebPage::WebPage(QObject *parent)
