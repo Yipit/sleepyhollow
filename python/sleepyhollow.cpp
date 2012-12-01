@@ -154,6 +154,17 @@ SleepyHollow_dealloc (SleepyHollow  *self)
 
 
 static PyObject *
+SleepyHollow_request (SleepyHollow *self, PyObject *args)
+{
+  char *url, *method;
+  PyObject *response;
+  if (!PyArg_ParseTuple (args, "ss", &method, &url))
+    return NULL;
+  return _response_new (200, "Very Simple", &SleepyHollow_ResponseType);
+}
+
+
+static PyObject *
 SleepyHollow_get (SleepyHollow *self, PyObject *args)
 {
   char *url;
@@ -189,6 +200,9 @@ static struct PyMemberDef SleepyHollow_members[] = {
 
 
 static PyMethodDef SleepyHollow_methods[] = {
+
+  {"request", (PyCFunction) SleepyHollow_request,
+   METH_VARARGS, "Constructs and sends a Request. Returns Response object."},
 
   {"get", (PyCFunction) SleepyHollow_get,
    METH_VARARGS, "Sends a GET request. Returns Response object"},

@@ -18,6 +18,18 @@ def test_load(context):
 
 
 @server_test_case
+def test_request_api(context):
+    sl = SleepyHollow()
+    response1 = sl.request('get', context.route_to("/simple"))
+    response2 = sl.get(context.route_to("/simple"))
+
+    response1.status_code.should.equal(response2.status_code)
+    response1.text.should.equal(response2.text)
+    response1.content.should.equal(response2.content)
+    response1.json.should.equal(response2.json)
+
+
+@server_test_case
 def test_response(context):
     "Retrieving the response object using the get method"
     sl = SleepyHollow()
@@ -33,3 +45,5 @@ def test_response(context):
     # Now let's test the values
     response.status_code.should.equal(200)
     expect('Very Simple').to.be.within(response.text)
+
+
