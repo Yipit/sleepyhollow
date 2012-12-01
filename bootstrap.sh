@@ -9,6 +9,7 @@ export LD_LIBRARY_PATH=`pwd`/tests
 # Cleanup
 > .gitignore
 git clean -df
+git checkout .gitignore
 
 # Compilation
 ./autogen.sh
