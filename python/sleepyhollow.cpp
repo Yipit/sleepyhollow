@@ -18,7 +18,7 @@
 
 /* Exceptions */
 
-PyObject *SleepyHollowError, *InvalidUrlError;
+PyObject *SleepyHollowError, *InvalidUrlError, *ConnectionRefusedError;
 
 
 /* The response object */
@@ -146,7 +146,9 @@ _request_url (SleepyHollow *self, const char *method, const char *url)
     switch (error->code())
       {
       case Error::INVALID_URL:
-        return PyErr_Format (InvalidUrlError, "%s\n", error->what());
+        return PyErr_Format (InvalidUrlError, "%s", error->what());
+      case Error::CONNECTION_REFUSED:
+        return PyErr_Format (ConnectionRefusedError, "%s", error->what());
       default:
         return PyErr_Format (SleepyHollowError, "Unknown Error");
       }
@@ -323,7 +325,11 @@ initsleepyhollow (void)
 
   InvalidUrlError = PyErr_NewException ((char *) "sleepyhollow.InvalidUrlError",
                                         SleepyHollowError, NULL);
-  PyDict_SetItemString (d, (char *)"InvalidUrlError", InvalidUrlError);
+  PyDict_SetItemString (d, (char *) "InvalidUrlError", InvalidUrlError);
+
+  ConnectionRefusedError = PyErr_NewException ((char *) "sleepyhollow.ConnectionRefusedError",
+                                               SleepyHollowError, NULL);
+  PyDict_SetItemString (d, (char *) "ConnectionRefusedError", ConnectionRefusedError);
 
   /* Adding the classes */
 

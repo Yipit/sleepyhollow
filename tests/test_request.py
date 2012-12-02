@@ -1,8 +1,9 @@
-#!/usr/bin/env python
 # -*- coding: utf-8 -*-
 from sure import expect
-from sleepyhollow import SleepyHollow, Response, InvalidUrlError
 from tests.helpers import server_test_case
+from sleepyhollow import (
+    SleepyHollow, Response, InvalidUrlError, ConnectionRefusedError
+)
 
 
 @server_test_case
@@ -36,6 +37,12 @@ def test_invalid_url(context):
     sl.get.when.called_with('invalid url').should.throw(
         InvalidUrlError,
         'The url "invalid url" is not valid: You need to inform a scheme')
+
+
+def test_connection_refused():
+    sl = SleepyHollow()
+    sl.get.when.called_with('http://blah').should.throw(
+        ConnectionRefusedError)
 
 
 @server_test_case

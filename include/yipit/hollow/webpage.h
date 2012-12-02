@@ -5,6 +5,7 @@
 
 #include <QNetworkReply>
 #include <QWebPage>
+#include <yipit/hollow/response.h>
 
 class WebPage : public QWebPage
 {
@@ -12,14 +13,14 @@ class WebPage : public QWebPage
 
 public:
   WebPage(QObject *parent=0);
-  QString getCurrentError(void);
+  Response *lastResponse();
 
 private slots:
   void handleNetworkReplies(QNetworkReply *);
 
 private:
   QNetworkAccessManager *m_networkAccessManager;
-  QString m_currentError;
+  Response *m_lastResponse;
 };
 
 #endif  // HOLLOW_WEBVIEW_H

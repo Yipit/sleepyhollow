@@ -64,6 +64,9 @@ Hollow::getUrlContent(const std::string url)
 Response *
 Hollow::request (const char* method, const char* url)
 {
+  // Just doing get for now
+  Q_UNUSED(method);
+
   // First of all, let's see if this url is valid and contains a valid
   // scheme
   QUrl qurl(QString::fromStdString(url));
@@ -77,6 +80,20 @@ Hollow::request (const char* method, const char* url)
     return NULL;
   }
 
-  Q_UNUSED(method);
-  return new Response(0, "");
+  page->mainFrame()->setUrl(qurl);
+
+  // This app will exit when the webpage fires the loadFinished()
+  // signal. See proxyExit().
+  app->exec();
+
+  if (hasErrors) {
+    // The error was properly set in the WebPage::handleNetworkReplies()
+    // method, so we just need to return NULL to notify the caller that
+    // something didn't work.
+    return NULL;
+  } else {
+    // Yay! Let's return the response object created by the webpage
+    // after receiving a network reply.
+    return page->lastResponse();
+  }
 }

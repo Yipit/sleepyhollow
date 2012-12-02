@@ -15,7 +15,9 @@ public:
   const char* what(void);
 
   enum {
-    INVALID_URL
+    UNKNOWN,
+    INVALID_URL,
+    CONNECTION_REFUSED
   };
 
 private:
