@@ -1,1 +1,1 @@
-pkginclude_HEADERS = hollow.h
+pkginclude_HEADERS = error.h hollow.h response.h webpage.h

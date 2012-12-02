@@ -1,5 +1,4 @@
 #include <iostream>
-#include <cstring>
 #include <QObject>
 #include <QWebFrame>
 #include <QApplication>
@@ -7,6 +6,7 @@
 #include <yipit/hollow/hollow.h>
 #include <yipit/hollow/error.h>
 #include <yipit/hollow/webpage.h>
+#include <yipit/hollow/response.h>
 
 
 // Mocking the values to pass to QApplication
@@ -47,14 +47,36 @@ Hollow::~Hollow()
 
 
 const char *
-Hollow::getUrlContent(const std::string url) throw (UrlNotLoadedProperly)
+Hollow::getUrlContent(const std::string url)
 {
   QUrl qurl(QString::fromStdString(url));
 
   page->mainFrame()->setUrl(qurl);
   app->exec();
-  if (hasErrors)
-    throw UrlNotLoadedProperly(page->getCurrentError().toAscii().data());
-  else
+  if (hasErrors) {
+    return NULL;
+  } else {
     return page->mainFrame()->toHtml().toUtf8().constData();
+  }
+}
+
+
+Response *
+Hollow::request (const char* method, const char* url)
+{
+  // First of all, let's see if this url is valid and contains a valid
+  // scheme
+  QUrl qurl(QString::fromStdString(url));
+  if (!qurl.isValid() || qurl.scheme().isEmpty()) {
+    QString qerr = qurl.errorString();
+    QString err("The url \"%1\" is not valid: %2");
+    err = err.arg(url, (!qerr.isEmpty() ? qerr : "You need to inform a scheme"));
+
+    // Reporting the error
+    Error::set(Error::INVALID_URL, err.toUtf8().data());
+    return NULL;
+  }
+
+  Q_UNUSED(method);
+  return new Response(0, "");
 }

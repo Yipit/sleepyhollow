@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 from sure import expect
-from sleepyhollow import SleepyHollow, Response
+from sleepyhollow import SleepyHollow, Response, InvalidUrlError
 from tests.helpers import server_test_case
 
 
@@ -27,6 +27,15 @@ def test_request_api(context):
     response1.text.should.equal(response2.text)
     response1.content.should.equal(response2.content)
     response1.json.should.equal(response2.json)
+
+
+@server_test_case
+def test_invalid_url(context):
+    sl = SleepyHollow()
+
+    sl.get.when.called_with('invalid url').should.throw(
+        InvalidUrlError,
+        'The url "invalid url" is not valid: You need to inform a scheme')
 
 
 @server_test_case

@@ -8,6 +8,7 @@
 
 #include <yipit/hollow/error.h>
 #include <yipit/hollow/webpage.h>
+#include <yipit/hollow/response.h>
 
 class Hollow : public QObject
 {
@@ -16,7 +17,8 @@ class Hollow : public QObject
 public:
   Hollow (QObject *parent=0);
   ~Hollow();
-  const char *getUrlContent(const std::string url) throw (UrlNotLoadedProperly);
+  Response* request(const char* method, const char* url);
+  const char* getUrlContent(const std::string url);
 
 private slots:
   void proxyExit(bool ok);

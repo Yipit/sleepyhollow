@@ -2,6 +2,8 @@
 #include <structmember.h>
 
 #include <yipit/hollow/hollow.h>
+#include <yipit/hollow/error.h>
+#include <yipit/hollow/response.h>
 #include "sleepyhollow.h"
 
 #ifdef UNUSED
@@ -12,6 +14,12 @@
 #else
 # define UNUSED(x) x
 #endif
+
+
+/* Exceptions */
+
+PyObject *SleepyHollowError, *InvalidUrlError;
+
 
 /* The response object */
 
@@ -35,8 +43,8 @@ _response_new (int status_code, const char *text, PyTypeObject *type)
 
 static PyObject *
 SleepyHollow_Response_new (PyTypeObject *type,
-                           PyObject *args,
-                           PyObject *kwargs)
+                           PyObject *UNUSED(args),
+                           PyObject *UNUSED(kwargs))
 {
   PyObject *self = _response_new (0, "", type);
   return self;
@@ -52,17 +60,17 @@ SleepyHollow_Response_dealloc (SleepyHollow_Response  *self)
 }
 
 static struct PyMemberDef SleepyHollow_Response_members[] = {
-  {"status_code", T_INT, offsetof (SleepyHollow_Response, status_code), 0,
-   "The HTTP status of the request"},
+  {(char *) "status_code", T_INT, offsetof (SleepyHollow_Response, status_code), 0,
+   (char *) "The HTTP status of the request"},
 
-  {"text", T_OBJECT, offsetof (SleepyHollow_Response, text), 0,
-   "The encoded content returned from a request"},
+  {(char *) "text", T_OBJECT, offsetof (SleepyHollow_Response, text), 0,
+   (char *) "The encoded content returned from a request"},
 
-  {"content", T_STRING, offsetof (SleepyHollow_Response, content), 0,
-   "The binary content returned from a request"},
+  {(char *) "content", T_STRING, offsetof (SleepyHollow_Response, content), 0,
+   (char *) "The binary content returned from a request"},
 
-  {"json", T_OBJECT, offsetof (SleepyHollow_Response, json), 0,
-   "Returns the json-encoded content of a response, if any"},
+  {(char *) "json", T_OBJECT, offsetof (SleepyHollow_Response, json), 0,
+   (char *) "Returns the json-encoded content of a response, if any"},
 
   { NULL, 0, 0, 0, 0 },         /* Sentinel */
 };
@@ -125,6 +133,30 @@ static PyTypeObject SleepyHollow_ResponseType = {
 };
 
 
+/* Functions to help to interact with libhollow */
+
+static PyObject *
+_request_url (SleepyHollow *self, const char *method, const char *url)
+{
+  Response *resp;
+  Error *error;
+
+  resp = self->hollow->request (method, url);
+  if ((error = Error::last()) != NULL)
+    switch (error->code())
+      {
+      case Error::INVALID_URL:
+        return PyErr_Format (InvalidUrlError, "%s\n", error->what());
+      default:
+        return PyErr_Format (SleepyHollowError, "Unknown Error");
+      }
+
+  return _response_new (200, // resp->getStatusCode(),
+                        "Very Simple", // resp->getText().c_str(),
+                        &SleepyHollow_ResponseType);
+}
+
+
 /* The SleepyHollow class */
 
 static PyObject *
@@ -156,22 +188,20 @@ SleepyHollow_dealloc (SleepyHollow  *self)
 static PyObject *
 SleepyHollow_request (SleepyHollow *self, PyObject *args)
 {
-  char *url, *method;
-  PyObject *response;
+  const char *url, *method;
   if (!PyArg_ParseTuple (args, "ss", &method, &url))
     return NULL;
-  return _response_new (200, "Very Simple", &SleepyHollow_ResponseType);
+  return _request_url (self, method, url);
 }
 
 
 static PyObject *
 SleepyHollow_get (SleepyHollow *self, PyObject *args)
 {
-  char *url;
-  PyObject *response;
+  const char *url;
   if (!PyArg_ParseTuple (args, "s", &url))
     return NULL;
-  return _response_new (200, "Very Simple", &SleepyHollow_ResponseType);
+  return _request_url (self, "get", url);
 }
 
 
@@ -179,18 +209,12 @@ static PyObject *
 SleepyHollow_load (SleepyHollow *self, PyObject *args)
 {
   char *url;
+  const char *content;
   if (!PyArg_ParseTuple (args, "s", &url))
     return NULL;
-  try
-    {
-      const char *content = self->hollow->getUrlContent (url);
-      return PyString_FromString (content);
-    }
-  catch (std::exception &exc)
-    {
-      Py_INCREF (Py_None);
-      return Py_None;
-    }
+  if ((content = self->hollow->getUrlContent (url)) == NULL)
+    Py_RETURN_NONE;
+  return PyString_FromString (content);
 }
 
 
@@ -268,7 +292,6 @@ static PyTypeObject SleepyHollowType = {
 
 /* The module definition */
 
-
 static PyMethodDef module_methods[] = {
   {NULL, NULL, 0, NULL}         /* Sentinel */
 };
@@ -277,6 +300,7 @@ PyMODINIT_FUNC
 initsleepyhollow (void)
 {
   PyObject *m;
+  PyObject *d;
 
   if (PyType_Ready (&SleepyHollowType) < 0)
     return;
@@ -287,9 +311,30 @@ initsleepyhollow (void)
   if ((m = Py_InitModule ("sleepyhollow", module_methods)) == NULL)
     return;
 
+  /* Getting the module dictionary */
+  if ((d = PyModule_GetDict (m)) == NULL)
+    goto error;
+
+  /* Adding our custom exceptions to the module */
+
+  SleepyHollowError = PyErr_NewException ((char *) "sleepyhollow.Error",
+                                          PyExc_StandardError, NULL);
+  PyDict_SetItemString (d, (char *) "Error", SleepyHollowError);
+
+  InvalidUrlError = PyErr_NewException ((char *) "sleepyhollow.InvalidUrlError",
+                                        SleepyHollowError, NULL);
+  PyDict_SetItemString (d, (char *)"InvalidUrlError", InvalidUrlError);
+
+  /* Adding the classes */
+
   Py_INCREF (&SleepyHollowType);
   PyModule_AddObject (m, "SleepyHollow", (PyObject *) &SleepyHollowType);
 
   Py_INCREF (&SleepyHollow_ResponseType);
   PyModule_AddObject (m, "Response", (PyObject *) &SleepyHollow_ResponseType);
+
+  /* Error Handling */
+ error:
+  if (PyErr_Occurred ())
+    PyErr_SetString (PyExc_ImportError, "sleepyhollow: init failed");
 }
