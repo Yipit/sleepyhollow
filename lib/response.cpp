@@ -2,16 +2,18 @@
 #include <cstring>
 #include <yipit/hollow/response.h>
 
-Response::Response (int statusCode, const char* text)
+Response::Response (int statusCode, const char* text, const char* reason)
 {
   m_statusCode = statusCode;
   m_text = strdup (text);
+  m_reason = strdup (reason);
 }
 
 
 Response::~Response()
 {
   free (m_text);
+  free (m_reason);
 }
 
 
@@ -29,8 +31,17 @@ Response::getText (void)
 }
 
 
+void
+Response::setText(const char* text)
+{
+  if (m_text)
+    free(m_text);
+  m_text = strdup(text);
+}
+
+
 const char *
 Response::getReason (void)
 {
-  return "";
+  return m_reason;
 }

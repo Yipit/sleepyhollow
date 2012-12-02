@@ -24,6 +24,24 @@ WebPage::WebPage(QObject *parent)
 }
 
 
+Response *
+WebPage::buildResponseFromNetworkReply(QNetworkReply *reply)
+{
+  QVariant statusCode = reply->attribute(QNetworkRequest::HttpStatusCodeAttribute);
+  QVariant reason = reply->attribute(QNetworkRequest::HttpReasonPhraseAttribute);
+
+  // Not an HTTP error, let's give up
+  if (!statusCode.isValid())
+    return NULL;
+
+  // We can't set the content right now, so we'll fill the text with an
+  // empty string and let the ::lastResponse() method fill with the
+  // right content
+  return new Response(statusCode.toInt(), "",
+                      reason.toString().toAscii().constData());
+}
+
+
 void
 WebPage::handleNetworkReplies(QNetworkReply *reply)
 {
@@ -40,7 +58,7 @@ WebPage::handleNetworkReplies(QNetworkReply *reply)
   case QNetworkReply::NoError:
     // Creating the new response object with the info gathered from this
     // reply
-    m_lastResponse = new Response(0, "");
+    m_lastResponse = buildResponseFromNetworkReply(reply);
     break;
 
   case QNetworkReply::ConnectionRefusedError:
@@ -48,7 +66,11 @@ WebPage::handleNetworkReplies(QNetworkReply *reply)
     break;
 
   default:
-    Error::set(Error::UNKNOWN, reply->errorString().toAscii().constData());
+    // Maybe we can create a response when an error happens. If the
+    // reply does not have all the data needed to create it, the method
+    // buildResponseFromNetworkReply() will return NULL.
+    if ((m_lastResponse = buildResponseFromNetworkReply(reply)) == NULL)
+      Error::set(Error::UNKNOWN, reply->errorString().toAscii().constData());
     break;
   }
 }
@@ -57,5 +79,11 @@ WebPage::handleNetworkReplies(QNetworkReply *reply)
 Response *
 WebPage::lastResponse()
 {
+  if (m_lastResponse) {
+    // We're setting this value here because we can't get the response
+    // text before this point. We have to wait the page to be processed
+    // by the html engine after finishing the request.
+    m_lastResponse->setText(mainFrame()->toHtml().toUtf8().constData());
+  }
   return m_lastResponse;
 }

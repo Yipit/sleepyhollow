@@ -14,10 +14,12 @@ typedef struct {
 typedef struct
 {
   PyObject_HEAD;
+  Response *response;
   int status_code;
   PyObject *text;
   PyObject *json;
-  const char *content;
+  char *content;
+  char *reason;
 } SleepyHollow_Response;
 
 #ifdef __cplusplus

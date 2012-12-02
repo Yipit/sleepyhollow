@@ -20,6 +20,12 @@ class SimpleHandler(RequestHandler):
         self.render('{}.html'.format(name))
 
 
+class StatusHandler(RequestHandler):
+    def get(self, status):
+        self.set_status(int(status))
+        self.render('status.html', status=status)
+
+
 class AuthHandler(RequestHandler):
     def ask_for_pw(self):
         self.set_status(401)
@@ -66,6 +72,7 @@ class Server(object):
     @classmethod
     def get_handlers(cls, options):
         return Application([
+            (r"/status-(\d+)", StatusHandler),
             (r"/(\w+)", SimpleHandler),
             (r"/auth/(\w+)", AuthHandler),
             (r"/media/(.*)", StaticFileHandler, {"path": LOCAL_FILE('media')}),

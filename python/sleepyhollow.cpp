@@ -24,30 +24,25 @@ PyObject *SleepyHollowError, *InvalidUrlError, *ConnectionRefusedError;
 /* The response object */
 
 PyObject *
-_response_new (int status_code, const char *text, PyTypeObject *type)
+_response_new (Response *response, PyTypeObject *type)
 {
   SleepyHollow_Response *self;
   if ((self = (SleepyHollow_Response *) type->tp_alloc (type, 0)) == NULL)
     return NULL;
 
+  if (response == NULL)
+    return (PyObject *) self;
+
   /* For `self->json' */
   Py_INCREF (Py_None);
 
-  self->status_code = status_code;
-  self->text = PyUnicode_FromString (text);
-  self->content = text;
+  self->response = response;
+  self->status_code = response->getStatusCode();
+  self->text = PyUnicode_FromString (response->getText());
+  self->reason = strdup (response->getReason ());
+  self->content = strdup (response->getText());
   self->json = Py_None;
   return (PyObject *) self;
-}
-
-
-static PyObject *
-SleepyHollow_Response_new (PyTypeObject *type,
-                           PyObject *UNUSED(args),
-                           PyObject *UNUSED(kwargs))
-{
-  PyObject *self = _response_new (0, "", type);
-  return self;
 }
 
 
@@ -56,6 +51,8 @@ SleepyHollow_Response_dealloc (SleepyHollow_Response  *self)
 {
   Py_DECREF (self->text);
   Py_DECREF (self->json);
+  free (self->reason);
+  free (self->content);
   self->ob_type->tp_free ((PyObject *) self);
 }
 
@@ -68,6 +65,9 @@ static struct PyMemberDef SleepyHollow_Response_members[] = {
 
   {(char *) "content", T_STRING, offsetof (SleepyHollow_Response, content), 0,
    (char *) "The binary content returned from a request"},
+
+  {(char *) "reason", T_STRING, offsetof (SleepyHollow_Response, reason), 0,
+   (char *) "The HTTP Reason for the response"},
 
   {(char *) "json", T_OBJECT, offsetof (SleepyHollow_Response, json), 0,
    (char *) "Returns the json-encoded content of a response, if any"},
@@ -120,7 +120,7 @@ static PyTypeObject SleepyHollow_ResponseType = {
   0,                                        /* tp_dictoffset */
   0,                                        /* tp_init */
   0,                                        /* tp_alloc */
-  SleepyHollow_Response_new,                /* tp_new */
+  0,                                        /* tp_new */
   0,
   0,
   0,
@@ -153,9 +153,7 @@ _request_url (SleepyHollow *self, const char *method, const char *url)
         return PyErr_Format (SleepyHollowError, "Unknown Error");
       }
 
-  return _response_new (200, // resp->getStatusCode(),
-                        "Very Simple", // resp->getText().c_str(),
-                        &SleepyHollow_ResponseType);
+  return _response_new (resp, &SleepyHollow_ResponseType);
 }
 
 

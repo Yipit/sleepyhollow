@@ -21,6 +21,7 @@ private slots:
 private:
   QNetworkAccessManager *m_networkAccessManager;
   Response *m_lastResponse;
+  Response *buildResponseFromNetworkReply(QNetworkReply *reply);
 };
 
 #endif  // HOLLOW_WEBVIEW_H
