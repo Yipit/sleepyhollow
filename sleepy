@@ -58,6 +58,15 @@ cleanup () {
     git checkout .gitignore
 }
 
+continuous-integration () {
+    export NON_VERBOSE="yes"
+    cleanup
+    compile
+    mkvirtualenv --distribute --no-site-packages sleepy-hollow
+    pip install -r requirements.pip
+    tests
+    exit $?
+}
 
 compile () {
     # Compilation
@@ -154,6 +163,11 @@ show-help () {
     echo "          ./sleepy server 8080"
     echo "          ./sleepy server"
     echo
+    echo "  ci/continuous-integration - run the tests aimed on continuous integration (i.e.: jenkins)"
+    echo "      EXAMPLES:"
+    echo "          ./sleepy ci"
+    echo "          ./sleepy continuous-integration"
+    echo
 
 }
 
@@ -202,6 +216,7 @@ if [ "$0" != "-bash" ]; then
             "-d" | "distribute" | "dist") logo;distribute;exit $?;;
             "server") logo;server $2;;
             "-c" | "compile") logo;compile ;exit $?;;
+            "ci" | "continuous-integration") logo;continuous-integration ;exit $?;;
             "-h" | "help") logo;show-help;exit $?;;
             *) all $*; exit $?;;
         esac
