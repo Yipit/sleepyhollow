@@ -72,6 +72,7 @@ cleanup () {
     > .gitignore
     git clean -qdf
     git checkout .gitignore
+    rm -f tests/*.{dylib,so}
     color.green "OK\n"
 }
 
@@ -134,12 +135,11 @@ server.stop () {
 
 tests () {
     server.start
-    if [ "$SHOULD_CLEANUP" == "yes" ]; then
-        cleanup
-    fi;
     # Making it easier to run the tests
     if [ ! -e tests/*.so ]; then
         compile
+    else
+        (make 2>&1) 2>&1 >>sleepy.log
     fi;
     if [ "$?" != "0" ]; then
         exit 1;
@@ -156,10 +156,6 @@ tests () {
 
     exit_status="$?"
 
-    if [ "$SHOULD_CLEANUP" == "yes" ]; then
-        # Cleaning up
-        rm -f tests/*.{dylib,so}
-    fi;
     server.stop
     exit $exit_status
 }
@@ -189,17 +185,14 @@ show-help () {
     echo "          ./sleepy sneeze"
     echo "          ./sleepy -s"
     echo
-    echo "  nap/quick/-q - run the tests without cleaning up afterwards"
-    echo "      EXAMPLES:"
-    echo "          ./sleepy nap"
-    echo "          ./sleepy quick"
-    echo "          ./sleepy -s"
-    echo
     echo "  compile/-c - compile sleepy hollow"
     echo "      EXAMPLES:"
     echo "          ./sleepy compile"
     echo "          ./sleepy -c"
     echo
+    echo "  shell - runs an interactive shell with sleepy hollow enabled"
+    echo "      EXAMPLES:"
+    echo "          ./sleepy shell"
     echo "  distribute/-d/dist - compile sleepy hollow and prepare it for a release"
     echo "      EXAMPLES:"
     echo "          ./sleepy dist"
@@ -253,12 +246,6 @@ all () {
 if [ "$0" != "-bash" ]; then
     while [ "$1" ]; do
         case $1 in
-            "-q" | "nap" | "quick")
-                show.logo;
-                export SHOULD_CLEANUP="no";
-                set-verbose
-                tests;
-                exit $?;;
             "-t" | "test") show.logo;tests;exit $?;;
             "-v" | "--verbose") set-verbose;;
             "-s" | "sneeze" | "clean" | "cleanup") cleanup;;
