@@ -5,6 +5,7 @@
 
 export DYLD_LIBRARY_PATH=`pwd`/tests
 export LD_LIBRARY_PATH=`pwd`/tests
+export PYTHONPATH=`pwd`/tests:`pwd`:$PYTHONPATH
 SHOULD_CLEANUP="yes"
 NON_VERBOSE="yes"
 
@@ -148,6 +149,11 @@ show-help () {
     echo "          ./sleepy -d"
     echo "          ./sleepy distribute"
     echo
+    echo "  server [port] - runs the builtin test server on the given port (defaults to 4000 if no port is provided)"
+    echo "      EXAMPLES:"
+    echo "          ./sleepy server 8080"
+    echo "          ./sleepy server"
+    echo
 
 }
 
@@ -161,6 +167,10 @@ distribute () {
     echo "OK"
     echo
     echo "Sleepy hollow files are available under `pwd`/dist"
+}
+
+server () {
+    python tests/server/__init__.py $1
 }
 
 all () {
@@ -190,9 +200,10 @@ if [ "$0" != "-bash" ]; then
             "-v" | "--verbose") set-verbose;;
             "-s" | "sneeze") cleanup;exit $?;;
             "-d" | "distribute" | "dist") logo;distribute;exit $?;;
+            "server") logo;server $2;;
             "-c" | "compile") logo;compile ;exit $?;;
             "-h" | "help") logo;show-help;exit $?;;
-            *) all $1; exit $?;;
+            *) all $*; exit $?;;
         esac
         shift
     done

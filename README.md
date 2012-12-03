@@ -48,4 +48,13 @@ or if you want to debug the output, use the `--verbose` mode:
 ./sleepy release
 ```
 
+### running the test server manually
+
+Sleepy Hollow test suite comes with a builtin tornado server, you can
+run it with
+
+```bash
+./sleepy server 4000
+```
+
 ![http://f.cl.ly/items/1j030T0w1J2V1O171F0N/Screen%20Shot%202012-12-03%20at%201.22.52%20PM.png](http://f.cl.ly/items/1j030T0w1J2V1O171F0N/Screen%20Shot%202012-12-03%20at%201.22.52%20PM.png)
