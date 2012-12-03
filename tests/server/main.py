@@ -58,8 +58,6 @@ class AuthHandler(RequestHandler):
 
 
 class Server(object):
-    is_running = False
-
     def __init__(self, port):
         self.port = int(port)
         self.process = None
@@ -88,12 +86,8 @@ class Server(object):
         data = {}
         args = (app, self.port, data)
         self.process = Process(target=go, args=args)
+        self.process.daemon = True
         self.process.start()
 
     def stop(self):
-        try:
-            os.kill(self.process.pid, 9)
-        except OSError:
-            self.process.terminate()
-        finally:
-            self.is_running = False
+        self.process.terminate()
