@@ -62,6 +62,9 @@ continuous-integration () {
     export NON_VERBOSE="yes"
     cleanup
     compile
+    pip install -U distribute
+    pip install -U virtualenvwrapper
+    source `which virtualenvwrapper.sh`
     mkvirtualenv --distribute --no-site-packages sleepy-hollow
     pip install -r requirements.pip
     tests
