@@ -221,6 +221,7 @@ if [ "$0" != "-bash" ]; then
             "-q" | "nap" | "quick")
                 logo;
                 export SHOULD_CLEANUP="no";
+                set-verbose
                 tests;
                 exit $?;;
             "-t" | "test") logo;tests;exit $?;;
