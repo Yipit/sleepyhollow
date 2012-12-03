@@ -1,12 +1,10 @@
 # -*- coding: utf-8 -*-
+import os
 from sure import scenario
-from tests.server import Server
 
 
 def prepare_server(context):
-    context.port = 4000
-    context.server = Server(context.port)
-    context.server.start()
+    context.port = int(os.environ['TEST_SERVER_PORT'])
 
     def route_to(path):
         params = context.port, path.lstrip('/')
@@ -16,7 +14,7 @@ def prepare_server(context):
 
 
 def clear_server(context):
-    context.server.stop()
+    pass
 
 
 server_test_case = scenario(prepare_server, clear_server)
