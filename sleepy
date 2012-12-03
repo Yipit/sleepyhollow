@@ -79,7 +79,6 @@ continuous-integration () {
         _broken
         exit 1
     fi;
-    set-verbose
     cleanup
     compile
     source `which virtualenvwrapper.sh`
