@@ -19,7 +19,7 @@ need a full-stack browser and yet, we need it to be headless.
 
 ```bash
 brew upgrade
-brew install qt
+brew install qt autogen automake autoconf
 ```
 
 #### 2. Create a virtual env and install dependencies
