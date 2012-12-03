@@ -34,3 +34,4 @@ tests/*.so
 tests/*.dylib
 sleepy.log
 dist/
+sleepy-hollow-0.0.1.tar.gz
