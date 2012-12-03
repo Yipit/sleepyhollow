@@ -102,7 +102,7 @@ compile () {
         echo
         cat sleepy.log
     else
-        echo_if_nonverbose "OK"
+        echo.nonverbose "OK"
     fi;
     if [ "$NON_VERBOSE" == 'yes' ]; then
         printf "Compiling sleepy hollow..."
@@ -114,14 +114,20 @@ compile () {
         echo
         cat sleepy.log
     else
-        echo_if_nonverbose "OK"
+        echo.nonverbose "OK"
     fi;
 }
 
 tests () {
+    if [ "$SHOULD_CLEANUP" == "yes" ]; then
+        cleanup
+    fi;
     # Making it easier to run the tests
     if [ ! -e tests/*.so ]; then
         compile
+    fi;
+    if [ "$?" != "0" ]; then
+        exit 1;
     fi;
     cp -f lib/.libs/*.dylib tests
     cp -f python/.libs/*.so tests
@@ -140,6 +146,12 @@ tests () {
         rm -f tests/*.{dylib,so}
     fi;
     exit $exit_status
+}
+
+shell () {
+    cp -f lib/.libs/*.dylib tests
+    cp -f python/.libs/*.so tests
+    ipython
 }
 
 show-help () {
@@ -233,7 +245,8 @@ if [ "$0" != "-bash" ]; then
                 exit $?;;
             "-t" | "test") show.logo;tests;exit $?;;
             "-v" | "--verbose") set-verbose;;
-            "-s" | "sneeze" | "clean" | "cleanup") cleanup;exit $?;;
+            "-s" | "sneeze" | "clean" | "cleanup") cleanup;;
+            "shell") shell;;
             "-d" | "distribute" | "dist") show.logo;distribute;exit $?;;
             "server") show.logo;server $2;;
             "-c" | "compile") show.logo;compile ;exit $?;;
