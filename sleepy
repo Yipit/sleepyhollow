@@ -67,13 +67,13 @@ cleanup () {
 }
 
 continuous-integration () {
-    set-verbose
-    cleanup
-    compile
     if [ ! -e `which virtualenvwrapper.sh` ]; then
         _broken
         exit 1
     fi;
+    set-verbose
+    cleanup
+    compile
     source `which virtualenvwrapper.sh`
     mkvirtualenv --distribute --no-site-packages sleepy-hollow
     pip install -r requirements.pip
