@@ -59,7 +59,7 @@ cleanup () {
 }
 
 continuous-integration () {
-    export NON_VERBOSE="yes"
+    set-verbose
     cleanup
     compile
     pip install -U distribute
