@@ -22,10 +22,11 @@ brew upgrade
 brew install qt
 ```
 
-#### 2. Create a virtual env
+#### 2. Create a virtual env and install dependencies
 
 ```bash
 mkvirtualenv sleepy-hollow
+pip install -r requirements.pip
 ```
 
 #### 3. Use the `sleepy` command to test it
