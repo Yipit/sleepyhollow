@@ -18,28 +18,25 @@ need a full-stack browser and yet, we need it to be headless.
 
 1. Install [QT](http://qt-project.org/doc/qt-4.8/qtwebkit.html), the core library for the browser
 
-```console
+```bash
 brew upgrade
 brew install qt
 ```
 
-2. Install [SIP](http://riverbankcomputing.co.uk/static/Docs/sip4/index.html), a library that leverages python bindings to C++
+2. Create a virtual env
 
-```console
-brew install sip
-```
-
-3. Install the python dependencies
-
-```console
+```bash
 mkvirtualenv sleepy-hollow
-make dependencies
 ```
 
-### build it !
+3. Use the `sleepy` command to test it
 
-The command below will build the module and run tests against it.
+```bash
+./sleepy test
+```
 
-```console
-make test
+### distributing
+
+```bash
+./sleepy release
 ```

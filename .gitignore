@@ -32,3 +32,5 @@ lib/test-hollow
 *.o
 tests/*.so
 tests/*.dylib
+sleepy.log
+dist/
