@@ -16,6 +16,14 @@ _red (){
     printf "\033[1;31m$1\033[0m"
 }
 
+_broken () {
+    _red 'dP                         dP                         \n'
+    _red '88                         88                         \n'
+    _red '88d888b. 88d888b. .d8888b. 88  .dP  .d8888b. 88d888b. \n'
+    _red '88`  `88 88`  `88 88`  `88 88888"   88ooood8 88`  `88 \n'
+    _red '88.  .88 88       88.  .88 88  `8b. 88.  ... 88    88 \n'
+    _red '88Y8888` dP       `88888P` dP   `YP `88888P` dP    dP \n'
+}
 echo_if_nonverbose () {
     if [ "$NON_VERBOSE" == 'yes' ]; then
         echo $*
@@ -62,8 +70,10 @@ continuous-integration () {
     set-verbose
     cleanup
     compile
-    pip install -U distribute
-    pip install -U virtualenvwrapper
+    if [ ! -e `which virtualenvwrapper.sh` ]; then
+        _broken
+        exit 1
+    fi;
     source `which virtualenvwrapper.sh`
     mkvirtualenv --distribute --no-site-packages sleepy-hollow
     pip install -r requirements.pip
