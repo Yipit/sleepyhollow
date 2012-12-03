@@ -30,3 +30,5 @@ lib/test-hollow
 *.moc.cpp
 *.l[oa]
 *.o
+tests/*.so
+tests/*.dylib
