@@ -15,7 +15,6 @@ need a full-stack browser and yet, we need it to be headless.
 
 ### install dependencies
 
-
 #### 1. Install [QT](http://qt-project.org/doc/qt-4.8/qtwebkit.html), the core library for the browser
 
 ```bash
@@ -35,11 +34,17 @@ mkvirtualenv sleepy-hollow
 ./sleepy test
 ```
 
+or if you want to debug the output, use the `--verbose` mode:
+
+```bash
+./sleepy -v test
+./sleepy --verbose test
+```
+
 ### distributing
 
 ```bash
 ./sleepy release
 ```
-
 
 ![http://f.cl.ly/items/1j030T0w1J2V1O171F0N/Screen%20Shot%202012-12-03%20at%201.22.52%20PM.png](http://f.cl.ly/items/1j030T0w1J2V1O171F0N/Screen%20Shot%202012-12-03%20at%201.22.52%20PM.png)
