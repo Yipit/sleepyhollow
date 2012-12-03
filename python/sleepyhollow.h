@@ -17,7 +17,7 @@ typedef struct
   Response *response;
   int status_code;
   PyObject *text;
-  PyObject *json;
+  PyObject *headers;
   char *content;
   char *reason;
 } SleepyHollow_Response;

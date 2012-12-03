@@ -33,15 +33,25 @@ _response_new (Response *response, PyTypeObject *type)
   if (response == NULL)
     return (PyObject *) self;
 
-  /* For `self->json' */
-  Py_INCREF (Py_None);
-
   self->response = response;
   self->status_code = response->getStatusCode();
   self->text = PyUnicode_FromString (response->getText());
   self->reason = strdup (response->getReason ());
   self->content = strdup (response->getText());
-  self->json = Py_None;
+  self->headers = PyDict_New();
+
+  QHash<QString, QString> headers = response->getHeaders();
+  QHashIterator<QString, QString> iterator(headers);
+
+  while (iterator.hasNext()) {
+    iterator.next();
+
+    PyObject *key = PyUnicode_FromString(iterator.key().toAscii().constData());
+    PyObject *value = PyUnicode_FromString(iterator.value().toAscii().constData());
+
+    PyDict_SetItem(self->headers, key, value);
+  }
+
   return (PyObject *) self;
 }
 
@@ -50,7 +60,7 @@ static void
 SleepyHollow_Response_dealloc (SleepyHollow_Response  *self)
 {
   Py_DECREF (self->text);
-  Py_DECREF (self->json);
+  Py_DECREF (self->headers);
   free (self->reason);
   free (self->content);
   self->ob_type->tp_free ((PyObject *) self);
@@ -69,8 +79,8 @@ static struct PyMemberDef SleepyHollow_Response_members[] = {
   {(char *) "reason", T_STRING, offsetof (SleepyHollow_Response, reason), 0,
    (char *) "The HTTP Reason for the response"},
 
-  {(char *) "json", T_OBJECT, offsetof (SleepyHollow_Response, json), 0,
-   (char *) "Returns the json-encoded content of a response, if any"},
+  {(char *) "headers", T_OBJECT, offsetof (SleepyHollow_Response, headers), 0,
+   (char *) "contains the headers from the server"},
 
   { NULL, 0, 0, 0, 0 },         /* Sentinel */
 };

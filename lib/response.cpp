@@ -2,11 +2,22 @@
 #include <cstring>
 #include <yipit/hollow/response.h>
 
-Response::Response (int statusCode, const char* text, const char* reason)
+Response::Response (int statusCode, const char* text, const char* reason, QNetworkReply* reply)
 {
   m_statusCode = statusCode;
   m_text = strdup (text);
   m_reason = strdup (reason);
+
+  QHash<QString, QString> headers;
+
+  foreach (QByteArray headerName, reply->rawHeaderList()) {
+    QString key = QString::fromUtf8(headerName);
+    QString value = QString::fromUtf8(reply->rawHeader(headerName));
+
+    headers[key] = value;
+  }
+
+  m_headers = headers;
 }
 
 
@@ -44,4 +55,11 @@ const char *
 Response::getReason (void)
 {
   return m_reason;
+}
+
+
+QHash<QString, QString>
+Response::getHeaders (void)
+{
+  return m_headers;
 }

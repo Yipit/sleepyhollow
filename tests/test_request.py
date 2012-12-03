@@ -16,7 +16,6 @@ def test_request_api(context):
     response1.reason.should.equal(response2.reason)
     response1.text.should.equal(response2.text)
     response1.content.should.equal(response2.content)
-    response1.json.should.equal(response2.json)
 
 
 @server_test_case
@@ -45,7 +44,6 @@ def test_response(context):
     response.status_code.should.be.an(int)
     response.text.should.be.a(unicode)
     response.content.should.be.a(str)
-    response.json.should.be.none
 
     # Now let's test the values
     response.status_code.should.equal(200)
@@ -71,3 +69,16 @@ def test_response_status_codes(context):
     response.reason.should.equal('Internal Server Error')
     expect('Status 500').to.be.within(response.text)
 
+
+@server_test_case
+def test_response_headers(context):
+    sl = SleepyHollow()
+
+    response = sl.get(context.route_to('/status-200'))
+
+    response.should.have.property('headers').being.a(dict)
+
+    response.headers.should.have.key('Content-Type').being.equal(u'text/html; charset=UTF-8')
+    response.headers.should.have.key('Server').being.equal(u'TornadoServer/2.4.1')
+    response.headers.should.have.key('Content-Length').being.equal(u'91')
+    response.headers.should.have.key('Etag').being.equal(u'"917c97d9437cbd1c1192f2f516e7155183b58232"')

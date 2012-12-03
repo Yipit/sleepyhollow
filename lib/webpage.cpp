@@ -38,7 +38,7 @@ WebPage::buildResponseFromNetworkReply(QNetworkReply *reply)
   // empty string and let the ::lastResponse() method fill with the
   // right content
   return new Response(statusCode.toInt(), "",
-                      reason.toString().toAscii().constData());
+                      reason.toString().toAscii().constData(), reply);
 }
 
 
