@@ -18,7 +18,6 @@ public:
   Hollow (QObject *parent=0);
   ~Hollow();
   Response* request(const char* method, const char* url);
-  const char* getUrlContent(const std::string url);
 
 private slots:
   void proxyExit(bool ok);

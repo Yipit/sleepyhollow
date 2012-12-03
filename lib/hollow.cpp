@@ -46,21 +46,6 @@ Hollow::~Hollow()
 }
 
 
-const char *
-Hollow::getUrlContent(const std::string url)
-{
-  QUrl qurl(QString::fromStdString(url));
-
-  page->mainFrame()->setUrl(qurl);
-  app->exec();
-  if (hasErrors) {
-    return NULL;
-  } else {
-    return page->mainFrame()->toHtml().toUtf8().constData();
-  }
-}
-
-
 Response *
 Hollow::request (const char* method, const char* url)
 {

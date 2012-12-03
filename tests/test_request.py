@@ -7,18 +7,6 @@ from sleepyhollow import (
 
 
 @server_test_case
-def test_load(context):
-    ("Loading a page with sleepy hollow")
-    sl = SleepyHollow()
-
-    response = sl.load(context.route_to("/simple"))
-    expect('Very Simple').to.be.within(response)
-
-    response = sl.load(context.route_to("/simple"))
-    expect('Very Simple').to.be.within(response)
-
-
-@server_test_case
 def test_request_api(context):
     sl = SleepyHollow()
     response1 = sl.request('get', context.route_to("/simple"))
@@ -82,3 +70,4 @@ def test_response_status_codes(context):
     response.status_code.should.equal(500)
     response.reason.should.equal('Internal Server Error')
     expect('Status 500').to.be.within(response.text)
+

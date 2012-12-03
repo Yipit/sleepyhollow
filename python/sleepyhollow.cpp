@@ -205,19 +205,6 @@ SleepyHollow_get (SleepyHollow *self, PyObject *args)
 }
 
 
-static PyObject *
-SleepyHollow_load (SleepyHollow *self, PyObject *args)
-{
-  char *url;
-  const char *content;
-  if (!PyArg_ParseTuple (args, "s", &url))
-    return NULL;
-  if ((content = self->hollow->getUrlContent (url)) == NULL)
-    Py_RETURN_NONE;
-  return PyString_FromString (content);
-}
-
-
 static struct PyMemberDef SleepyHollow_members[] = {
   { NULL, 0, 0, 0, 0 },   /* Sentinel */
 };
@@ -230,9 +217,6 @@ static PyMethodDef SleepyHollow_methods[] = {
 
   {"get", (PyCFunction) SleepyHollow_get,
    METH_VARARGS, "Sends a GET request. Returns Response object"},
-
-  {"load", (PyCFunction) SleepyHollow_load,
-   METH_VARARGS, "Loads a url"},
 
   {NULL, NULL, 0, NULL},        /* Sentinel */
 };
