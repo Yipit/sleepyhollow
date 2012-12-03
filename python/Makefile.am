@@ -6,3 +6,5 @@ sleepyhollow_la_CPPFLAGS = $(PYTHON_CFLAGS) -I$(top_srcdir)/include $(QT_CPPFLAG
 	-fno-strict-aliasing -fno-common -dynamic
 sleepyhollow_la_LDFLAGS = -module -avoid-version -export-symbols-regex initsleepyhollow $(QT_LDFLAGS)
 sleepyhollow_la_LIBADD = $(top_builddir)/lib/libhollow.la $(QT_LIBS)
+
+EXTRA_DIST = sleepyhollow.h
