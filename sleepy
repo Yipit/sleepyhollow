@@ -88,11 +88,16 @@ continuous-integration () {
         show.broken
         exit 1
     fi;
+    export NON_VERBOSE="yes"
     cleanup
     compile
     source `which virtualenvwrapper.sh`
     mkvirtualenv --distribute --no-site-packages sleepy-hollow
-    pip install -r requirements.pip
+    (pip install -r requirements.pip 2>&1)  2>&1>> sleepy.log
+    if [ "$?" != "0" ]; then
+        echo
+        cat sleepy.log
+    fi;
     tests
     exit $?
 }
