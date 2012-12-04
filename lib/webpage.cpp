@@ -94,7 +94,11 @@ WebPage::lastResponse()
     // We're setting this value here because we can't get the response
     // text before this point. We have to wait the page to be processed
     // by the html engine after finishing the request.
-    m_lastResponse->setText(mainFrame()->toHtml().toUtf8().constData());
+    ResponseHeaders headers = m_lastResponse->getHeaders();
+    if (headers.find("Content-Type")->second == "text/html")
+      m_lastResponse->setText(mainFrame()->toHtml().toUtf8().constData());
+    else
+      m_lastResponse->setText(mainFrame()->toPlainText().toUtf8().constData());
   }
   return m_lastResponse;
 }

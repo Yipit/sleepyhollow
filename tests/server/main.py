@@ -28,7 +28,7 @@ class JSONStatusHandler(RequestHandler):
     def get(self, status):
         self.set_status(int(status))
         self.set_header('Content-Type', 'application/json')
-        self.write(json.dumps({'success': True, 'status': status}))
+        self.write(json.dumps({'success': True, 'status': int(status)}))
         self.finish()
 
 
@@ -76,7 +76,7 @@ class Server(object):
     @classmethod
     def get_handlers(cls, options):
         return Application([
-            (r"/status-(\d+).json", JSONStatusHandler),
+            (r"/status-(\d+)\.json$", JSONStatusHandler),
             (r"/status-(\d+)$", StatusHandler),
             (r"/(\w+)", SimpleHandler),
             (r"/auth/(\w+)", AuthHandler),

@@ -66,8 +66,8 @@ def test_json_response(context):
     response.content.should.be.a(str)
 
     response.json.should.equal({
-        'success': True,
-        'status': 200,
+        u'success': True,
+        u'status': 200,
     })
 
 
