@@ -3,10 +3,18 @@
 # Handy script that cleans up the project folder, re-initializes the
 # build system, compiles everything and runs the tests for us.
 
+if [ ! -e `which virtualenvwrapper.sh` ]; then
+    show.broken
+    color.yellow "PLEASE INSTALL VIRTUALENV!!!"
+    exit 1
+fi;
+source `which virtualenvwrapper.sh`
+
 export DYLD_LIBRARY_PATH=$(pwd)/python/.libs:$(pwd)/lib/.libs
 export LD_LIBRARY_PATH=$DYLD_LIBRARY_PATH
 export PYTHONPATH=$DYLD_LIBRARY_PATH:$(pwd)/python:$(pwd):$PYTHONPATH
-
+WORKON_HOME=$HOME/.virtualenvs
+VENVNAME=sleepy-hollow
 SHOULD_CLEANUP="yes"
 NON_VERBOSE="yes"
 SERVER_NAME=sleepyhollowtestserver
@@ -84,16 +92,15 @@ cleanup () {
 }
 
 continuous-integration () {
-    if [ ! -e `which virtualenvwrapper.sh` ]; then
-        show.broken
-        exit 1
-    fi;
     export NON_VERBOSE="yes"
     cleanup
     compile
-    source `which virtualenvwrapper.sh`
-    mkvirtualenv --distribute --no-site-packages sleepy-hollow
-    workon sleepy-hollow
+    if [ ! -e $WORKON_HOME/$VENVNAME ]; then
+        mkvirtualenv --distribute --no-site-packages $VENVNAME
+    else
+        workon $VENVNAME
+    fi;
+
     pip install -r requirements.pip 2>&1
     if [ "$?" != "0" ]; then
         echo
@@ -133,15 +140,6 @@ compile () {
     fi;
 }
 
-server.isrunning () {
-    serverpid=$(ps aux | egrep $SERVER_NAME | grep -v grep | awk '{ print $2 }')
-    if [ "x$serverpid" != "x" ]; then
-        echo 'yes'
-    else
-        echo 'no'
-    fi;
-}
-
 server.start () {
     potential_port=$1
     if [ $((potential_port)) -gt 1024 ]; then
@@ -154,12 +152,15 @@ server.start () {
     color.blue "Running test server at port "
     color.green "$TEST_SERVER_PORT\n"
 
+    if [ ! -e $WORKON_HOME/$VENVNAME ]; then
+        mkvirtualenv --distribute --no-site-packages $VENVNAME
+    else
+        workon $VENVNAME
+    fi;
+
+
     if [ $run_in_background == "yes" ]; then
-        (python tests/server/__init__.py $TEST_SERVER_PORT 2>&1) 2>&1> server.log &
-        if [ $(server.isrunning) == "no" ]; then
-            cat server.log
-            exit 1
-        fi;
+        python tests/server/__init__.py $TEST_SERVER_PORT 2>&1> server.log &
     else
         python tests/server/__init__.py $TEST_SERVER_PORT
     fi;
