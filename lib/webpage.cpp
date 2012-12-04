@@ -45,8 +45,11 @@ WebPage::buildResponseFromNetworkReply(QNetworkReply *reply)
   // We can't set the content right now, so we'll fill the text with an
   // empty string and let the ::lastResponse() method fill with the
   // right content
-  return new Response(statusCode.toInt(), "",
-                      reason.toString().toAscii().constData(), headers);
+  return new Response(statusCode.toInt(),
+                      reply->url().toString().toAscii().constData(),
+                      "",
+                      reason.toString().toAscii().constData(),
+                      headers);
 }
 
 

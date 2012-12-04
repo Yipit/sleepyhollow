@@ -22,6 +22,7 @@ class SleepyHollow(_SleepyHollow):
         response = super(SleepyHollow, self).request(method, *args, **kw)
         return Response(
             status_code=response['status_code'],
+            url=response['url'],
             text=response['text'],
             reason=response['reason'],
             headers=response['headers'],
@@ -32,10 +33,11 @@ class SleepyHollow(_SleepyHollow):
 
 
 class Response(object):
-    def __init__(self, status_code, reason, text, headers):
-        self.status_code = int(status_code)
-        self.reason = unicode(reason)
+    def __init__(self, status_code, url, text, reason, headers):
+        self.status_code = status_code
+        self.url = url
         self.text = unicode(text)
+        self.reason = unicode(reason)
         self.content = str(text)
         self.headers = headers
 

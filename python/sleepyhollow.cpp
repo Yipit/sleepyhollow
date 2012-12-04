@@ -79,6 +79,8 @@ SleepyHollow_request (SleepyHollow *self, PyObject *args)
   if ((dict = PyDict_New ()) == NULL)
     return NULL;
 
+  PyDict_SetItemString (dict, C_STR ("url"),
+                        PyUnicode_FromString (resp->getURL()));
   PyDict_SetItemString (dict, C_STR ("text"),
                         PyUnicode_FromString (resp->getText()));
   PyDict_SetItemString (dict, C_STR ("status_code"),

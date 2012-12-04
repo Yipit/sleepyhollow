@@ -41,12 +41,14 @@ def test_response(context):
 
     # Let's test the types
     response.should.be.a(Response)
+    response.url.should.be.a(unicode)
     response.status_code.should.be.an(int)
     response.text.should.be.a(unicode)
     response.content.should.be.a(str)
     response.json.should.be.none
 
     # Now let's test the values
+    response.url.should.equal(context.route_to('/simple'))
     response.status_code.should.equal(200)
     expect('Very Simple').to.be.within(response.text)
 

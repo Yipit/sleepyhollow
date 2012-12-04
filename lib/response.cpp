@@ -3,13 +3,17 @@
 #include <yipit/hollow/response.h>
 
 
-Response::Response (int statusCode, const char* text, const char* reason, ResponseHeaders& headers)
+Response::Response (int statusCode,
+                    const char* url,
+                    const char* text,
+                    const char* reason,
+                    ResponseHeaders& headers)
+  : m_statusCode(statusCode)
+  , m_text(strdup(text))
+  , m_reason(strdup(reason))
+  , m_url(strdup(url))
+  , m_headers(headers)
 {
-  // The basic stuff
-  m_statusCode = statusCode;
-  m_text = strdup (text);
-  m_reason = strdup (reason);
-  m_headers = headers;
 }
 
 
@@ -17,6 +21,7 @@ Response::~Response()
 {
   free (m_text);
   free (m_reason);
+  free (m_url);
 }
 
 
@@ -24,6 +29,13 @@ int
 Response::getStatusCode(void)
 {
   return m_statusCode;
+}
+
+
+const char*
+Response::getURL(void)
+{
+  return (const char*) m_url;
 }
 
 
