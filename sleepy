@@ -78,7 +78,7 @@ cleanup () {
 
 continuous-integration () {
     if [ ! -e `which virtualenvwrapper.sh` ]; then
-        _broken
+        show.broken
         exit 1
     fi;
     cleanup
