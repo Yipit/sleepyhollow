@@ -24,21 +24,53 @@ class StatusHandler(RequestHandler):
 
 
 class JSONStatusHandler(RequestHandler):
-    def handle_status(self, method, status):
+    def make_data(self, method, status):
+        # takes method, status code and request params and tuck them
+        # into a dict
         data = {'success': True, 'status': int(status), 'method': method}
         for key in self.request.arguments:
             data[key] = self.get_argument(key)
 
+        return data
+
+    def handle_status(self, method, status):
+        # takes a HTTP method + status code and send to make_data(),
+        # so its return value will be turned into JSON and returned to
+        # the client
+
+        data = self.make_data(method, status)
         self.set_status(int(status))
+
         self.set_header('Content-Type', 'application/json')
         self.write(json.dumps(data))
         self.finish()
+
+    def handle_header_only_operations(self, method, status):
+        # workaround for testing HEAD and DELETE methods.  rather than
+        # returning the data from make_data() as json, it returns as
+        # X-headers in the response
+
+        self.set_status(int(status))
+        data = self.make_data(method, status)
+        for key, value in data.items():
+            self.set_header('X-%s' % key, json.dumps(value))
+
+        return self.finish()
 
     def get(self, status):
         return self.handle_status('GET', status)
 
     def post(self, status):
         return self.handle_status('POST', status)
+
+    def put(self, status):
+        return self.handle_status('PUT', status)
+
+    def head(self, status):
+        return self.handle_header_only_operations('HEAD', status)
+
+    def delete(self, status):
+        return self.handle_header_only_operations('DELETE', status)
 
 
 class AuthHandler(RequestHandler):
