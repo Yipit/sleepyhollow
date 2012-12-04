@@ -38,3 +38,4 @@ sleepy-hollow-0.0.1.tar.gz
 confdefs.h
 conftest.dir
 server.log
+tests/sleepyhollow.py
