@@ -48,7 +48,7 @@ Hollow::~Hollow()
 
 
 Response *
-Hollow::request (const char* method, const char* url, std::string payload)
+Hollow::request (const char* method, const char* url, const char* payload)
 {
   QString operation(method);
 
@@ -90,7 +90,7 @@ Hollow::request (const char* method, const char* url, std::string payload)
     Error::set(Error::INVALID_URL, err.toUtf8().data());
     return NULL;
   }
-  QByteArray body(payload.c_str());
+  QByteArray body(payload);
   request.setUrl(qurl);
   page->mainFrame()->load(request, networkOp, body);
 

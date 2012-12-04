@@ -56,6 +56,8 @@ SleepyHollow_request (SleepyHollow *self, PyObject *args, PyObject *kw)
   Response *resp;
   Error *error;
   PyObject *payload_str;
+  char *payload = NULL;
+
   const char *url, *method;
 
   static char *kwlist[] = {C_STR("method"), C_STR("url"), C_STR("params"), NULL};
@@ -66,9 +68,9 @@ SleepyHollow_request (SleepyHollow *self, PyObject *args, PyObject *kw)
   /* Checking if "params" is a PyDict, and if so, convert the PyDict
      into a StringHashMap */
 
-  std::string payload;
+
   if (PyString_Check(payload_str)) {
-    payload.append(PyString_AsString(payload_str));
+    payload = PyString_AsString(payload_str);
   } else if (payload_str != Py_None) {
     return PyErr_Format (PyExc_TypeError, "The 'params' argument must be either a string or None");
   }

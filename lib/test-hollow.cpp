@@ -4,14 +4,16 @@
 int
 main (int argc, char **argv)
 {
+  Hollow hollow;
+  const char* payload = NULL;
   if (argc < 2) {
     std::cerr << "Usage: " << argv[0] << ": <url-to-open>" << std::endl;
     return 1;
   }
 
   std::cout << "Creating the hollow instance" << std::endl;
-  Hollow hollow;
-  std::string payload("");
+
+
   std::cout << "Making the request" << std::endl;
   Response *resp = hollow.request("get", argv[1], payload);
 
