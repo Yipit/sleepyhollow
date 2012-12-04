@@ -11,9 +11,9 @@ main (int argc, char **argv)
 
   std::cout << "Creating the hollow instance" << std::endl;
   Hollow hollow;
-
+  std::string payload("");
   std::cout << "Making the request" << std::endl;
-  Response *resp = hollow.request("get", argv[1]);
+  Response *resp = hollow.request("get", argv[1], payload);
 
   if (resp == NULL) {
     std::cout << "Not good bro, "

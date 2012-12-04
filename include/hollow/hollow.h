@@ -17,7 +17,7 @@ class Hollow : public QObject
 public:
   Hollow (QObject *parent=0);
   ~Hollow();
-  Response* request(const char* method, const char* url);
+  Response* request(const char* method, const char* url, std::string payload);
 
 private slots:
   void proxyExit(bool ok);

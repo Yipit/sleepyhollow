@@ -1,6 +1,10 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
+
 import json
+import urllib
+import urlparse
+
 from _sleepyhollow import SleepyHollow as _SleepyHollow
 from _sleepyhollow import (
     Error,
@@ -18,8 +22,14 @@ __all__ = [
 
 
 class SleepyHollow(_SleepyHollow):
-    def request(self, method, *args, **kw):
-        response = super(SleepyHollow, self).request(method, *args, **kw)
+    def request(self, method, url, params=None):
+        if isinstance(params, dict):
+            payload = urllib.urlencode(params)
+        else:
+            payload = params
+
+        response = super(SleepyHollow, self).request(method, url, params=payload)
+
         return Response(
             status_code=response['status_code'],
             url=response['url'],
@@ -28,8 +38,18 @@ class SleepyHollow(_SleepyHollow):
             headers=response['headers'],
         )
 
-    def get(self, *args, **kw):
-        return self.request('get', *args, **kw)
+    def _patch_querystring(self, url, params):
+        p = urlparse.urlsplit(url)
+        _params = urlparse.parse_qs(p.query)
+        if isinstance(params, dict):
+            _params.update(params)
+
+        parts = (p.scheme, p.netloc, p.path, urllib.urlencode(_params), p.fragment)
+        return urlparse.urlunsplit(parts)
+
+    def get(self, url, params=None):
+        url = self._patch_querystring(url, params)
+        return self.request('get', url=url, params=params)
 
 
 class Response(object):

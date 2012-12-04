@@ -50,17 +50,30 @@ SleepyHollow_dealloc (SleepyHollow  *self)
 
 
 static PyObject *
-SleepyHollow_request (SleepyHollow *self, PyObject *args)
+SleepyHollow_request (SleepyHollow *self, PyObject *args, PyObject *kw)
 {
   PyObject *dict;
   Response *resp;
   Error *error;
+  PyObject *payload_str;
   const char *url, *method;
 
-  if (!PyArg_ParseTuple (args, "ss", &method, &url))
+  static char *kwlist[] = {C_STR("method"), C_STR("url"), C_STR("params"), NULL};
+
+  if (!PyArg_ParseTupleAndKeywords (args, kw, "ss|O", kwlist, &method, &url, &payload_str))
     return NULL;
 
-  resp = self->hollow->request (method, url);
+  /* Checking if "params" is a PyDict, and if so, convert the PyDict
+     into a StringHashMap */
+
+  std::string payload;
+  if (PyString_Check(payload_str)) {
+    payload.append(PyString_AsString(payload_str));
+  } else if (payload_str != Py_None) {
+    return PyErr_Format (PyExc_TypeError, "The 'params' argument must be either a string or None");
+  }
+
+  resp = self->hollow->request (method, url, payload);
 
   /* Just making sure that everything worked */
   if ((error = Error::last()) != NULL)
@@ -109,7 +122,7 @@ static struct PyMemberDef SleepyHollow_members[] = {
 static PyMethodDef SleepyHollow_methods[] = {
 
   {"request", (PyCFunction) SleepyHollow_request,
-   METH_VARARGS, "Constructs and sends a Request. Returns Response object."},
+   METH_VARARGS | METH_KEYWORDS, "Constructs and sends a Request. Returns Response object."},
 
   {NULL, NULL, 0, NULL},        /* Sentinel */
 };

@@ -1,6 +1,7 @@
 #include <iostream>
 #include <QObject>
 #include <QWebFrame>
+#include <QNetworkRequest>
 #include <QApplication>
 
 #include <hollow/hollow.h>
@@ -47,10 +48,34 @@ Hollow::~Hollow()
 
 
 Response *
-Hollow::request (const char* method, const char* url)
+Hollow::request (const char* method, const char* url, std::string payload)
 {
-  // Just doing get for now
-  Q_UNUSED(method);
+  QString operation(method);
+
+  QNetworkRequest request;
+  page->triggerAction(QWebPage::Stop);
+
+  QNetworkAccessManager::Operation networkOp = QNetworkAccessManager::UnknownOperation;
+
+  operation = operation.toLower();
+  if (operation == "get")
+    networkOp = QNetworkAccessManager::GetOperation;
+  else if (operation == "head")
+    networkOp = QNetworkAccessManager::HeadOperation;
+  else if (operation == "put")
+    networkOp = QNetworkAccessManager::PutOperation;
+  else if (operation == "post")
+    networkOp = QNetworkAccessManager::PostOperation;
+  else if (operation == "delete")
+    networkOp = QNetworkAccessManager::DeleteOperation;
+
+
+  if (networkOp == QNetworkAccessManager::UnknownOperation) {
+    Error::set(Error::INVALID_METHOD, operation.toUtf8().data());
+    return NULL;
+  }
+
+  request.setRawHeader("User-Agent", "SleepyHollow");
 
   // First of all, let's see if this url is valid and contains a valid
   // scheme
@@ -64,8 +89,9 @@ Hollow::request (const char* method, const char* url)
     Error::set(Error::INVALID_URL, err.toUtf8().data());
     return NULL;
   }
-
-  page->mainFrame()->setUrl(qurl);
+  QByteArray body(payload.c_str());
+  request.setUrl(qurl);
+  page->mainFrame()->load(request, networkOp, body);
 
   // This app will exit when the webpage fires the loadFinished()
   // signal. See proxyExit().

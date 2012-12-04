@@ -26,9 +26,13 @@ class StatusHandler(RequestHandler):
 
 class JSONStatusHandler(RequestHandler):
     def get(self, status):
+        data = {'success': True, 'status': int(status)}
+        for key in self.request.arguments:
+            data[key] = self.get_argument(key)
+
         self.set_status(int(status))
         self.set_header('Content-Type', 'application/json')
-        self.write(json.dumps({'success': True, 'status': int(status)}))
+        self.write(json.dumps(data))
         self.finish()
 
 
@@ -84,18 +88,10 @@ class Server(object):
         ], **options)
 
     def start(self):
-        def go(app, port, data={}):
-            http = HTTPServer(app)
-            http.listen(int(port))
-            IOLoop.instance().start()
-
         app = self.get_handlers(self.options)
-
-        data = {}
-        args = (app, self.port, data)
-        self.process = Process(target=go, args=args)
-        self.process.daemon = True
-        self.process.start()
+        http = HTTPServer(app)
+        http.listen(int(self.port))
+        IOLoop.instance().start()
 
     def stop(self):
         self.process.terminate()

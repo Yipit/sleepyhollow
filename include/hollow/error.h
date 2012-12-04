@@ -17,7 +17,8 @@ public:
   enum {
     UNKNOWN,
     INVALID_URL,
-    CONNECTION_REFUSED
+    CONNECTION_REFUSED,
+    INVALID_METHOD
   };
 
 private:
