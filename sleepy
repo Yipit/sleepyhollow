@@ -93,7 +93,7 @@ continuous-integration () {
     compile
     source `which virtualenvwrapper.sh`
     mkvirtualenv --distribute --no-site-packages sleepy-hollow
-    source $HOME/.virtualenvs/sleepy-hollow/bin/activate
+    workon sleepy-hollow
     pip install -r requirements.pip 2>&1
     if [ "$?" != "0" ]; then
         echo
@@ -245,6 +245,11 @@ distribute () {
 }
 
 all () {
+    if [ "$1" == "" ]; then
+        cleanup && compile && tests
+        exit $?
+    fi;
+
     if [ $(echo $1 | egrep '^[0-9]{4,5}$') == "" ];then
         printf "\033[1;31m"
         echo
@@ -254,7 +259,6 @@ all () {
         show-help
         exit 1
     fi;
-    cleanup && compile && tests
 }
 
 if [ "$0" != "-bash" ]; then
