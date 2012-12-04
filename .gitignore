@@ -39,3 +39,4 @@ confdefs.h
 conftest.dir
 server.log
 tests/sleepyhollow.py
+build-aux/py-compile
