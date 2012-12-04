@@ -27,50 +27,7 @@ color.blue (){
     printf "\033[1;36m$1\033[0m"
 }
 
-check.last_modified () {
-    if [ ! -e $1 ]; then
-        return 1;
-    fi;
-    lm=`stat -f"%m" $1`
-    lc=`stat -f"%c" $1`
-    lB=`stat -f"%B" $1`
-    echo $((lm + la + lc + lB))
-}
-
-check.last_modified_from_list_of_files () {
-    last_date=0
-    files=$1
-    for file in $files; do
-        dt=$(check.last_modified $file)
-        if [ $((dt + 0)) -gt $((last_date + 0)) ]; then
-            last_date=$((dt));
-        fi;
-    done
-    echo $last_date
-
-}
-check.newest_modified_compiled_library () {
-    files="tests/sleepyhollow.py tests/_sleepyhollow.so"
-    check.last_modified_from_list_of_files $files
-}
-
-check.newest_modified_sources () {
-    files=`find . -name '*.cpp' -or -name '*.h' -or -name '*.am'`
-    check.last_modified_from_list_of_files $files
-}
-
 should.recompile_sources () {
-    # last_source_string=$(check.newest_modified_sources)
-    # last_binary_string=$(check.newest_modified_compiled_library)
-
-    # last_binary=$((last_binary_string + 0))
-    # last_source=$((last_source_string + 0))
-
-    # if [ $((last_binary + 0)) -lt $((last_source + 0)) ]; then
-    #     echo "yes";
-    # else
-    #     echo "no";
-    # fi;
     echo "no"
 }
 show.broken () {
