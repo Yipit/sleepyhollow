@@ -3,9 +3,10 @@
 # Handy script that cleans up the project folder, re-initializes the
 # build system, compiles everything and runs the tests for us.
 
-export DYLD_LIBRARY_PATH=`pwd`/tests
-export LD_LIBRARY_PATH=`pwd`/tests
-export PYTHONPATH=`pwd`/tests:`pwd`:$PYTHONPATH
+export DYLD_LIBRARY_PATH=$(pwd)/python/.libs:$(pwd)/lib/.libs
+export LD_LIBRARY_PATH=$DYLD_LIBRARY_PATH
+export PYTHONPATH=$DYLD_LIBRARY_PATH:$(pwd)/python:$(pwd):$PYTHONPATH
+
 SHOULD_CLEANUP="yes"
 NON_VERBOSE="yes"
 export SERVER_PID=""
@@ -22,8 +23,14 @@ color.green (){
 color.white (){
     printf "\033[1;37m$1\033[0m"
 }
+color.blue (){
+    printf "\033[1;36m$1\033[0m"
+}
 
 check.last_modified () {
+    if [ ! -e $1 ]; then
+        return 1;
+    fi;
     lm=`stat -f"%m" $1`
     lc=`stat -f"%c" $1`
     lB=`stat -f"%B" $1`
@@ -53,17 +60,18 @@ check.newest_modified_sources () {
 }
 
 should.recompile_sources () {
-    last_source_string=$(check.newest_modified_sources)
-    last_binary_string=$(check.newest_modified_compiled_library)
+    # last_source_string=$(check.newest_modified_sources)
+    # last_binary_string=$(check.newest_modified_compiled_library)
 
-    last_binary=$((last_binary_string + 0))
-    last_source=$((last_source_string + 0))
+    # last_binary=$((last_binary_string + 0))
+    # last_source=$((last_source_string + 0))
 
-    if [ $((last_binary + 0)) -lt $((last_source + 0)) ]; then
-        echo "yes";
-    else
-        echo "no";
-    fi;
+    # if [ $((last_binary + 0)) -lt $((last_source + 0)) ]; then
+    #     echo "yes";
+    # else
+    #     echo "no";
+    # fi;
+    echo "no"
 }
 show.broken () {
     color.red 'dP                         dP                         \n'
@@ -109,12 +117,12 @@ set-verbose () {
     export NON_VERBOSE="no"
 }
 cleanup () {
-    color.white "Cleaning up... "
+    color.blue "Cleaning up... "
     # Cleanup
     > .gitignore
     git clean -qdf
     git checkout .gitignore
-    rm -f tests/*.{dylib,so}
+    rm -f tests/*.{dylib,so} tests/sleepyhollow.py
     color.green "OK\n"
 }
 
@@ -164,14 +172,17 @@ compile () {
 
 server.start () {
     export TEST_SERVER_PORT=5000
-    color.white "Running test server at port "
-    color.yellow "$TEST_SERVER_PORT\n"
+    color.blue "Running test server at port "
+    color.green "$TEST_SERVER_PORT\n"
 
     (exec -a $SERVER_NAME python tests/server/__init__.py $TEST_SERVER_PORT 2>&1) 2>&1> server.log &
 }
 server.stop () {
+    unset DYLD_LIBRARY_PATH
+    unset LD_LIBRARY_PATH
+    unset PYTHONPATH
     ps aux | egrep $SERVER_NAME | grep -v grep | awk '{ print $2 }' | xargs kill -9
-    color.red "Test server stopped\n"
+    color.blue "Test server stopped\n"
 }
 
 tests () {
@@ -185,9 +196,6 @@ tests () {
     if [ "$?" != "0" ]; then
         exit 1;
     fi;
-    cp -f lib/.libs/*.dylib tests
-    cp -f python/.libs/*.so tests
-    cp -f python/*.py tests
 
     # Running the tests
     if [ "x$DISPLAY" == "x" ]; then
