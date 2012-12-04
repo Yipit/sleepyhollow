@@ -144,3 +144,59 @@ def test_post_parameters(context):
         u'status': 200,
         u'name': u'Gabriel',
     })
+
+
+@server_test_case
+def test_put_parameters(context):
+    "requesting with PUT parameters"
+    sl = SleepyHollow()
+    response = sl.put(context.route_to('/status-200.json'), params={'name': 'Gabriel'})
+
+    # Let's test the types
+    response.should.be.a(Response)
+    response.status_code.should.be.an(int)
+    response.text.should.be.a(unicode)
+    response.content.should.be.a(str)
+
+    response.json.should.equal({
+        u'success': True,
+        u'method': 'PUT',
+        u'status': 200,
+        u'name': u'Gabriel',
+    })
+
+
+@server_test_case
+def test_head_parameters(context):
+    "requesting with HEAD parameters"
+    sl = SleepyHollow()
+    response = sl.head(context.route_to('/status-200.json'), params={'name': 'Gabriel'})
+
+    # Let's test the types
+    response.should.be.a(Response)
+    response.status_code.should.be.an(int)
+    response.text.should.be.a(unicode)
+    response.content.should.be.a(str)
+
+    response.headers.should.have.key('X-success').being.equal('true')
+    response.headers.should.have.key('X-method').being.equal('"HEAD"')
+    response.headers.should.have.key('X-status').being.equal('200')
+    response.headers.should.have.key('X-name').being.equal('"Gabriel"')
+
+
+@server_test_case
+def test_delete_parameters(context):
+    "requesting with DELETE parameters"
+    sl = SleepyHollow()
+    response = sl.delete(context.route_to('/status-200.json'), params={'name': 'Gabriel'})
+
+    # Let's test the types
+    response.should.be.a(Response)
+    response.status_code.should.be.an(int)
+    response.text.should.be.a(unicode)
+    response.content.should.be.a(str)
+
+    response.headers.should.have.key('X-success').being.equal('true')
+    response.headers.should.have.key('X-method').being.equal('"DELETE"')
+    response.headers.should.have.key('X-status').being.equal('200')
+    response.headers.should.have.key('X-name').being.equal('"Gabriel"')

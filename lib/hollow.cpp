@@ -58,23 +58,20 @@ Hollow::request (const char* method, const char* url, std::string payload)
   QNetworkAccessManager::Operation networkOp = QNetworkAccessManager::UnknownOperation;
 
   operation = operation.toLower();
-  if (operation == "get")
+  if (operation == "get") {
     networkOp = QNetworkAccessManager::GetOperation;
-  else if (operation == "head")
+  } else if (operation == "head") {
     networkOp = QNetworkAccessManager::HeadOperation;
-  else if (operation == "put")
+  } else if (operation == "put") {
     networkOp = QNetworkAccessManager::PutOperation;
-  else if (operation == "post") {
+  } else if (operation == "post") {
     networkOp = QNetworkAccessManager::PostOperation;
     /* TODO: only add this line if the python wrapper doesn't specify
        the Content-Type header */
     request.setRawHeader("Content-Type", "application/x-www-form-urlencoded");
-  }
-  else if (operation == "delete")
+  } else if (operation == "delete") {
     networkOp = QNetworkAccessManager::DeleteOperation;
-
-
-  if (networkOp == QNetworkAccessManager::UnknownOperation) {
+  } else {
     Error::set(Error::INVALID_METHOD, operation.toUtf8().data());
     return NULL;
   }
