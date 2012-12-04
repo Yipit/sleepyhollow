@@ -8,7 +8,9 @@ if [ ! -e `which virtualenvwrapper.sh` ]; then
     color.yellow "PLEASE INSTALL VIRTUALENV!!!"
     exit 1
 fi;
-source `which virtualenvwrapper.sh`
+if [ "x$VIRTUALENVWRAPPER_HOOK_DIR" == "x" ]; then
+    source `which virtualenvwrapper.sh`
+fi;
 
 export DYLD_LIBRARY_PATH=$(pwd)/sleepyhollow/.libs:$(pwd)/lib/.libs
 export LD_LIBRARY_PATH=$DYLD_LIBRARY_PATH
@@ -98,7 +100,9 @@ continuous-integration () {
     if [ ! -e $WORKON_HOME/$VENVNAME ]; then
         mkvirtualenv --distribute --no-site-packages $VENVNAME
     else
-        workon $VENVNAME
+        if [ "x$VIRTUAL_ENV" == "x" ]; then
+            workon $VENVNAME
+        fi;
     fi;
 
     pip install -r requirements.pip 2>&1>>sleepy.log
@@ -152,15 +156,18 @@ server.start () {
     color.blue "Running test server at port "
     color.green "$TEST_SERVER_PORT\n"
 
-    if [ ! -e $WORKON_HOME/$VENVNAME ]; then
-        mkvirtualenv --distribute --no-site-packages $VENVNAME
-    else
-        workon $VENVNAME
+    if [ "x$VIRTUAL_ENV" != "x" ]; then
+        if [ ! -e $WORKON_HOME/$VENVNAME ]; then
+            mkvirtualenv --distribute --no-site-packages $VENVNAME
+        else
+            if [ "x$VIRTUAL_ENV" == "x" ]; then
+                workon $VENVNAME
+            fi;
+        fi;
     fi;
 
-
     if [ $run_in_background == "yes" ]; then
-        python tests/server/__init__.py $TEST_SERVER_PORT 2>&1> server.log &
+        (python tests/server/__init__.py $TEST_SERVER_PORT 2>&1) 2>&1> server.log &
     else
         python tests/server/__init__.py $TEST_SERVER_PORT
     fi;
