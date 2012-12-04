@@ -35,7 +35,7 @@ WebPage::buildResponseFromNetworkReply(QNetworkReply *reply)
     return NULL;
 
   // Iterating over the headers
-  ResponseHeaders headers;
+  StringHashMap headers;
   foreach (QByteArray headerName, reply->rawHeaderList()) {
     QString key = QString::fromUtf8(headerName);
     QString value = QString::fromUtf8(reply->rawHeader(headerName));
@@ -94,7 +94,7 @@ WebPage::lastResponse()
     // We're setting this value here because we can't get the response
     // text before this point. We have to wait the page to be processed
     // by the html engine after finishing the request.
-    ResponseHeaders headers = m_lastResponse->getHeaders();
+    StringHashMap headers = m_lastResponse->getHeaders();
     if (headers.find("Content-Type")->second == "text/html")
       m_lastResponse->setText(mainFrame()->toHtml().toUtf8().constData());
     else

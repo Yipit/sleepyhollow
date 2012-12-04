@@ -89,8 +89,8 @@ SleepyHollow_request (SleepyHollow *self, PyObject *args)
                         PyString_FromString (resp->getReason()));
 
   /* Adding the headers */
-  ResponseHeaders headers = resp->getHeaders();
-  ResponseHeadersIterator iterator;
+  StringHashMap headers = resp->getHeaders();
+  StringHashMapIterator iterator;
   PyObject *headers_dict = PyDict_New ();
 
   PyDict_SetItemString (dict, C_STR ("headers"), headers_dict);

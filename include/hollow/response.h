@@ -8,9 +8,9 @@
 #include <QString>
 #include <QNetworkReply>
 
-typedef std::map<std::string, std::string> ResponseHeaders;
+typedef std::map<std::string, std::string> StringHashMap;
 
-typedef ResponseHeaders::iterator ResponseHeadersIterator;
+typedef StringHashMap::iterator StringHashMapIterator;
 
 class WebPage;
 
@@ -21,20 +21,20 @@ public:
            const char* url,
            const char* text,
            const char* reason,
-           ResponseHeaders& headers);
+           StringHashMap& headers);
   ~Response();
   int getStatusCode(void);
   const char* getURL(void);
   const char* getText(void);
   const char* getReason(void);
-  ResponseHeaders getHeaders(void);
+  StringHashMap getHeaders(void);
 
 private:
   int m_statusCode;
   char* m_text;
   char* m_reason;
   char* m_url;
-  ResponseHeaders m_headers;
+  StringHashMap m_headers;
   void setText(const char* text);
   friend class WebPage;
 };

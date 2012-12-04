@@ -7,7 +7,7 @@ Response::Response (int statusCode,
                     const char* url,
                     const char* text,
                     const char* reason,
-                    ResponseHeaders& headers)
+                    StringHashMap& headers)
   : m_statusCode(statusCode)
   , m_text(strdup(text))
   , m_reason(strdup(reason))
@@ -62,7 +62,7 @@ Response::getReason (void)
 }
 
 
-ResponseHeaders
+StringHashMap
 Response::getHeaders (void)
 {
   return m_headers;
