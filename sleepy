@@ -101,7 +101,7 @@ continuous-integration () {
         workon $VENVNAME
     fi;
 
-    pip install -r requirements.pip 2>&1
+    pip install -r requirements.pip 2>&1>>sleepy.log
     if [ "$?" != "0" ]; then
         echo
         cat sleepy.log
