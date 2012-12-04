@@ -155,13 +155,13 @@ server.start () {
     color.green "$TEST_SERVER_PORT\n"
 
     if [ $run_in_background == "yes" ]; then
-        (exec -a $SERVER_NAME python tests/server/__init__.py $TEST_SERVER_PORT 2>&1) 2>&1> server.log &
+        (python tests/server/__init__.py $TEST_SERVER_PORT 2>&1) 2>&1> server.log &
         if [ $(server.isrunning) == "no" ]; then
             cat server.log
             exit 1
         fi;
     else
-        (exec -a $SERVER_NAME python tests/server/__init__.py $TEST_SERVER_PORT 2>&1) 2>&1
+        python tests/server/__init__.py $TEST_SERVER_PORT
     fi;
 }
 server.stop () {

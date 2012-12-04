@@ -6,6 +6,7 @@ from tests.server.main import Server
 
 if __name__ == '__main__':
     port = 4000
+    sys.argv[0] = "sleepyhollowtestserver"
     if sys.argv[-1].isdigit():
         port = int(sys.argv[-1])
 
