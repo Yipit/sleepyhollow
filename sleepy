@@ -10,9 +10,9 @@ if [ ! -e `which virtualenvwrapper.sh` ]; then
 fi;
 source `which virtualenvwrapper.sh`
 
-export DYLD_LIBRARY_PATH=$(pwd)/python/.libs:$(pwd)/lib/.libs
+export DYLD_LIBRARY_PATH=$(pwd)/sleepyhollow/.libs:$(pwd)/lib/.libs
 export LD_LIBRARY_PATH=$DYLD_LIBRARY_PATH
-export PYTHONPATH=$DYLD_LIBRARY_PATH:$(pwd)/python:$(pwd):$PYTHONPATH
+export PYTHONPATH=$DYLD_LIBRARY_PATH:$(pwd)/sleepyhollow:$(pwd):$PYTHONPATH
 WORKON_HOME=$HOME/.virtualenvs
 VENVNAME=sleepy-hollow
 SHOULD_CLEANUP="yes"
@@ -196,7 +196,7 @@ tests () {
 
 shell () {
     cp -f lib/.libs/*.dylib tests
-    cp -f python/.libs/*.so tests
+    cp -f sleepyhollow/.libs/*.so tests
     ipython
 }
 

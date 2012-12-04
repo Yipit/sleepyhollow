@@ -39,9 +39,8 @@ AC_CONFIG_FILES([
         Makefile
         lib/Makefile
         include/Makefile
-        include/yipit/Makefile
-        include/yipit/hollow/Makefile
-        python/Makefile
+        include/hollow/Makefile
+        sleepyhollow/Makefile
 ])
 
 AC_OUTPUT

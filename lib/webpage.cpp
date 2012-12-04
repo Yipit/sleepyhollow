@@ -4,9 +4,9 @@
 #include <QWebPage>
 #include <QWebFrame>
 #include <QNetworkReply>
-#include <yipit/hollow/webpage.h>
-#include <yipit/hollow/error.h>
-#include <yipit/hollow/response.h>
+#include <hollow/webpage.h>
+#include <hollow/error.h>
+#include <hollow/response.h>
 
 
 WebPage::WebPage(QObject *parent)

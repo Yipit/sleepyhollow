@@ -6,9 +6,9 @@
 #include <QObject>
 #include <QApplication>
 
-#include <yipit/hollow/error.h>
-#include <yipit/hollow/webpage.h>
-#include <yipit/hollow/response.h>
+#include <hollow/error.h>
+#include <hollow/webpage.h>
+#include <hollow/response.h>
 
 class Hollow : public QObject
 {

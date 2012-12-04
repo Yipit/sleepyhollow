@@ -1,6 +1,6 @@
 #include <cstdlib>
 #include <cstring>
-#include <yipit/hollow/response.h>
+#include <hollow/response.h>
 
 
 Response::Response (int statusCode,

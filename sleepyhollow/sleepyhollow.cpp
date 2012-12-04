@@ -1,9 +1,9 @@
 #include <Python.h>
 #include <structmember.h>
 
-#include <yipit/hollow/hollow.h>
-#include <yipit/hollow/error.h>
-#include <yipit/hollow/response.h>
+#include <hollow/hollow.h>
+#include <hollow/error.h>
+#include <hollow/response.h>
 #include "sleepyhollow.h"
 
 #ifdef UNUSED

@@ -1,6 +1,6 @@
 #include <cstdlib>
 #include <cstring>
-#include <yipit/hollow/error.h>
+#include <hollow/error.h>
 
 Error *__hollow_error_last = NULL;
 

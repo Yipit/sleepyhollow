@@ -1,5 +1,5 @@
 #include <iostream>
-#include <yipit/hollow/hollow.h>
+#include <hollow/hollow.h>
 
 int
 main (int argc, char **argv)

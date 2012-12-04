@@ -5,7 +5,7 @@
 
 #include <QNetworkReply>
 #include <QWebPage>
-#include <yipit/hollow/response.h>
+#include <hollow/response.h>
 
 class WebPage : public QWebPage
 {

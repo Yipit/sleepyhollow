@@ -3,10 +3,10 @@
 #include <QWebFrame>
 #include <QApplication>
 
-#include <yipit/hollow/hollow.h>
-#include <yipit/hollow/error.h>
-#include <yipit/hollow/webpage.h>
-#include <yipit/hollow/response.h>
+#include <hollow/hollow.h>
+#include <hollow/error.h>
+#include <hollow/webpage.h>
+#include <hollow/response.h>
 
 
 // Mocking the values to pass to QApplication

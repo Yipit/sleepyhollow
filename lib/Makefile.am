@@ -8,12 +8,12 @@ libhollow_la_LDFLAGS = $(QT_LDFLAGS) $(LDFLAGS) #-export-symbols-regex '^y_hollo
 libhollow_la_LIBADD = $(QT_LIBS)
 
 BUILT_SOURCES = \
-	../include/yipit/hollow/webpage.moc.cpp \
-	../include/yipit/hollow/hollow.moc.cpp
+	../include/hollow/webpage.moc.cpp \
+	../include/hollow/hollow.moc.cpp
 
 libhollow_la_SOURCES += \
-	../include/yipit/hollow/webpage.moc.cpp \
-	../include/yipit/hollow/hollow.moc.cpp
+	../include/hollow/webpage.moc.cpp \
+	../include/hollow/hollow.moc.cpp
 
 noinst_PROGRAMS = test-hollow
 test_hollow_SOURCES = test-hollow.cpp

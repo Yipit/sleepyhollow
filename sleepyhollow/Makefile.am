@@ -1,6 +1,7 @@
 sleepyhollowdir = $(pkgpythondir)
-sleepyhollow_PYTHON = sleepyhollow.py
+sleepyhollow_PYTHON = __init__.py wrappers.py
 
+pyexecdir = $(pkgpythondir)
 pyexec_LTLIBRARIES = _sleepyhollow.la
 
 _sleepyhollow_la_SOURCES = sleepyhollow.cpp
