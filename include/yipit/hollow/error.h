@@ -27,6 +27,6 @@ private:
 };
 
 // As you can see, it's not thread safe.
-static Error *__hollow_error_last = NULL;
+extern Error *__hollow_error_last;
 
 #endif  // HOLLOW_ERROR_H

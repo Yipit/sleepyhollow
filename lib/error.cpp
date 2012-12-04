@@ -2,6 +2,7 @@
 #include <cstring>
 #include <yipit/hollow/error.h>
 
+Error *__hollow_error_last = NULL;
 
 Error::Error(int code, const char* message)
   : m_code(code)
