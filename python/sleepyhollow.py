@@ -18,31 +18,30 @@ __all__ = [
 
 
 class SleepyHollow(_SleepyHollow):
-    def get(self, *args, **kw):
-        _response = super(SleepyHollow, self).get(*args, **kw)
-
+    def request(self, method, *args, **kw):
+        response = super(SleepyHollow, self).request(method, *args, **kw)
         return Response(
-            status_code=_response.status_code,
-            content=_response.content,
-            reason=_response.reason,
-            headers=_response.headers,
-            text=_response.text,
+            status_code=response['status_code'],
+            text=response['text'],
+            reason=response['reason'],
+            headers=response['headers'],
         )
+
+    def get(self, *args, **kw):
+        return self.request('get', *args, **kw)
 
 
 class Response(object):
-    def __init__(self, status_code, reason, content, text, headers):
+    def __init__(self, status_code, reason, text, headers):
         self.status_code = int(status_code)
         self.reason = unicode(reason)
-        self.content = str(content)
         self.text = unicode(text)
-        self.headers = headers.copy()
+        self.content = str(text)
+        self.headers = headers
 
     @property
     def json(self):
         try:
             return json.loads(self.content)
         except ValueError as e:
-            import ipdb;ipdb.set_trace()
-
             return None

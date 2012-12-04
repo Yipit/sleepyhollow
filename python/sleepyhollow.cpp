@@ -84,7 +84,17 @@ SleepyHollow_request (SleepyHollow *self, PyObject *args)
   PyDict_SetItemString (dict, C_STR ("status_code"),
                         PyInt_FromLong (resp->getStatusCode()));
   PyDict_SetItemString (dict, C_STR ("reason"),
-                        PyString_FromString (resp->getReason ()));
+                        PyString_FromString (resp->getReason()));
+
+  /* Adding the headers */
+  ResponseHeaders headers = resp->getHeaders();;
+  ResponseHeadersIterator iterator;
+  PyObject *headers_dict = PyDict_New ();
+
+  PyDict_SetItemString (dict, C_STR ("headers"), headers_dict);
+  for (iterator = headers.begin(); iterator != headers.end(); iterator++)
+    PyDict_SetItemString (headers_dict, C_STR (iterator->first.c_str()),
+                          PyString_FromString (iterator->second.c_str()));
   return dict;
 }
 
@@ -124,7 +134,7 @@ static PyTypeObject SleepyHollowType = {
   0,                                        /* tp_getattro */
   0,                                        /* tp_setattro */
   0,                                        /* tp_as_buffer */
-  Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE,  /* tp_flags */
+  Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE, /* tp_flags */
   "SleepyHollow is an amazing scrapper",    /* tp_doc */
   0,                                        /* tp_traverse */
   0,                                        /* tp_clear */

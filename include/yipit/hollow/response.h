@@ -4,28 +4,31 @@
 #define HOLLOW_RESPONSE_H
 
 #include <string>
+#include <map>
 #include <QString>
-#include <QHash>
-#include <QHashIterator>
 #include <QNetworkReply>
+
+typedef std::map<std::string, std::string> ResponseHeaders;
+
+typedef ResponseHeaders::iterator ResponseHeadersIterator;
 
 class WebPage;
 
 class Response
 {
 public:
-  Response(int statusCodeo, const char* text, const char* reason, QNetworkReply* reply);
+  Response(int statusCodeo, const char* text, const char* reason, ResponseHeaders& headers);
   ~Response();
   int getStatusCode(void);
   const char* getText(void);
   const char* getReason(void);
-  QHash<QString, QString> getHeaders(void);
+  ResponseHeaders getHeaders(void);
 
 private:
   int m_statusCode;
   char* m_text;
   char* m_reason;
-  QHash<QString, QString> m_headers;
+  ResponseHeaders m_headers;
   void setText(const char* text);
   friend class WebPage;
 };
