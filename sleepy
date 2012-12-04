@@ -133,6 +133,15 @@ compile () {
     fi;
 }
 
+server.isrunning () {
+    serverpid=$(ps aux | egrep $SERVER_NAME | grep -v grep | awk '{ print $2 }')
+    if [ $serverpid != "" ]; then
+        echo 'yes'
+    else
+        echo 'no'
+    fi;
+}
+
 server.start () {
     potential_port=$1
     if [ $((potential_port)) -gt 1024 ]; then
@@ -147,6 +156,10 @@ server.start () {
 
     if [ $run_in_background == "yes" ]; then
         (exec -a $SERVER_NAME python tests/server/__init__.py $TEST_SERVER_PORT 2>&1) 2>&1> server.log &
+        if [ $(server.isrunning) == "no" ]; then
+            cat server.log
+            exit 1
+        fi;
     else
         (exec -a $SERVER_NAME python tests/server/__init__.py $TEST_SERVER_PORT 2>&1) 2>&1
     fi;
