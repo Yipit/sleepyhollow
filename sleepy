@@ -169,7 +169,7 @@ server.stop () {
     unset DYLD_LIBRARY_PATH
     unset LD_LIBRARY_PATH
     unset PYTHONPATH
-    ps aux | egrep $SERVER_NAME | grep -v grep | awk '{ print $2 }' | xargs kill -9
+    ps aux | egrep server/__init__.py | grep -v grep | awk '{ print $2 }' | xargs kill -9
     color.blue "Test server stopped\n"
 }
 
