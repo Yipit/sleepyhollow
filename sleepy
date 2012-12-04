@@ -150,13 +150,9 @@ server.stop () {
 tests () {
     server.start
     # Making it easier to run the tests
-    if [ $(should.recompile_sources) == "yes" ]; then
-        compile
-    else
-        (make 2>&1) 2>&1 >>sleepy.log
-    fi;
+    (make 2>&1) 2>&1 >>sleepy.log
     if [ "$?" != "0" ]; then
-        exit 1;
+        compile
     fi;
 
     # Running the tests
