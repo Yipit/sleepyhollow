@@ -146,6 +146,7 @@ tests () {
     fi;
     cp -f lib/.libs/*.dylib tests
     cp -f python/.libs/*.so tests
+    cp -f python/*.py tests
 
     # Running the tests
     if [ "x$DISPLAY" == "x" ]; then

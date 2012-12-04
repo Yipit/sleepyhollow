@@ -94,7 +94,7 @@ static PyMethodDef SleepyHollow_Response_methods[] = {
 static PyTypeObject SleepyHollow_ResponseType = {
   PyObject_HEAD_INIT(NULL)
   0,                                        /* ob_size */
-  "sleepyhollow.Response",                  /* tp_name */
+  "_sleepyhollow.Response",                 /* tp_name */
   sizeof (SleepyHollow_Response),           /* tp_basicsize */
   0,                                        /* tp_itemsize */
   (destructor) SleepyHollow_Response_dealloc, /* tp_dealloc */
@@ -112,7 +112,7 @@ static PyTypeObject SleepyHollow_ResponseType = {
   0,                                        /* tp_getattro */
   0,                                        /* tp_setattro */
   0,                                        /* tp_as_buffer */
-  Py_TPFLAGS_DEFAULT,                       /* tp_flags */
+  Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE, /* tp_flags */
   "The response for a request",             /* tp_doc */
   0,                                        /* tp_traverse */
   0,                                        /* tp_clear */
@@ -235,7 +235,7 @@ static PyMethodDef SleepyHollow_methods[] = {
 static PyTypeObject SleepyHollowType = {
   PyObject_HEAD_INIT(NULL)
   0,                                        /* ob_size */
-  "sleepyhollow.SleepyHollow",              /* tp_name */
+  "_sleepyhollow.SleepyHollow",             /* tp_name */
   sizeof (SleepyHollow),                    /* tp_basicsize */
   0,                                        /* tp_itemsize */
   (destructor) SleepyHollow_dealloc,        /* tp_dealloc */
@@ -253,7 +253,7 @@ static PyTypeObject SleepyHollowType = {
   0,                                        /* tp_getattro */
   0,                                        /* tp_setattro */
   0,                                        /* tp_as_buffer */
-  Py_TPFLAGS_DEFAULT,                       /* tp_flags */
+  Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE,  /* tp_flags */
   "SleepyHollow is an amazing scrapper",    /* tp_doc */
   0,                                        /* tp_traverse */
   0,                                        /* tp_clear */
@@ -291,7 +291,7 @@ static PyMethodDef module_methods[] = {
 };
 
 PyMODINIT_FUNC
-initsleepyhollow (void)
+init_sleepyhollow (void)
 {
   PyObject *m;
   PyObject *d;
@@ -302,7 +302,7 @@ initsleepyhollow (void)
   if (PyType_Ready (&SleepyHollow_ResponseType) < 0)
     return;
 
-  if ((m = Py_InitModule ("sleepyhollow", module_methods)) == NULL)
+  if ((m = Py_InitModule ("_sleepyhollow", module_methods)) == NULL)
     return;
 
   /* Getting the module dictionary */
@@ -334,5 +334,5 @@ initsleepyhollow (void)
   /* Error Handling */
  error:
   if (PyErr_Occurred ())
-    PyErr_SetString (PyExc_ImportError, "sleepyhollow: init failed");
+    PyErr_SetString (PyExc_ImportError, "_sleepyhollow: init failed");
 }

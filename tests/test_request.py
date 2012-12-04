@@ -44,10 +44,29 @@ def test_response(context):
     response.status_code.should.be.an(int)
     response.text.should.be.a(unicode)
     response.content.should.be.a(str)
+    response.json.should.be.none
 
     # Now let's test the values
     response.status_code.should.equal(200)
     expect('Very Simple').to.be.within(response.text)
+
+
+@server_test_case
+def test_json_response(context):
+    "Retrieving a JSON response object using the get method"
+    sl = SleepyHollow()
+    response = sl.get(context.route_to('/status-200.json'))
+
+    # Let's test the types
+    response.should.be.a(Response)
+    response.status_code.should.be.an(int)
+    response.text.should.be.a(unicode)
+    response.content.should.be.a(str)
+
+    response.json.should.equal({
+        'success': True,
+        'status': 200,
+    })
 
 
 @server_test_case
