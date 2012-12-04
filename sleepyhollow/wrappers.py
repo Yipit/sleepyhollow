@@ -51,6 +51,9 @@ class SleepyHollow(_SleepyHollow):
         url = self._patch_querystring(url, params)
         return self.request('get', url=url, params=params)
 
+    def post(self, url, params=None):
+        return self.request('post', url=url, params=params)
+
 
 class Response(object):
     def __init__(self, status_code, url, text, reason, headers):

@@ -8,7 +8,6 @@ from tornado.web import RequestHandler
 from tornado.web import StaticFileHandler
 from tornado.httpserver import HTTPServer
 from tornado.ioloop import IOLoop
-from multiprocessing import Process
 
 LOCAL_FILE = lambda *path: join(abspath(dirname(__file__)), *path)
 
@@ -25,8 +24,8 @@ class StatusHandler(RequestHandler):
 
 
 class JSONStatusHandler(RequestHandler):
-    def get(self, status):
-        data = {'success': True, 'status': int(status)}
+    def handle_status(self, method, status):
+        data = {'success': True, 'status': int(status), 'method': method}
         for key in self.request.arguments:
             data[key] = self.get_argument(key)
 
@@ -34,6 +33,12 @@ class JSONStatusHandler(RequestHandler):
         self.set_header('Content-Type', 'application/json')
         self.write(json.dumps(data))
         self.finish()
+
+    def get(self, status):
+        return self.handle_status('GET', status)
+
+    def post(self, status):
+        return self.handle_status('POST', status)
 
 
 class AuthHandler(RequestHandler):

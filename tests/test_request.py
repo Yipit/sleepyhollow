@@ -68,6 +68,7 @@ def test_json_response(context):
     response.json.should.equal({
         u'success': True,
         u'status': 200,
+        u'method': 'GET',
     })
 
 
@@ -119,6 +120,27 @@ def test_get_parameters(context):
 
     response.json.should.equal({
         u'success': True,
+        u'method': 'GET',
+        u'status': 200,
+        u'name': u'Gabriel',
+    })
+
+
+@server_test_case
+def test_post_parameters(context):
+    "requesting with POST parameters"
+    sl = SleepyHollow()
+    response = sl.post(context.route_to('/status-200.json'), params={'name': 'Gabriel'})
+
+    # Let's test the types
+    response.should.be.a(Response)
+    response.status_code.should.be.an(int)
+    response.text.should.be.a(unicode)
+    response.content.should.be.a(str)
+
+    response.json.should.equal({
+        u'success': True,
+        u'method': 'POST',
         u'status': 200,
         u'name': u'Gabriel',
     })
