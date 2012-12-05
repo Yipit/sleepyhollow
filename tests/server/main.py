@@ -31,6 +31,10 @@ class JSONStatusHandler(RequestHandler):
         for key in self.request.arguments:
             data[key] = self.get_argument(key)
 
+        for key in self.request.headers:
+            if key.startswith('X'):
+                data[key] = self.request.headers[key]
+
         return data
 
     def handle_status(self, method, status):

@@ -22,21 +22,26 @@ __all__ = [
 
 
 class SleepyHollow(_SleepyHollow):
-    def request(self, method, url, params=None):
+    def request(self, method, url, params=None, headers=None):
         if isinstance(params, dict):
             payload = urllib.urlencode(params)
         else:
             payload = params
 
-        response = super(SleepyHollow, self).request(method, url, params=payload)
+        if not headers:
+            headers = {}
 
-        return Response(
-            status_code=response['status_code'],
-            url=response['url'],
-            text=response['text'],
-            reason=response['reason'],
-            headers=response['headers'],
-        )
+        if not 'Content-Type' in headers:
+            headers['Content-Type'] = 'application/x-www-form-urlencoded'
+
+        if not 'User-Agent' in headers:
+            headers['User-Agent'] = 'SleepyHollow v0.0.1'
+
+        response = super(SleepyHollow, self).request(method, url,
+                                                     params=payload,
+                                                     headers=headers)
+
+        return Response(**response)
 
     def _patch_querystring(self, url, params):
         p = urlparse.urlsplit(url)
@@ -47,22 +52,22 @@ class SleepyHollow(_SleepyHollow):
         parts = (p.scheme, p.netloc, p.path, urllib.urlencode(_params), p.fragment)
         return urlparse.urlunsplit(parts)
 
-    def get(self, url, params=None):
+    def get(self, url, params=None, headers=None):
         url = self._patch_querystring(url, params)
         return self.request('get', url=url, params=params)
 
-    def post(self, url, params=None):
+    def post(self, url, params=None, headers=None):
         return self.request('post', url=url, params=params)
 
-    def put(self, url, params=None):
+    def put(self, url, params=None, headers=None):
         url = self._patch_querystring(url, params)
         return self.request('put', url=url, params=params)
 
-    def head(self, url, params=None):
+    def head(self, url, params=None, headers=None):
         url = self._patch_querystring(url, params)
         return self.request('head', url=url, params=params)
 
-    def delete(self, url, params=None):
+    def delete(self, url, params=None, headers=None):
         url = self._patch_querystring(url, params)
         return self.request('delete', url=url, params=params)
 
@@ -80,5 +85,5 @@ class Response(object):
     def json(self):
         try:
             return json.loads(self.content)
-        except ValueError as e:
+        except ValueError:
             return None

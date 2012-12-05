@@ -56,26 +56,39 @@ SleepyHollow_request (SleepyHollow *self, PyObject *args, PyObject *kw)
   Response *resp;
   Error *error;
   PyObject *payload_str;
+  PyObject *request_headers_dict;
   char *payload = NULL;
 
   const char *url, *method;
 
-  static char *kwlist[] = {C_STR("method"), C_STR("url"), C_STR("params"), NULL};
+  static char *kwlist[] = {C_STR("method"), C_STR("url"), C_STR("params"), C_STR("headers"), NULL};
 
-  if (!PyArg_ParseTupleAndKeywords (args, kw, "ss|O", kwlist, &method, &url, &payload_str))
+  if (!PyArg_ParseTupleAndKeywords (args, kw, "ss|OO", kwlist, &method, &url, &payload_str, &request_headers_dict))
     return NULL;
 
-  /* Checking if "params" is a PyDict, and if so, convert the PyDict
-     into a StringHashMap */
-
-
+  /* If params is not PyString or Py_None we raise a TypeError */
   if (PyString_Check(payload_str)) {
     payload = PyString_AsString(payload_str);
   } else if (payload_str != Py_None) {
     return PyErr_Format (PyExc_TypeError, "The 'params' argument must be either a string or None");
   }
 
-  resp = self->hollow->request (method, url, payload);
+  StringHashMap requestHeaders;
+  /* Checking if headers is a dict, and if so, we turn it into a StringHashMap */
+  if (PyDict_Check(request_headers_dict)) {
+    PyObject *key, *value;
+    Py_ssize_t pos = 0;
+
+    while (PyDict_Next(request_headers_dict, &pos, &key, &value)) {
+      std::string cpp_key(PyString_AsString(key));
+      std::string cpp_value(PyString_AsString(value));
+      requestHeaders[cpp_key] = cpp_value;
+    }
+  } else if (request_headers_dict != Py_None) {
+    return PyErr_Format (PyExc_TypeError, "The 'headers' argument must be either a dict or None");
+  }
+
+  resp = self->hollow->request (method, url, payload, requestHeaders);
 
   /* Just making sure that everything worked */
   if ((error = Error::last()) != NULL)
@@ -104,13 +117,13 @@ SleepyHollow_request (SleepyHollow *self, PyObject *args, PyObject *kw)
                         PyString_FromString (resp->getReason()));
 
   /* Adding the headers */
-  StringHashMap headers = resp->getHeaders();
+  StringHashMap responseHeaders = resp->getHeaders();
   StringHashMapIterator iterator;
-  PyObject *headers_dict = PyDict_New ();
+  PyObject *response_headers_dict = PyDict_New ();
 
-  PyDict_SetItemString (dict, C_STR ("headers"), headers_dict);
-  for (iterator = headers.begin(); iterator != headers.end(); iterator++)
-    PyDict_SetItemString (headers_dict, C_STR (iterator->first.c_str()),
+  PyDict_SetItemString (dict, C_STR ("headers"), response_headers_dict);
+  for (iterator = responseHeaders.begin(); iterator != responseHeaders.end(); iterator++)
+    PyDict_SetItemString (response_headers_dict, C_STR (iterator->first.c_str()),
                           PyString_FromString (iterator->second.c_str()));
   return dict;
 }

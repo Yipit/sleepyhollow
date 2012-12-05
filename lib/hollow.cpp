@@ -48,35 +48,11 @@ Hollow::~Hollow()
 
 
 Response *
-Hollow::request (const char* method, const char* url, const char* payload)
+Hollow::request (const char* method, const char* url, const char* payload, StringHashMap& headers)
 {
   QString operation(method);
-
   QNetworkRequest request;
-  page->triggerAction(QWebPage::Stop);
-
-  QNetworkAccessManager::Operation networkOp = QNetworkAccessManager::UnknownOperation;
-
-  operation = operation.toLower();
-  if (operation == "get") {
-    networkOp = QNetworkAccessManager::GetOperation;
-  } else if (operation == "head") {
-    networkOp = QNetworkAccessManager::HeadOperation;
-  } else if (operation == "put") {
-    networkOp = QNetworkAccessManager::PutOperation;
-  } else if (operation == "post") {
-    networkOp = QNetworkAccessManager::PostOperation;
-    /* TODO: only add this line if the python wrapper doesn't specify
-       the Content-Type header */
-    request.setRawHeader("Content-Type", "application/x-www-form-urlencoded");
-  } else if (operation == "delete") {
-    networkOp = QNetworkAccessManager::DeleteOperation;
-  } else {
-    Error::set(Error::INVALID_METHOD, operation.toUtf8().data());
-    return NULL;
-  }
-
-  request.setRawHeader("User-Agent", "SleepyHollow");
+  StringHashMapIterator headerIterator;
 
   // First of all, let's see if this url is valid and contains a valid
   // scheme
@@ -90,6 +66,34 @@ Hollow::request (const char* method, const char* url, const char* payload)
     Error::set(Error::INVALID_URL, err.toUtf8().data());
     return NULL;
   }
+
+  page->triggerAction(QWebPage::Stop);
+
+  QNetworkAccessManager::Operation networkOp = QNetworkAccessManager::UnknownOperation;
+
+  operation = operation.toLower();
+  if (operation == "get") {
+    networkOp = QNetworkAccessManager::GetOperation;
+  } else if (operation == "head") {
+    networkOp = QNetworkAccessManager::HeadOperation;
+  } else if (operation == "put") {
+    networkOp = QNetworkAccessManager::PutOperation;
+  } else if (operation == "post") {
+    networkOp = QNetworkAccessManager::PostOperation;
+  } else if (operation == "delete") {
+    networkOp = QNetworkAccessManager::DeleteOperation;
+  } else {
+    Error::set(Error::INVALID_METHOD, operation.toUtf8().data());
+    return NULL;
+  }
+
+  /* setting the request headers coming from the python layer */
+  for (headerIterator = headers.begin(); headerIterator != headers.end(); headerIterator++){
+    QByteArray byte_key(headerIterator->first.c_str());
+    QByteArray byte_value(headerIterator->second.c_str());
+    request.setRawHeader(byte_key, byte_value);
+  }
+
   QByteArray body(payload);
   request.setUrl(qurl);
   page->mainFrame()->load(request, networkOp, body);
