@@ -1,5 +1,4 @@
 #include <iostream>
-#include <qdebug.h>
 #include <QApplication>
 #include <QUrl>
 #include <QWebPage>
@@ -80,11 +79,13 @@ WebPage::buildResponseFromNetworkReply(QNetworkReply *reply)
 void
 WebPage::handleNetworkReplies(QNetworkReply *reply)
 {
-  // Making sure we're handling the right url
-  if ((mainFrame()->url() != reply->url()))
-    return;
 
-  QNetworkReply::NetworkError errCode = reply->error();
+  // Making sure we're handling the right url
+  QUrl url = mainFrame()->url();
+  if (url.isEmpty())
+    url = mainFrame()->requestedUrl();
+  if (url != reply->url())
+    return;
 
   // Cleaning up the last response. Maybe it's a good place to track
   // which requests the caller made.
@@ -93,6 +94,8 @@ WebPage::handleNetworkReplies(QNetworkReply *reply)
     m_lastResponse = NULL;
   }
 
+  // Error handling
+  QNetworkReply::NetworkError errCode = reply->error();
   switch (errCode) {
   case QNetworkReply::NoError:
     // Creating the new response object with the info gathered from this

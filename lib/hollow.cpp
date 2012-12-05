@@ -9,7 +9,6 @@
 #include <hollow/webpage.h>
 #include <hollow/response.h>
 
-
 // Mocking the values to pass to QApplication
 static int argc = 1;
 static char *argv[] = { (char *) "sleepy-hollow", 0 };
