@@ -14,7 +14,11 @@ LOCAL_FILE = lambda *path: join(abspath(dirname(__file__)), *path)
 
 class SimpleHandler(RequestHandler):
     def get(self, name):
-        self.render('{}.html'.format(name))
+        data = {}
+        for key in self.request.arguments:
+            data[key] = self.get_argument(key)
+
+        self.render('{}.html'.format(name), **data)
 
 
 class StatusHandler(RequestHandler):
