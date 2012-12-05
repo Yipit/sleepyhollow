@@ -24,6 +24,7 @@ Hollow::Hollow(QObject *parent)
   // This must be instantiated *after* the app
   page = new WebPage();
 
+  // setting up the page
   // This app will die when we finish downloading our stuff
   QObject::connect((QObject *) page->mainFrame(), SIGNAL(loadFinished(bool)),
                    this, SLOT(proxyExit(bool)));
@@ -89,15 +90,13 @@ Hollow::request (const char* method, const char* url, const char* payload, Strin
 
   /* setting the request headers coming from the python layer */
   for (headerIterator = headers.begin(); headerIterator != headers.end(); headerIterator++){
-    QByteArray byte_key(headerIterator->first.c_str());
-    QByteArray byte_value(headerIterator->second.c_str());
-    request.setRawHeader(byte_key, byte_value);
+    request.setRawHeader(QString(headerIterator->first.c_str()).toAscii(), QString(headerIterator->second.c_str()).toAscii());
   }
 
   QByteArray body(payload);
   request.setUrl(qurl);
   page->mainFrame()->load(request, networkOp, body);
-
+  page->setViewportSize(page->mainFrame()->contentsSize());
   // This app will exit when the webpage fires the loadFinished()
   // signal. See proxyExit().
   app->exec();

@@ -5,6 +5,7 @@
 
 #include <QNetworkReply>
 #include <QWebPage>
+#include <QWebSettings>
 #include <hollow/response.h>
 
 class WebPage : public QWebPage
@@ -20,6 +21,7 @@ private slots:
 
 private:
   QNetworkAccessManager *m_networkAccessManager;
+  QWebSettings *m_settings;
   Response *m_lastResponse;
   Response *buildResponseFromNetworkReply(QNetworkReply *reply);
 };

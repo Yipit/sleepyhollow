@@ -21,6 +21,21 @@ WebPage::WebPage(QObject *parent)
   m_networkAccessManager = networkAccessManager();
   connect(m_networkAccessManager, SIGNAL(finished(QNetworkReply *)),
           this, SLOT(handleNetworkReplies(QNetworkReply *)));
+
+  m_settings = settings();
+  m_settings->setDefaultTextEncoding("utf-8");
+  m_settings->setFontSize(QWebSettings::MinimumFontSize, 10);
+  m_settings->setFontSize(QWebSettings::MinimumLogicalFontSize, 10);
+  m_settings->setFontSize(QWebSettings::DefaultFontSize, 12);
+  m_settings->setFontSize(QWebSettings::DefaultFixedFontSize, 14);
+  m_settings->setAttribute(QWebSettings::JavaEnabled, false);
+  m_settings->setAttribute(QWebSettings::JavascriptEnabled, true);
+  m_settings->setAttribute(QWebSettings::PluginsEnabled, false);
+  m_settings->setAttribute(QWebSettings::JavascriptCanOpenWindows, true);
+  m_settings->setAttribute(QWebSettings::JavascriptCanAccessClipboard, true);
+  m_settings->setAttribute(QWebSettings::AcceleratedCompositingEnabled, false);
+  // QUrl css_path("file:///path/to/file.css");
+  // m_settings->setUserStyleSheetUrl(css_path);
 }
 
 
