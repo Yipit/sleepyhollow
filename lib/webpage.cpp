@@ -72,6 +72,10 @@ WebPage::buildResponseFromNetworkReply(QNetworkReply *reply)
 void
 WebPage::handleNetworkReplies(QNetworkReply *reply)
 {
+  // Making sure we're handling the right url
+  if ((mainFrame()->requestedUrl() != reply->url()))
+    return;
+
   QNetworkReply::NetworkError errCode = reply->error();
 
   // Cleaning up the last response. Maybe it's a good place to track
