@@ -190,9 +190,9 @@ tests () {
 
     # Running the tests
     if [ "x$DISPLAY" == "x" ]; then
-        xvfb-run --server-args="-screen 0 1024x768x24" nosetests --verbosity=2 -s tests
+        xvfb-run --server-args="-screen 0 1024x768x24" nosetests --stop --verbosity=2 -s tests
     else
-        nosetests --verbosity=2 -s tests
+        nosetests --stop --verbosity=2 -s tests
     fi
 
     exit_status="$?"
