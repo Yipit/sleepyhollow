@@ -43,32 +43,47 @@ class SleepyHollow(_SleepyHollow):
 
         return Response(**response)
 
+    def _encode_dict_as_qs(self, params):
+        items = []
+        for key in params:
+            value = params[key]
+            if isinstance(value, list):
+                for v in value:
+                    items.append(urllib.urlencode({key: v}))
+            else:
+                items.append(urllib.urlencode({key: value}))
+
+        return '&'.join(items)
+
     def _patch_querystring(self, url, params):
         p = urlparse.urlsplit(url)
         _params = urlparse.parse_qs(p.query)
+
         if isinstance(params, dict):
             _params.update(params)
 
-        parts = (p.scheme, p.netloc, p.path, urllib.urlencode(_params), p.fragment)
-        return urlparse.urlunsplit(parts)
+        qs = self._encode_dict_as_qs(_params)
+
+        parts = (p.scheme, p.netloc, p.path, qs, p.fragment)
+        return urlparse.urlunsplit(parts), _params
 
     def get(self, url, params=None, headers=None):
-        url = self._patch_querystring(url, params)
+        url, params = self._patch_querystring(url, params)
         return self.request('get', url=url, params=params)
 
     def post(self, url, params=None, headers=None):
         return self.request('post', url=url, params=params)
 
     def put(self, url, params=None, headers=None):
-        url = self._patch_querystring(url, params)
+        url, params = self._patch_querystring(url, params)
         return self.request('put', url=url, params=params)
 
     def head(self, url, params=None, headers=None):
-        url = self._patch_querystring(url, params)
+        url, params = self._patch_querystring(url, params)
         return self.request('head', url=url, params=params)
 
     def delete(self, url, params=None, headers=None):
-        url = self._patch_querystring(url, params)
+        url, params = self._patch_querystring(url, params)
         return self.request('delete', url=url, params=params)
 
 
