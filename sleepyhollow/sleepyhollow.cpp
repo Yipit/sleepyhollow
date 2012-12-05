@@ -88,12 +88,14 @@ SleepyHollow_request (SleepyHollow *self, PyObject *args, PyObject *kw)
     return PyErr_Format (PyExc_TypeError, "The 'headers' argument must be either a dict or None");
   }
 
+  /* Performing the actuall request */
   resp = self->hollow->request (method, url, payload, requestHeaders);
-  if (resp == NULL && (error = Error::last()) == NULL)
-    return PyErr_Format (SleepyHollowError, "Both error and response are null");
 
   /* Just making sure that everything worked */
-  if ((error = Error::last()) != NULL)
+  error = Error::last();
+  if (resp == NULL && error == NULL)
+    return PyErr_Format (SleepyHollowError, "Both error and response are null");
+  else if (error != NULL)
     switch (error->code())
       {
       case Error::INVALID_URL:
