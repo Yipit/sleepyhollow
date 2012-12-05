@@ -35,7 +35,8 @@ Hollow::Hollow(QObject *parent)
 void
 Hollow::proxyExit(bool ok)
 {
-  QApplication::exit();
+
+  QApplication::exit((int) ok);
 
   // Just marking the last request didn't work. The getUrlContent method
   // will handle that.

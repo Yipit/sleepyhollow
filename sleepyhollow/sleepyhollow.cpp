@@ -111,6 +111,8 @@ SleepyHollow_request (SleepyHollow *self, PyObject *args, PyObject *kw)
                         PyUnicode_FromString (resp->getURL()));
   PyDict_SetItemString (dict, C_STR ("text"),
                         PyUnicode_FromString (resp->getText()));
+  PyDict_SetItemString (dict, C_STR ("html"),
+                        PyUnicode_FromString (resp->getHtml()));
   PyDict_SetItemString (dict, C_STR ("status_code"),
                         PyInt_FromLong (resp->getStatusCode()));
   PyDict_SetItemString (dict, C_STR ("reason"),

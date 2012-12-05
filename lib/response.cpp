@@ -6,10 +6,12 @@
 Response::Response (int statusCode,
                     const char* url,
                     const char* text,
+                    const char* html,
                     const char* reason,
                     StringHashMap& headers)
   : m_statusCode(statusCode)
   , m_text(strdup(text))
+  , m_html(strdup(html))
   , m_reason(strdup(reason))
   , m_url(strdup(url))
   , m_headers(headers)
@@ -20,6 +22,7 @@ Response::Response (int statusCode,
 Response::~Response()
 {
   free (m_text);
+  free (m_html);
   free (m_reason);
   free (m_url);
 }
@@ -46,12 +49,28 @@ Response::getText (void)
 }
 
 
+const char *
+Response::getHtml (void)
+{
+  return m_html;
+}
+
+
 void
 Response::setText(const char* text)
 {
   if (m_text)
     free(m_text);
   m_text = strdup(text);
+}
+
+
+void
+Response::setHtml(const char* html)
+{
+  if (m_html)
+    free(m_html);
+  m_html = strdup(html);
 }
 
 

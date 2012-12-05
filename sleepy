@@ -201,9 +201,10 @@ tests () {
     exit $exit_status
 }
 
+test.saks () {
+    python tests/saks.py
+}
 shell () {
-    cp -f lib/.libs/*.dylib tests
-    cp -f sleepyhollow/.libs/*.so tests
     ipython
 }
 
@@ -294,9 +295,7 @@ if [ "$0" != "-bash" ]; then
             "-c" | "compile") show.logo;compile ;exit $?;;
             "ci" | "continuous-integration") show.logo;continuous-integration ;exit $?;;
             "-h" | "help") show.logo;show-help;exit $?;;
-            "last_binary") check.newest_modified_compiled_library;exit $?;;
-            "last_source") check.newest_modified_sources;exit $?;;
-            "should.recompile") should.recompile_sources;exit $?;;
+            "saks") test.saks;exit $?;;
             *) all $*; exit $?;;
         esac
         shift

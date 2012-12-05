@@ -73,12 +73,13 @@ class SleepyHollow(_SleepyHollow):
 
 
 class Response(object):
-    def __init__(self, status_code, url, text, reason, headers):
+    def __init__(self, status_code, url, text, html, reason, headers):
         self.status_code = status_code
         self.url = url
         self.text = unicode(text)
+        self.html = unicode(html)
         self.reason = unicode(reason)
-        self.content = str(text)
+        self.content = self.text.encode('utf-8')
         self.headers = headers
 
     @property

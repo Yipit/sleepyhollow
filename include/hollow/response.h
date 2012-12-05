@@ -20,22 +20,26 @@ public:
   Response(int statusCode,
            const char* url,
            const char* text,
+           const char* html,
            const char* reason,
            StringHashMap& headers);
   ~Response();
   int getStatusCode(void);
   const char* getURL(void);
   const char* getText(void);
+  const char* getHtml(void);
   const char* getReason(void);
   StringHashMap getHeaders(void);
 
 private:
   int m_statusCode;
   char* m_text;
+  char* m_html;
   char* m_reason;
   char* m_url;
   StringHashMap m_headers;
   void setText(const char* text);
+  void setHtml(const char* html);
   friend class WebPage;
 };
 
