@@ -18,17 +18,6 @@ Hollow::Hollow(QObject *parent)
   : QObject(parent)
   , hasErrors(false)
 {
-  // Creating the app that will run untill we get the data
-  app = new QApplication(argc, argv);
-  app->setApplicationName(QString("SleepyHollow"));
-  app->setApplicationVersion(QString("0.0.1"));
-  // This must be instantiated *after* the app
-  page = new WebPage();
-
-  // setting up the page
-  // This app will die when we finish downloading our stuff
-  QObject::connect((QObject *) page->mainFrame(), SIGNAL(loadFinished(bool)),
-                   this, SLOT(proxyExit(bool)));
 }
 
 
@@ -46,7 +35,6 @@ Hollow::proxyExit(bool ok)
 
 Hollow::~Hollow()
 {
-  delete page;
 }
 
 
@@ -70,7 +58,17 @@ Hollow::request (const char* method, const char* url, const char* payload, Strin
     return NULL;
   }
 
-  page->triggerAction(QWebPage::Stop);
+  // Creating the app that will run untill we get the data
+  QApplication *app = new QApplication(argc, argv);
+  app->setApplicationName(QString("SleepyHollow"));
+  app->setApplicationVersion(QString("0.0.1"));
+
+  // setting up the page and connecting it's loadFinished signal to our
+  // exit function
+  WebPage* page = new WebPage();
+
+  QObject::connect((QObject *) page->mainFrame(), SIGNAL(loadFinished(bool)),
+                   this, SLOT(proxyExit(bool)));
 
   QNetworkAccessManager::Operation networkOp = QNetworkAccessManager::UnknownOperation;
 
@@ -90,7 +88,7 @@ Hollow::request (const char* method, const char* url, const char* payload, Strin
     return NULL;
   }
 
-  /* setting the request headers coming from the python layer */
+  // setting the request headers coming from the python layer
   for (headerIterator = headers.begin(); headerIterator != headers.end(); headerIterator++){
     request.setRawHeader(QString(headerIterator->first.c_str()).toAscii(),
                          QByteArray(headerIterator->second.c_str()));
@@ -100,6 +98,7 @@ Hollow::request (const char* method, const char* url, const char* payload, Strin
   request.setUrl(qurl);
   page->mainFrame()->load(request, networkOp, body);
   page->setViewportSize(page->mainFrame()->contentsSize());
+
   // This app will exit when the webpage fires the loadFinished()
   // signal. See proxyExit().
   app->exec();
@@ -112,6 +111,8 @@ Hollow::request (const char* method, const char* url, const char* payload, Strin
   } else {
     // Yay! Let's return the response object created by the webpage
     // after receiving a network reply.
-    return page->lastResponse();
+    Response *resp = page->lastResponse();
+    delete page;
+    return resp;
   }
 }

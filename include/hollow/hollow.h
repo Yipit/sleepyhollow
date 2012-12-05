@@ -7,7 +7,6 @@
 #include <QApplication>
 
 #include <hollow/error.h>
-#include <hollow/webpage.h>
 #include <hollow/response.h>
 
 class Hollow : public QObject
@@ -23,8 +22,6 @@ private slots:
   void proxyExit(bool ok);
 
 private:
-  QApplication *app;
-  WebPage *page;
   bool hasErrors;
 };
 
