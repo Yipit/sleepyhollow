@@ -204,6 +204,11 @@ tests () {
 test.saks () {
     python tests/saks.py
 }
+test.load () {
+    server.start 5000
+    python tests/load.py
+    server.stop
+}
 shell () {
     ipython
 }
@@ -296,6 +301,7 @@ if [ "$0" != "-bash" ]; then
             "ci" | "continuous-integration") show.logo;continuous-integration ;exit $?;;
             "-h" | "help") show.logo;show-help;exit $?;;
             "saks") test.saks;exit $?;;
+            "test.load") test.load;exit $?;;
             *) all $*; exit $?;;
         esac
         shift
