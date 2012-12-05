@@ -1,5 +1,6 @@
 #include <iostream>
 #include <qdebug.h>
+#include <QApplication>
 #include <QUrl>
 #include <QWebPage>
 #include <QWebFrame>
@@ -39,6 +40,13 @@ WebPage::WebPage(QObject *parent)
 }
 
 
+bool
+WebPage::shouldInterruptJavaScript() {
+  QApplication::processEvents(QEventLoop::AllEvents, 42);
+  return false;
+}
+
+
 Response *
 WebPage::buildResponseFromNetworkReply(QNetworkReply *reply)
 {
@@ -73,7 +81,7 @@ void
 WebPage::handleNetworkReplies(QNetworkReply *reply)
 {
   // Making sure we're handling the right url
-  if ((mainFrame()->requestedUrl() != reply->url()))
+  if ((mainFrame()->url() != reply->url()))
     return;
 
   QNetworkReply::NetworkError errCode = reply->error();

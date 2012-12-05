@@ -18,6 +18,7 @@ public:
 
 private slots:
   void handleNetworkReplies(QNetworkReply *);
+  bool shouldInterruptJavaScript();
 
 private:
   QNetworkAccessManager *m_networkAccessManager;

@@ -22,6 +22,7 @@ private slots:
   void proxyExit(bool ok);
 
 private:
+  QApplication *app;
   bool hasErrors;
 };
 

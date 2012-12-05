@@ -89,6 +89,8 @@ SleepyHollow_request (SleepyHollow *self, PyObject *args, PyObject *kw)
   }
 
   resp = self->hollow->request (method, url, payload, requestHeaders);
+  if (resp == NULL && (error = Error::last()) == NULL)
+    return PyErr_Format (SleepyHollowError, "Both error and response are null");
 
   /* Just making sure that everything worked */
   if ((error = Error::last()) != NULL)

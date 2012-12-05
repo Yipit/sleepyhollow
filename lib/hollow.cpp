@@ -18,6 +18,10 @@ Hollow::Hollow(QObject *parent)
   : QObject(parent)
   , hasErrors(false)
 {
+  // Creating the app that will run untill we get the data
+  QApplication *app = new QApplication(argc, argv);
+  app->setApplicationName(QString("SleepyHollow"));
+  app->setApplicationVersion(QString("0.0.1"));
 }
 
 
@@ -57,11 +61,6 @@ Hollow::request (const char* method, const char* url, const char* payload, Strin
     Error::set(Error::INVALID_URL, err.toUtf8().data());
     return NULL;
   }
-
-  // Creating the app that will run untill we get the data
-  QApplication *app = new QApplication(argc, argv);
-  app->setApplicationName(QString("SleepyHollow"));
-  app->setApplicationVersion(QString("0.0.1"));
 
   // setting up the page and connecting it's loadFinished signal to our
   // exit function

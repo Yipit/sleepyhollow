@@ -39,6 +39,7 @@ main (int argc, char **argv)
 
   std::cout << "Reading the response:" << std::endl
             << "status: " << resp->getStatusCode()
+            << "html: " << resp->getHtml()
             << std::endl;
   return 0;
 }
