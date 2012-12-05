@@ -20,7 +20,8 @@ Hollow::Hollow(QObject *parent)
 {
   // Creating the app that will run untill we get the data
   app = new QApplication(argc, argv);
-
+  app->setApplicationName(QString("SleepyHollow"));
+  app->setApplicationVersion(QString("0.0.1"));
   // This must be instantiated *after* the app
   page = new WebPage();
 
@@ -90,7 +91,8 @@ Hollow::request (const char* method, const char* url, const char* payload, Strin
 
   /* setting the request headers coming from the python layer */
   for (headerIterator = headers.begin(); headerIterator != headers.end(); headerIterator++){
-    request.setRawHeader(QString(headerIterator->first.c_str()).toAscii(), QString(headerIterator->second.c_str()).toAscii());
+    request.setRawHeader(QString(headerIterator->first.c_str()).toAscii(),
+                         QByteArray(headerIterator->second.c_str()));
   }
 
   QByteArray body(payload);
