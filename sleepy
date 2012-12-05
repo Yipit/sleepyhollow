@@ -205,6 +205,7 @@ test.saks () {
     python tests/saks.py
 }
 test.load () {
+    (make 2>&1) 2>&1>/dev/null
     server.start 5000
     python tests/load.py
     server.stop
