@@ -156,11 +156,11 @@ server.start () {
     color.blue "Running test server at port "
     color.green "$TEST_SERVER_PORT\n"
 
-    if [ "x$VIRTUAL_ENV" != "x" ]; then
+    if [ "x$VIRTUAL_ENV" == "x" ]; then
         if [ ! -e $WORKON_HOME/$VENVNAME ]; then
             mkvirtualenv --distribute --no-site-packages $VENVNAME
         else
-            if [ "x$VIRTUAL_ENV" == "x" ]; then
+            if [ "x$VIRTUAL_ENV" != "x" ]; then
                 workon $VENVNAME
             fi;
         fi;
