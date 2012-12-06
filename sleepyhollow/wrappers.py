@@ -37,9 +37,12 @@ class SleepyHollow(_SleepyHollow):
         if not 'User-Agent' in headers:
             headers['User-Agent'] = 'SleepyHollow v0.0.1'
 
-        response = super(SleepyHollow, self).request(method, url,
-                                                     params=payload,
-                                                     headers=headers)
+        try:
+            response = super(SleepyHollow, self).request(method, url,
+                                                         params=payload,
+                                                         headers=headers)
+        except KeyboardInterrupt:
+            raise SystemExit(1)
 
         return Response(**response)
 
