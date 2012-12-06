@@ -3,10 +3,13 @@
 #ifndef HOLLOW_WEBVIEW_H
 #define HOLLOW_WEBVIEW_H
 
+#include <QNetworkRequest>
 #include <QNetworkReply>
 #include <QWebPage>
 #include <QWebSettings>
+
 #include <hollow/core.h>
+#include <hollow/networkaccessmanager.h>
 #include <hollow/response.h>
 
 class WebPage : public QWebPage
@@ -17,22 +20,22 @@ public:
   WebPage(QObject *parent=0);
   Response *lastResponse();
   bool finished();
+  bool hasErrors();
 
 private slots:
+  void handleLoadFinished(bool);
+  void handleResourceRequested(const QNetworkRequest&);
   void handleNetworkReplies(QNetworkReply *);
   bool shouldInterruptJavaScript();
-  void attachListener();
-
-public slots:
-  void setAsLoaded();
 
 private:
-  QNetworkAccessManager *m_networkAccessManager;
-  bool m_finished;
+  bool m_hasErrors;
+  bool m_loadFinished;
   Response *m_lastResponse;
+  NetworkAccessManager *m_networkAccessManager;
+  QList<QUrl> m_requestedResources;
   Response *buildResponseFromNetworkReply(QNetworkReply *reply);
   void javaScriptConsoleMessage(const QString& message, int lineNumber, const QString& sourceID);
-
 };
 
 #endif  // HOLLOW_WEBVIEW_H

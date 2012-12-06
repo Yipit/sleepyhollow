@@ -18,13 +18,8 @@ public:
   ~Hollow();
   Response* request(const char* method, const char* url, const char* payload, StringHashMap& headers);
 
-private slots:
-  void proxyExit(bool ok);
-  void beforeExiting(void);
-
 private:
-  QApplication *app;
-  bool hasErrors;
+  QApplication app;
 };
 
 

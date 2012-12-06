@@ -1,6 +1,5 @@
 #include <iostream>
 #include <QObject>
-#include <QThread>
 #include <QWebFrame>
 #include <QNetworkRequest>
 #include <QApplication>
@@ -10,19 +9,7 @@
 #include <hollow/webpage.h>
 #include <hollow/response.h>
 
-
-#include <qdebug.h>
-#include <QMainWindow>
-#include <QWebView>
-
-
-class SleeperThread : public QThread
-{
-public:
-  static void msleep(unsigned long msecs) {
-    QThread::msleep(msecs);
-  }
-};
+#include "config.h"
 
 
 // Mocking the values to pass to QApplication
@@ -31,37 +18,15 @@ static char *argv[] = { (char *) "sleepy-hollow", 0 };
 
 Hollow::Hollow(QObject *parent)
   : QObject(parent)
-  , hasErrors(false)
+  , app(argc, argv)
 {
-  // Creating the app that will run untill we get the data
-  QApplication *app = new QApplication(argc, argv);
-  app->setApplicationName(QString("SleepyHollow"));
-  app->setApplicationVersion(QString("0.0.1"));
-  connect(app, SIGNAL(aboutToQuit(void)), this, SLOT(beforeExiting(void)));
+  // Setting some cool parameters in our app!
+  app.setApplicationName(QString(PACKAGE_NAME));
+  app.setApplicationVersion(QString(PACKAGE_VERSION));
 }
-
-
-void
-Hollow::proxyExit(bool ok)
-{
-  QApplication::exit((int) ok);
-
-  // Just marking the last request didn't work. The getUrlContent method
-  // will handle that.
-  hasErrors = !ok;
-}
-
-
-void
-Hollow::beforeExiting()
-{
-  // right before exiting
-}
-
 
 Hollow::~Hollow()
-{
-}
+{ }
 
 
 Response *
@@ -86,7 +51,7 @@ Hollow::request (const char* method, const char* url, const char* payload, Strin
 
   // setting up the page and connecting it's loadFinished signal to our
   // exit function
-  WebPage* page = new WebPage();
+  WebPage page;
 
   QNetworkAccessManager::Operation networkOp = QNetworkAccessManager::UnknownOperation;
 
@@ -114,19 +79,16 @@ Hollow::request (const char* method, const char* url, const char* payload, Strin
 
   QByteArray body(payload);
   request.setUrl(qurl);
-  page->mainFrame()->load(request, networkOp, body);
-  page->setViewportSize(page->mainFrame()->contentsSize());
+  page.mainFrame()->load(request, networkOp, body);
+  page.setViewportSize(page.mainFrame()->contentsSize());
 
-  // This app will exit when the webpage fires the loadFinished()
-  // signal. See proxyExit().
-  while (!page->finished()) {
-    app->processEvents(QEventLoop::AllEvents, 50);
+  // Mainloop
+  while (!page.finished()) {
+    app.processEvents();
     SleeperThread::msleep(0.01);
   }
 
-  std::cout << "Bailing out" << std::endl;
-
-  if (hasErrors) {
+  if (page.hasErrors()) {
     // The error was properly set in the WebPage::handleNetworkReplies()
     // method, so we just need to return NULL to notify the caller that
     // something didn't work.
@@ -134,8 +96,7 @@ Hollow::request (const char* method, const char* url, const char* payload, Strin
   } else {
     // Yay! Let's return the response object created by the webpage
     // after receiving a network reply.
-    Response *resp = page->lastResponse();
-    delete page;
+    Response *resp = page.lastResponse();
     return resp;
   }
 }
