@@ -25,7 +25,7 @@ _complete_commands () {
     local cur opts
     COMPREPLY=()
     cur="${COMP_WORDS[COMP_CWORD]}"
-    opts="test clean compile shell saks test.load ci"
+    opts="test clean compile shell saks banana test.load ci"
     COMPREPLY=( $(compgen -W "${opts}" -- ${cur}) )
     export COMPREPLY
     return 0
@@ -216,8 +216,12 @@ tests () {
 }
 
 test.saks () {
-    make
+    make 2>&1>/dev/null
     python tests/saks.py
+}
+test.banana () {
+    make 2>&1>/dev/null
+    python tests/banana.py
 }
 test.load () {
     (make 2>&1) 2>&1>/dev/null
@@ -304,6 +308,7 @@ if [ "$0" != "-bash" ]; then
             "ci" | "continuous-integration") show.logo;continuous-integration ;exit $?;;
             "-h" | "help") show.logo;show-help;exit $?;;
             "saks") test.saks;exit $?;;
+            "banana") test.banana;exit $?;;
             "test.load") test.load;exit $?;;
             *) all $*; exit $?;;
         esac
