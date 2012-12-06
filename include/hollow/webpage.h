@@ -26,6 +26,8 @@ private:
   QWebSettings *m_settings;
   Response *m_lastResponse;
   Response *buildResponseFromNetworkReply(QNetworkReply *reply);
+  void javaScriptConsoleMessage(const QString& message, int lineNumber, const QString& sourceID);
+
 };
 
 #endif  // HOLLOW_WEBVIEW_H

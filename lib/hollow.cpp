@@ -21,6 +21,7 @@ Hollow::Hollow(QObject *parent)
   QApplication *app = new QApplication(argc, argv);
   app->setApplicationName(QString("SleepyHollow"));
   app->setApplicationVersion(QString("0.0.1"));
+  connect(app, SIGNAL(aboutToQuit(void)), this, SLOT(beforeExiting(void)));
 }
 
 
@@ -34,7 +35,11 @@ Hollow::proxyExit(bool ok)
   // will handle that.
   hasErrors = !ok;
 }
-
+void
+Hollow::beforeExiting()
+{
+  // right before exiting
+}
 
 Hollow::~Hollow()
 {
@@ -99,7 +104,8 @@ Hollow::request (const char* method, const char* url, const char* payload, Strin
 
   // This app will exit when the webpage fires the loadFinished()
   // signal. See proxyExit().
-  app->exec();
+  hasErrors = !app->exec();
+
 
   if (hasErrors) {
     // The error was properly set in the WebPage::handleNetworkReplies()

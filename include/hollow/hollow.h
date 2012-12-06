@@ -20,6 +20,7 @@ public:
 
 private slots:
   void proxyExit(bool ok);
+  void beforeExiting(void);
 
 private:
   QApplication *app;

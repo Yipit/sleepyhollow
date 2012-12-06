@@ -7,7 +7,7 @@
 #include <hollow/webpage.h>
 #include <hollow/error.h>
 #include <hollow/response.h>
-
+#include <QDebug>
 
 WebPage::WebPage(QObject *parent)
   : QWebPage(parent)
@@ -129,4 +129,10 @@ WebPage::lastResponse()
     m_lastResponse->setText(mainFrame()->toPlainText().toUtf8().constData());
   }
   return m_lastResponse;
+}
+
+
+void WebPage::javaScriptConsoleMessage(const QString& message, int lineNumber, const QString& sourceID) {
+  qDebug() << "JS:" << message
+           << " at line " << lineNumber;
 }
