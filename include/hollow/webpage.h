@@ -16,14 +16,19 @@ class WebPage : public QWebPage
 public:
   WebPage(QObject *parent=0);
   Response *lastResponse();
+  bool finished();
 
 private slots:
   void handleNetworkReplies(QNetworkReply *);
   bool shouldInterruptJavaScript();
+  void attachListener();
+
+public slots:
+  void setAsLoaded();
 
 private:
   QNetworkAccessManager *m_networkAccessManager;
-  QWebSettings *m_settings;
+  bool m_finished;
   Response *m_lastResponse;
   Response *buildResponseFromNetworkReply(QNetworkReply *reply);
   void javaScriptConsoleMessage(const QString& message, int lineNumber, const QString& sourceID);

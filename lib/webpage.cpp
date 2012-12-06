@@ -11,6 +11,7 @@
 
 WebPage::WebPage(QObject *parent)
   : QWebPage(parent)
+  , m_finished(false)
   , m_lastResponse(NULL)
 {
   // Some more configuration to the page and to the page itself
@@ -22,20 +23,23 @@ WebPage::WebPage(QObject *parent)
   connect(m_networkAccessManager, SIGNAL(finished(QNetworkReply *)),
           this, SLOT(handleNetworkReplies(QNetworkReply *)));
 
-  m_settings = settings();
-  m_settings->setDefaultTextEncoding("utf-8");
-  m_settings->setFontSize(QWebSettings::MinimumFontSize, 10);
-  m_settings->setFontSize(QWebSettings::MinimumLogicalFontSize, 10);
-  m_settings->setFontSize(QWebSettings::DefaultFontSize, 12);
-  m_settings->setFontSize(QWebSettings::DefaultFixedFontSize, 14);
-  m_settings->setAttribute(QWebSettings::JavaEnabled, false);
-  m_settings->setAttribute(QWebSettings::JavascriptEnabled, true);
-  m_settings->setAttribute(QWebSettings::PluginsEnabled, false);
-  m_settings->setAttribute(QWebSettings::JavascriptCanOpenWindows, true);
-  m_settings->setAttribute(QWebSettings::JavascriptCanAccessClipboard, true);
-  m_settings->setAttribute(QWebSettings::AcceleratedCompositingEnabled, false);
-  // QUrl css_path("file:///path/to/file.css");
-  // m_settings->setUserStyleSheetUrl(css_path);
+  // We didn't find any clear way to see if the page is fully loaded, so
+  // we're using javascript to check that.
+  connect(mainFrame(), SIGNAL(javaScriptWindowObjectCleared()),
+          this, SLOT(attachListener()));
+
+  // Setting the default style for our page
+  settings()->setDefaultTextEncoding("utf-8");
+  settings()->setFontSize(QWebSettings::MinimumFontSize, 10);
+  settings()->setFontSize(QWebSettings::MinimumLogicalFontSize, 10);
+  settings()->setFontSize(QWebSettings::DefaultFontSize, 12);
+  settings()->setFontSize(QWebSettings::DefaultFixedFontSize, 14);
+  settings()->setAttribute(QWebSettings::JavaEnabled, false);
+  settings()->setAttribute(QWebSettings::JavascriptEnabled, true);
+  settings()->setAttribute(QWebSettings::PluginsEnabled, false);
+  settings()->setAttribute(QWebSettings::JavascriptCanOpenWindows, true);
+  settings()->setAttribute(QWebSettings::JavascriptCanAccessClipboard, true);
+  settings()->setAttribute(QWebSettings::AcceleratedCompositingEnabled, false);
 }
 
 
@@ -45,6 +49,29 @@ WebPage::shouldInterruptJavaScript() {
   return false;
 }
 
+
+void
+WebPage::setAsLoaded()
+{
+  qDebug() << "finished set to true";
+  m_finished = true;
+}
+
+
+void
+WebPage::attachListener()
+{
+  QString code = "window.addEventListener('load', function (){_sleepyhollow.setAsLoaded()}, true)";
+  mainFrame()->addToJavaScriptWindowObject(QString("_sleepyhollow"), this);
+  mainFrame()->evaluateJavaScript(code);
+}
+
+
+bool
+WebPage::finished()
+{
+  return m_finished;
+}
 
 Response *
 WebPage::buildResponseFromNetworkReply(QNetworkReply *reply)
@@ -79,6 +106,7 @@ WebPage::buildResponseFromNetworkReply(QNetworkReply *reply)
 void
 WebPage::handleNetworkReplies(QNetworkReply *reply)
 {
+  std::cout << "request: " << (reply->url()).toString().toAscii().constData() << std::endl;
 
   // Making sure we're handling the right url
   QUrl url = mainFrame()->url();
@@ -132,7 +160,11 @@ WebPage::lastResponse()
 }
 
 
-void WebPage::javaScriptConsoleMessage(const QString& message, int lineNumber, const QString& sourceID) {
+void
+WebPage::javaScriptConsoleMessage(const QString& message, int lineNumber, const QString& sourceID)
+{
+  Q_UNUSED(sourceID);
+
   qDebug() << "JS:" << message
            << " at line " << lineNumber;
 }

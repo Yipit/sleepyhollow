@@ -1,5 +1,6 @@
 #include <iostream>
 #include <QObject>
+#include <QThread>
 #include <QWebFrame>
 #include <QNetworkRequest>
 #include <QApplication>
@@ -8,6 +9,21 @@
 #include <hollow/error.h>
 #include <hollow/webpage.h>
 #include <hollow/response.h>
+
+
+#include <qdebug.h>
+#include <QMainWindow>
+#include <QWebView>
+
+
+class SleeperThread : public QThread
+{
+public:
+  static void msleep(unsigned long msecs) {
+    QThread::msleep(msecs);
+  }
+};
+
 
 // Mocking the values to pass to QApplication
 static int argc = 1;
@@ -28,18 +44,20 @@ Hollow::Hollow(QObject *parent)
 void
 Hollow::proxyExit(bool ok)
 {
-
   QApplication::exit((int) ok);
 
   // Just marking the last request didn't work. The getUrlContent method
   // will handle that.
   hasErrors = !ok;
 }
+
+
 void
 Hollow::beforeExiting()
 {
   // right before exiting
 }
+
 
 Hollow::~Hollow()
 {
@@ -69,9 +87,6 @@ Hollow::request (const char* method, const char* url, const char* payload, Strin
   // setting up the page and connecting it's loadFinished signal to our
   // exit function
   WebPage* page = new WebPage();
-
-  QObject::connect((QObject *) page->mainFrame(), SIGNAL(loadFinished(bool)),
-                   this, SLOT(proxyExit(bool)));
 
   QNetworkAccessManager::Operation networkOp = QNetworkAccessManager::UnknownOperation;
 
@@ -104,8 +119,12 @@ Hollow::request (const char* method, const char* url, const char* payload, Strin
 
   // This app will exit when the webpage fires the loadFinished()
   // signal. See proxyExit().
-  hasErrors = !app->exec();
+  while (!page->finished()) {
+    app->processEvents(QEventLoop::AllEvents, 50);
+    SleeperThread::msleep(0.01);
+  }
 
+  std::cout << "Bailing out" << std::endl;
 
   if (hasErrors) {
     // The error was properly set in the WebPage::handleNetworkReplies()
