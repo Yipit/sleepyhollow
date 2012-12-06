@@ -6,6 +6,7 @@
 #include <QNetworkReply>
 #include <QWebPage>
 #include <QWebSettings>
+#include <hollow/core.h>
 #include <hollow/response.h>
 
 class WebPage : public QWebPage

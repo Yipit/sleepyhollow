@@ -1,5 +1,6 @@
 #include <cstdlib>
 #include <cstring>
+#include <hollow/core.h>
 #include <hollow/response.h>
 
 
