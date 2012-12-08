@@ -51,6 +51,7 @@ WebPage::WebPage(QObject *parent)
   settings()->setFontSize(QWebSettings::MinimumLogicalFontSize, 10);
   settings()->setFontSize(QWebSettings::DefaultFontSize, 12);
   settings()->setFontSize(QWebSettings::DefaultFixedFontSize, 14);
+  settings()->setAttribute(QWebSettings::LocalStorageEnabled, true);
   settings()->setAttribute(QWebSettings::JavaEnabled, false);
   settings()->setAttribute(QWebSettings::JavascriptEnabled, true);
   settings()->setAttribute(QWebSettings::PluginsEnabled, false);
@@ -102,10 +103,7 @@ WebPage::shouldInterruptJavaScript() {
 void
 WebPage::javaScriptConsoleMessage(const QString& message, int lineNumber, const QString& sourceID)
 {
-  Q_UNUSED(sourceID);
-
-  qDebug() << "JS:" << message
-           << " at line " << lineNumber;
+  qDebug() << "JS:" << message << " at line " << lineNumber << ": " << sourceID;
 }
 
 
