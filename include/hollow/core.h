@@ -5,9 +5,17 @@
 
 #include <string>
 #include <map>
-#include <QString>
 #include <QThread>
 #include <QNetworkReply>
+
+#if (QT_VERSION >= QT_VERSION_CHECK(5, 0, 0))
+# define C_STRING(x) ((const char*) (x).constData())
+#else
+# define C_STRING(x) ((const char*) (x).toAscii().constData())
+#endif
+
+#define TO_STRING(x) ((x).toString().toStdString().c_str())
+
 
 class Response;
 

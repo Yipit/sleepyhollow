@@ -19,7 +19,7 @@ public:
   Response* request(const char* method, const char* url, const char* payload, StringHashMap& headers);
 
 private:
-  QApplication app;
+  QApplication *app;
 };
 
 

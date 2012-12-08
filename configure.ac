@@ -19,7 +19,11 @@ AM_PROG_CC_C_O
 AC_PROG_LIBTOOL
 
 # AutoTroll with Qt.
-AT_WITH_QT([+network +webkit +gui])
+# Qt4 does not have the webkitwidgets package
+AT_REQUIRE_QT_VERSION([5.0.0],
+        [modules="+network +webkit +webkitwidgets +gui"],
+        [modules="+network +webkit +gui"])
+AT_WITH_QT([$modules])
 
 dnl python checks
 AM_PATH_PYTHON(2.7.0)

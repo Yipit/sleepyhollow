@@ -18,23 +18,21 @@ static char *argv[] = { (char *) "sleepy-hollow", 0 };
 
 Hollow::Hollow(QObject *parent)
   : QObject(parent)
-  , app(argc, argv)
+  , app(new QApplication(argc, argv))
 {
   // Setting some cool parameters in our app!
-  app.setApplicationName(QString(PACKAGE_NAME));
-  app.setApplicationVersion(QString(PACKAGE_VERSION));
+  app->setApplicationName(QString(PACKAGE_NAME));
+  app->setApplicationVersion(QString(PACKAGE_VERSION));
 }
 
 Hollow::~Hollow()
 { }
-
 
 Response *
 Hollow::request (const char* method, const char* url, const char* payload, StringHashMap& headers)
 {
   QString operation(method);
   QNetworkRequest request;
-  StringHashMapIterator headerIterator;
 
   // First of all, let's see if this url is valid and contains a valid
   // scheme
@@ -72,11 +70,11 @@ Hollow::request (const char* method, const char* url, const char* payload, Strin
   }
 
   // setting the request headers coming from the python layer
-  for (headerIterator = headers.begin(); headerIterator != headers.end(); headerIterator++){
-    request.setRawHeader(QString(headerIterator->first.c_str()).toAscii(),
-                         QByteArray(headerIterator->second.c_str()));
-  }
+  StringHashMapIterator headerIter;
+  for (headerIter = headers.begin(); headerIter != headers.end(); headerIter++)
+    request.setRawHeader(headerIter->first.c_str(), headerIter->second.c_str());
 
+  // Setting the payload
   QByteArray body(payload);
   request.setUrl(qurl);
   page.mainFrame()->load(request, networkOp, body);
@@ -84,7 +82,7 @@ Hollow::request (const char* method, const char* url, const char* payload, Strin
 
   // Mainloop
   while (!page.finished()) {
-    app.processEvents();
+    app->processEvents();
     SleeperThread::msleep(0.01);
   }
 
@@ -96,7 +94,6 @@ Hollow::request (const char* method, const char* url, const char* payload, Strin
   } else {
     // Yay! Let's return the response object created by the webpage
     // after receiving a network reply.
-    Response *resp = page.lastResponse();
-    return resp;
+    return page.lastResponse();
   }
 }

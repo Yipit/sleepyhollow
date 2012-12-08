@@ -58,34 +58,38 @@ SleepyHollow_request (SleepyHollow *self, PyObject *args, PyObject *kw)
   PyObject *payload_str;
   PyObject *request_headers_dict;
   char *payload = NULL;
-
   const char *url, *method;
+  static char *kwlist[] = {
+    C_STR("method"),
+    C_STR("url"),
+    C_STR("params"),
+    C_STR("headers"),
+    NULL
+  };
 
-  static char *kwlist[] = {C_STR("method"), C_STR("url"), C_STR("params"), C_STR("headers"), NULL};
-
-  if (!PyArg_ParseTupleAndKeywords (args, kw, "ss|OO", kwlist, &method, &url, &payload_str, &request_headers_dict))
+  if (!PyArg_ParseTupleAndKeywords (args, kw, "ss|OO", kwlist, &method, &url,
+                                    &payload_str, &request_headers_dict))
     return NULL;
 
   /* If params is not PyString or Py_None we raise a TypeError */
-  if (PyString_Check(payload_str)) {
+  if (PyString_Check(payload_str))
     payload = PyString_AsString(payload_str);
-  } else if (payload_str != Py_None) {
-    return PyErr_Format (PyExc_TypeError, "The 'params' argument must be either a string or None");
-  }
+  else if (payload_str != Py_None)
+    return PyErr_Format (PyExc_TypeError,
+                         "The 'params' argument must be either a string or None");
 
-  StringHashMap requestHeaders;
   /* Checking if headers is a dict, and if so, we turn it into a StringHashMap */
-  if (PyDict_Check(request_headers_dict)) {
-    PyObject *key, *value;
-    Py_ssize_t pos = 0;
-
-    while (PyDict_Next(request_headers_dict, &pos, &key, &value)) {
-      std::string cpp_key(PyString_AsString(key));
-      std::string cpp_value(PyString_AsString(value));
-      requestHeaders[cpp_key] = cpp_value;
+  StringHashMap requestHeaders;
+  if (PyDict_Check (request_headers_dict))
+    {
+      PyObject *key, *value;
+      Py_ssize_t pos = 0;
+      while (PyDict_Next (request_headers_dict, &pos, &key, &value))
+        requestHeaders[PyString_AsString(key)] = PyString_AsString(value);
     }
-  } else if (request_headers_dict != Py_None) {
-    return PyErr_Format (PyExc_TypeError, "The 'headers' argument must be either a dict or None");
+  else if (request_headers_dict != Py_None) {
+    return PyErr_Format (PyExc_TypeError,
+                         "The 'headers' argument must be either a dict or None");
   }
 
   /* Performing the actuall request */
@@ -129,7 +133,7 @@ SleepyHollow_request (SleepyHollow *self, PyObject *args, PyObject *kw)
 
   PyDict_SetItemString (dict, C_STR ("headers"), response_headers_dict);
   for (iterator = responseHeaders.begin(); iterator != responseHeaders.end(); iterator++)
-    PyDict_SetItemString (response_headers_dict, C_STR (iterator->first.c_str()),
+    PyDict_SetItemString (response_headers_dict, iterator->first.c_str(),
                           PyString_FromString (iterator->second.c_str()));
   return dict;
 }
@@ -225,17 +229,26 @@ init_sleepyhollow (void)
 
   /* Adding our custom exceptions to the module */
 
-  SleepyHollowError = PyErr_NewException ((char *) "sleepyhollow.Error",
-                                          PyExc_StandardError, NULL);
-  PyDict_SetItemString (d, (char *) "Error", SleepyHollowError);
+  SleepyHollowError =
+    PyErr_NewException (C_STR ("sleepyhollow.Error"),
+                        PyExc_StandardError, NULL);
+  PyDict_SetItemString (d,
+                        C_STR ("Error"),
+                        SleepyHollowError);
 
-  InvalidUrlError = PyErr_NewException ((char *) "sleepyhollow.InvalidUrlError",
-                                        SleepyHollowError, NULL);
-  PyDict_SetItemString (d, (char *) "InvalidUrlError", InvalidUrlError);
+  InvalidUrlError =
+    PyErr_NewException (C_STR ("sleepyhollow.InvalidUrlError"),
+                        SleepyHollowError, NULL);
+  PyDict_SetItemString (d,
+                        C_STR ("InvalidUrlError"),
+                        InvalidUrlError);
 
-  ConnectionRefusedError = PyErr_NewException ((char *) "sleepyhollow.ConnectionRefusedError",
-                                               SleepyHollowError, NULL);
-  PyDict_SetItemString (d, (char *) "ConnectionRefusedError", ConnectionRefusedError);
+  ConnectionRefusedError =
+    PyErr_NewException (C_STR ("sleepyhollow.ConnectionRefusedError"),
+                        SleepyHollowError, NULL);
+  PyDict_SetItemString (d,
+                        C_STR ("ConnectionRefusedError"),
+                        ConnectionRefusedError);
 
   /* Adding the classes */
 

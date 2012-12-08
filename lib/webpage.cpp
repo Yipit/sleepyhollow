@@ -6,6 +6,7 @@
 #include <QNetworkReply>
 #include <QDebug>
 
+#include <hollow/core.h>
 #include <hollow/networkaccessmanager.h>
 #include <hollow/webpage.h>
 #include <hollow/error.h>
@@ -153,7 +154,7 @@ WebPage::handleNetworkReplies(QNetworkReply *reply)
     break;
 
   case QNetworkReply::ConnectionRefusedError:
-    Error::set(Error::CONNECTION_REFUSED, reply->errorString().toAscii().constData());
+    Error::set(Error::CONNECTION_REFUSED, C_STRING(reply->errorString()));
     break;
 
   default:
@@ -161,7 +162,7 @@ WebPage::handleNetworkReplies(QNetworkReply *reply)
     // reply does not have all the data needed to create it, the method
     // buildResponseFromNetworkReply() will return NULL.
     if ((m_lastResponse = buildResponseFromNetworkReply(reply)) == NULL)
-      Error::set(Error::UNKNOWN, reply->errorString().toAscii().constData());
+      Error::set(Error::UNKNOWN, C_STRING(reply->errorString()));
     break;
   }
 }
@@ -182,19 +183,16 @@ WebPage::buildResponseFromNetworkReply(QNetworkReply *reply)
 
   // Iterating over the headers
   StringHashMap headers;
-  foreach (QByteArray headerName, reply->rawHeaderList()) {
-    QString key = QString::fromUtf8(headerName);
-    QString value = QString::fromUtf8(reply->rawHeader(headerName));
-    headers[key.toAscii().data()] = value.toAscii().data();
-  }
+  foreach (QByteArray headerName, reply->rawHeaderList())
+    headers[headerName.constData()] = reply->rawHeader(headerName).constData();
 
   // We can't set the content right now, so we'll fill the text with an
   // empty string and let the ::lastResponse() method fill with the
   // right content
   return new Response(statusCode.toInt(),
-                      reply->url().toString().toAscii().constData(),
+                      TO_STRING(reply->url()),
                       "",
                       "",
-                      reason.toString().toAscii().constData(),
+                      TO_STRING(reason),
                       headers);
 }
