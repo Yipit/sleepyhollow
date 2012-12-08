@@ -18,8 +18,9 @@ public:
   ~Hollow();
   Response* request(const char* method, const char* url, const char* payload, StringHashMap& headers);
 
-private:
-  QApplication *app;
+  // The user *Must* call this function before using libhollow
+  static void setup(void);
+  static void teardown(void);
 };
 
 

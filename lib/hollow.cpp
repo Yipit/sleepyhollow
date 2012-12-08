@@ -11,22 +11,35 @@
 
 #include "config.h"
 
-
 // Mocking the values to pass to QApplication
 static int argc = 1;
 static char *argv[] = { (char *) "sleepy-hollow", 0 };
+static QApplication *app;
 
 Hollow::Hollow(QObject *parent)
   : QObject(parent)
-  , app(new QApplication(argc, argv))
 {
+}
+
+Hollow::~Hollow()
+{ }
+
+void
+Hollow::setup(void)
+{
+  app = new QApplication(argc, argv);
+
   // Setting some cool parameters in our app!
   app->setApplicationName(QString(PACKAGE_NAME));
   app->setApplicationVersion(QString(PACKAGE_VERSION));
 }
 
-Hollow::~Hollow()
-{ }
+void
+Hollow::teardown(void)
+{
+  delete app;
+  app = 0;
+}
 
 Response *
 Hollow::request (const char* method, const char* url, const char* payload, StringHashMap& headers)

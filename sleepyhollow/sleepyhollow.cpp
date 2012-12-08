@@ -207,7 +207,25 @@ static PyTypeObject SleepyHollowType = {
 
 /* The module definition */
 
+PyObject *
+SleepyHollow_setup (PyObject *UNUSED(self), PyObject *UNUSED(args))
+{
+  Hollow::setup();
+  Py_RETURN_NONE;
+}
+
+PyObject *
+SleepyHollow_teardown (PyObject *UNUSED(self), PyObject *UNUSED(args))
+{
+  Hollow::teardown();
+  Py_RETURN_NONE;
+}
+
 static PyMethodDef module_methods[] = {
+  {"setup",  SleepyHollow_setup, METH_NOARGS,
+   "Initializes the QApplication instance needed to run sleepy hollow"},
+  {"teardown",  SleepyHollow_teardown, METH_NOARGS,
+   "Deinitializes the QApplication instance attached to sleepy hollow."},
   {NULL, NULL, 0, NULL}         /* Sentinel */
 };
 
