@@ -31,6 +31,7 @@ class JSONStatusHandler(RequestHandler):
     def make_data(self, method, status):
         # takes method, status code and request params and tuck them
         # into a dict
+
         data = {'success': True, 'status': int(status), 'method': method}
         for key in self.request.arguments:
             data[key] = self.get_argument(key)
@@ -39,13 +40,14 @@ class JSONStatusHandler(RequestHandler):
             if key.startswith('X'):
                 data[key] = self.request.headers[key]
 
+
+
         return data
 
     def handle_status(self, method, status):
         # takes a HTTP method + status code and send to make_data(),
         # so its return value will be turned into JSON and returned to
         # the client
-
         data = self.make_data(method, status)
         self.set_status(int(status))
 

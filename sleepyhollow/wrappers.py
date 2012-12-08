@@ -72,22 +72,22 @@ class SleepyHollow(_SleepyHollow):
 
     def get(self, url, params=None, headers=None):
         url, params = self._patch_querystring(url, params)
-        return self.request('get', url=url, params=params)
+        return self.request('get', url=url, params=params, headers=headers)
 
     def post(self, url, params=None, headers=None):
-        return self.request('post', url=url, params=params)
+        return self.request('post', url=url, params=params, headers=headers)
 
     def put(self, url, params=None, headers=None):
         url, params = self._patch_querystring(url, params)
-        return self.request('put', url=url, params=params)
+        return self.request('put', url=url, params=params, headers=headers)
 
     def head(self, url, params=None, headers=None):
         url, params = self._patch_querystring(url, params)
-        return self.request('head', url=url, params=params)
+        return self.request('head', url=url, params=params, headers=headers)
 
     def delete(self, url, params=None, headers=None):
         url, params = self._patch_querystring(url, params)
-        return self.request('delete', url=url, params=params)
+        return self.request('delete', url=url, params=params, headers=headers)
 
 
 class Response(object):

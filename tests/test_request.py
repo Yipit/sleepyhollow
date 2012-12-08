@@ -202,21 +202,21 @@ def test_delete_parameters(context):
     response.headers.should.have.key('X-name').being.equal('"Gabriel"')
 
 
-# @server_test_case
-# def test_get_sending_headers(context):
-#     "requesting with GET adding custom headers"
-#     sl = SleepyHollow()
-#     response = sl.get(context.route_to('/status-200.json'), headers={'X-name': 'Gabriel'})
+@server_test_case
+def test_get_sending_headers(context):
+    "requesting with GET adding custom headers"
+    sl = SleepyHollow()
+    response = sl.get(context.route_to('/status-200.json'), headers={'X-Name': 'Gabriel'})
 
-#     # Let's test the types
-#     response.should.be.a(Response)
-#     response.status_code.should.be.an(int)
-#     response.text.should.be.a(unicode)
-#     response.content.should.be.a(str)
+    # Let's test the types
+    response.should.be.a(Response)
+    response.status_code.should.be.an(int)
+    response.text.should.be.a(unicode)
+    response.content.should.be.a(str)
 
-#     response.json.should.equal({
-#         u'success': True,
-#         u'method': 'GET',
-#         u'status': 200,
-#         u'X-name': u'Gabriel',
-#     })
+    response.json.should.equal({
+        u'success': True,
+        u'method': 'GET',
+        u'status': 200,
+        u'X-Name': u'Gabriel',
+    })
