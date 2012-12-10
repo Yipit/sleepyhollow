@@ -7,10 +7,8 @@
 #include <map>
 #include <QString>
 #include <QNetworkReply>
-
-typedef std::map<std::string, std::string> StringHashMap;
-
-typedef StringHashMap::iterator StringHashMapIterator;
+#include <hollow/core.h>
+#include <hollow/jserror.h>
 
 class WebPage;
 
@@ -22,7 +20,8 @@ public:
            const char* text,
            const char* html,
            const char* reason,
-           StringHashMap& headers);
+           StringHashMap& headers,
+           JSErrorList& js_errors);
   ~Response();
   int getStatusCode(void);
   const char* getURL(void);
@@ -30,6 +29,7 @@ public:
   const char* getHtml(void);
   const char* getReason(void);
   StringHashMap getHeaders(void);
+  const JSErrorList getJSErrors (void);
 
 private:
   int m_statusCode;
@@ -38,6 +38,7 @@ private:
   char* m_reason;
   char* m_url;
   StringHashMap m_headers;
+  JSErrorList m_js_errors;
   void setText(const char* text);
   void setHtml(const char* html);
   friend class WebPage;

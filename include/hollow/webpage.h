@@ -10,6 +10,7 @@
 
 #include <hollow/core.h>
 #include <hollow/networkaccessmanager.h>
+#include <hollow/jserror.h>
 #include <hollow/response.h>
 
 class WebPage : public QWebPage
@@ -32,6 +33,7 @@ private:
   bool m_hasErrors;
   bool m_loadFinished;
   Response *m_lastResponse;
+  JSErrorList m_js_errors;
   NetworkAccessManager *m_networkAccessManager;
   QList<QUrl> m_requestedResources;
   Response *buildResponseFromNetworkReply(QNetworkReply *reply);

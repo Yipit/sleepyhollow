@@ -17,13 +17,8 @@
 #define TO_STRING(x) ((x).toString().toStdString().c_str())
 
 
-class Response;
-
 typedef std::map<std::string, std::string> StringHashMap;
 typedef StringHashMap::iterator StringHashMapIterator;
-
-typedef std::map<std::string, Response*> ResponseHashMap;
-typedef ResponseHashMap::iterator ResponseHashMapIterator;
 
 // We have to do that, cause the QThread::msleep() method is private :/
 class SleeperThread : public QThread {

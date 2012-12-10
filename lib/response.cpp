@@ -1,3 +1,4 @@
+
 #include <cstdlib>
 #include <cstring>
 #include <hollow/core.h>
@@ -9,13 +10,15 @@ Response::Response (int statusCode,
                     const char* text,
                     const char* html,
                     const char* reason,
-                    StringHashMap& headers)
+                    StringHashMap& headers,
+                    JSErrorList& js_errors)
   : m_statusCode(statusCode)
   , m_text(strdup(text))
   , m_html(strdup(html))
   , m_reason(strdup(reason))
   , m_url(strdup(url))
   , m_headers(headers)
+  , m_js_errors(js_errors)
 {
 }
 
@@ -86,4 +89,10 @@ StringHashMap
 Response::getHeaders (void)
 {
   return m_headers;
+}
+
+const JSErrorList
+Response::getJSErrors (void)
+{
+  return m_js_errors;
 }

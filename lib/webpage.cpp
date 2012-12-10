@@ -11,6 +11,7 @@
 #include <hollow/webpage.h>
 #include <hollow/error.h>
 #include <hollow/response.h>
+#include <hollow/jserror.h>
 
 
 WebPage::WebPage(QObject *parent)
@@ -192,5 +193,6 @@ WebPage::buildResponseFromNetworkReply(QNetworkReply *reply)
                       "",
                       "",
                       TO_STRING(reason),
-                      headers);
+                      headers,
+                      m_js_errors);
 }
