@@ -13,18 +13,18 @@
 class JSError
 {
 public:
-  JSError(std::string message,
-                int line_number,
-                std::string source_id);
+  JSError(int line_number,
+          std::string message,
+          std::string source_id);
   ~JSError();
   const std::string getMessage(void);
   const std::string getSourceID(void);
   int getLineNumber(void);
 
 private:
+  int m_line_number;
   std::string m_message;
   std::string m_source_id;
-  int m_line_number;
 };
 
 typedef std::list<JSError> JSErrorList;
