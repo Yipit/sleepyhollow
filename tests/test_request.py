@@ -245,3 +245,22 @@ def test_get_sending_headers(context):
         u'status': 200,
         u'X-Name': u'Gabriel',
     })
+
+
+@server_test_case
+def test_getting_js_errors(context):
+    "response objects should contain js errors"
+
+    sl = SleepyHollow()
+    response = sl.get(context.route_to('/jserror'))
+
+    # Let's test the types
+    response.status_code.should.equal(200)
+    response.should.have.property('js_errors').being.a(tuple)
+    response.js_errors.should.have.length_of(1)
+    response.js_errors.should.equal(({
+        'line_number': 3,
+        'message': u'TypeError: \'undefined\' is not a function (evaluating \'window.intentional_error("javascript errors")\')',
+        'source_id': u'http://127.0.0.1:5000/media/js/jserror.js'
+    },))
+    expect("IT WORKS").to.be.within(response.html)
