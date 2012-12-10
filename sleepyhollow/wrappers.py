@@ -91,7 +91,7 @@ class SleepyHollow(_SleepyHollow):
 
 
 class Response(object):
-    def __init__(self, status_code, url, text, html, reason, headers):
+    def __init__(self, status_code, url, text, html, reason, headers, js_errors):
         self.status_code = status_code
         self.url = url
         self.text = unicode(text)
@@ -99,6 +99,7 @@ class Response(object):
         self.reason = unicode(reason)
         self.content = self.text.encode('utf-8')
         self.headers = headers
+        self.js_errors = js_errors
 
     @property
     def json(self):

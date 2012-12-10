@@ -2,6 +2,7 @@
 #include <structmember.h>
 
 #include <hollow/hollow.h>
+#include <hollow/jserror.h>
 #include <hollow/error.h>
 #include <hollow/response.h>
 #include "sleepyhollow.h"
@@ -49,6 +50,39 @@ string_hash_map_to_pydict(StringHashMap map)
 }
 
 PyObject *
+jserror_to_dict(JSError error)
+{
+  /* Takes a JSError instance and turn it into a python dictionary */
+
+  PyObject *dict = PyDict_New ();
+  PyDict_SetItemString (dict, C_STR ("message"),
+                        PyUnicode_FromString (error.getMessageCString()));
+  PyDict_SetItemString (dict, C_STR ("source_id"),
+                        PyUnicode_FromString (error.getSourceIDCString()));
+  PyDict_SetItemString (dict, C_STR ("line_number"),
+                        PyInt_FromLong ((int)error.getLineNumber()));
+  return dict;
+
+}
+
+PyObject *
+js_error_list_to_pytuple(JSErrorList errors)
+{
+  PyObject *list;
+  JSErrorListIterator iterator;
+  int list_size = (int)errors.size();
+  int pos = 0;
+  list = PyTuple_New(list_size);
+
+  for (iterator = errors.begin(); iterator != errors.end(); iterator++) {
+    PyTuple_SetItem(list, pos, jserror_to_dict(*iterator));
+    pos++;
+  }
+
+  return list;
+}
+
+PyObject *
 prepare_sleepy_hollow_response (Response* response)
 {
   /*
@@ -72,8 +106,15 @@ prepare_sleepy_hollow_response (Response* response)
   /* Adding the headers */
   PyObject *response_headers_dict = string_hash_map_to_pydict(response->getHeaders());
   PyDict_SetItemString (dict, C_STR ("headers"), response_headers_dict);
+
+  /* Adding the js errors */
+  PyObject *errors_tuple = js_error_list_to_pytuple(response->getJSErrors());
+  PyDict_SetItemString (dict, C_STR ("js_errors"), errors_tuple);
+
   return dict;
 }
+
+
 /* The SleepyHollow class */
 
 static PyObject *
