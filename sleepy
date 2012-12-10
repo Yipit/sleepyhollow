@@ -138,6 +138,27 @@ continuous-integration () {
         cat sleepy.log
     fi
     tests
+    ec=$?
+    if [ "$ec" != "0" ]; then
+        exit $ec;
+    fi
+    printf "Making sure it can scrape banana republic..."
+    test.banana
+    ec=$?
+    if [ "$ec" != "0" ]; then
+        exit $ec;
+    else
+        echo "OK";
+    fi
+    printf "Making sure it can scrape saks..."
+    test.saks
+    ec=$?
+    if [ "$ec" != "0" ]; then
+        exit $ec;
+    else
+        echo "OK";
+    fi
+
     exit $?
 }
 
