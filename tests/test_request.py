@@ -8,6 +8,7 @@ from sleepyhollow import (
 
 @server_test_case
 def test_request_api(context):
+    "the get method should return exactly the same thing of request(get)"
     sl = SleepyHollow()
     response1 = sl.request('get', context.route_to("/simple"))
     response2 = sl.get(context.route_to("/simple"))
@@ -20,14 +21,15 @@ def test_request_api(context):
 
 @server_test_case
 def test_invalid_url(context):
+    "The request method should report an error if the received url is invalid"
     sl = SleepyHollow()
-
     sl.get.when.called_with('invalid url').should.throw(
         InvalidUrlError,
         'The url "invalid url" is not valid: You need to inform a scheme')
 
 
 def test_connection_refused():
+    "The request method should fail for unreachable urls"
     sl = SleepyHollow()
     sl.get.when.called_with('http://blah').should.throw(
         ConnectionRefusedError)
@@ -74,6 +76,8 @@ def test_json_response(context):
 
 @server_test_case
 def test_response_status_codes(context):
+    "The request method should report the right http status codes"
+
     sl = SleepyHollow()
 
     response = sl.get(context.route_to('/status-200'))
@@ -94,23 +98,29 @@ def test_response_status_codes(context):
 
 @server_test_case
 def test_response_headers(context):
+    "It should be possible to inspect the headers of a response object"
     sl = SleepyHollow()
-
     response = sl.get(context.route_to('/status-200'))
 
     response.should.have.property('headers').being.a(dict)
 
-    response.headers.should.have.key('Content-Type').being.equal(u'text/html; charset=UTF-8')
-    response.headers.should.have.key('Server').being.equal(u'TornadoServer/2.4.1')
+    response.headers.should.have.key('Content-Type').being.equal(
+        u'text/html; charset=UTF-8')
+    response.headers.should.have.key('Server').being.equal(
+        u'TornadoServer/2.4.1')
     response.headers.should.have.key('Content-Length').being.equal(u'91')
-    response.headers.should.have.key('Etag').being.equal(u'"917c97d9437cbd1c1192f2f516e7155183b58232"')
+    response.headers.should.have.key('Etag').being.equal(
+        u'"917c97d9437cbd1c1192f2f516e7155183b58232"')
 
 
 @server_test_case
 def test_get_parameters(context):
     "requesting with GET parameters"
     sl = SleepyHollow()
-    response = sl.get(context.route_to('/status-200.json'), params={'name': 'Gabriel'})
+    response = sl.get(
+        context.route_to('/status-200.json'),
+        params={'name': 'Gabriel'}
+    )
 
     # Let's test the types
     response.should.be.a(Response)
@@ -130,7 +140,10 @@ def test_get_parameters(context):
 def test_post_parameters(context):
     "requesting with POST parameters"
     sl = SleepyHollow()
-    response = sl.post(context.route_to('/status-200.json'), params={'name': 'Gabriel'})
+    response = sl.post(
+        context.route_to('/status-200.json'),
+        params={'name': 'Gabriel'},
+    )
 
     # Let's test the types
     response.should.be.a(Response)
@@ -150,7 +163,10 @@ def test_post_parameters(context):
 def test_put_parameters(context):
     "requesting with PUT parameters"
     sl = SleepyHollow()
-    response = sl.put(context.route_to('/status-200.json'), params={'name': 'Gabriel'})
+    response = sl.put(
+        context.route_to('/status-200.json'),
+        params={'name': 'Gabriel'}
+    )
 
     # Let's test the types
     response.should.be.a(Response)
@@ -170,7 +186,10 @@ def test_put_parameters(context):
 def test_head_parameters(context):
     "requesting with HEAD parameters"
     sl = SleepyHollow()
-    response = sl.head(context.route_to('/status-200.json'), params={'name': 'Gabriel'})
+    response = sl.head(
+        context.route_to('/status-200.json'),
+        params={'name': 'Gabriel'},
+    )
 
     # Let's test the types
     response.should.be.a(Response)
@@ -188,7 +207,10 @@ def test_head_parameters(context):
 def test_delete_parameters(context):
     "requesting with DELETE parameters"
     sl = SleepyHollow()
-    response = sl.delete(context.route_to('/status-200.json'), params={'name': 'Gabriel'})
+    response = sl.delete(
+        context.route_to('/status-200.json'),
+        params={'name': 'Gabriel'},
+    )
 
     # Let's test the types
     response.should.be.a(Response)
@@ -206,7 +228,10 @@ def test_delete_parameters(context):
 def test_get_sending_headers(context):
     "requesting with GET adding custom headers"
     sl = SleepyHollow()
-    response = sl.get(context.route_to('/status-200.json'), headers={'X-Name': 'Gabriel'})
+    response = sl.get(
+        context.route_to('/status-200.json'),
+        headers={'X-Name': 'Gabriel'}
+    )
 
     # Let's test the types
     response.should.be.a(Response)
