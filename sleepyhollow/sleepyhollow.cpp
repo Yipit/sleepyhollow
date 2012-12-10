@@ -21,6 +21,20 @@
 
 PyObject *SleepyHollowError, *InvalidUrlError, *ConnectionRefusedError;
 
+/* Helpers */
+
+StringHashMap
+pydict_to_string_hash_map(PyObject *dict)
+{
+  StringHashMap ret;
+  PyObject *key, *value;
+  Py_ssize_t pos = 0;
+  while (PyDict_Next (dict, &pos, &key, &value))
+    ret[PyString_AsString(key)] = PyString_AsString(value);
+
+  return ret;
+}
+
 /* The SleepyHollow class */
 
 static PyObject *
@@ -82,10 +96,7 @@ SleepyHollow_request (SleepyHollow *self, PyObject *args, PyObject *kw)
   StringHashMap requestHeaders;
   if (PyDict_Check (request_headers_dict))
     {
-      PyObject *key, *value;
-      Py_ssize_t pos = 0;
-      while (PyDict_Next (request_headers_dict, &pos, &key, &value))
-        requestHeaders[PyString_AsString(key)] = PyString_AsString(value);
+      requestHeaders = pydict_to_string_hash_map(request_headers_dict);
     }
   else if (request_headers_dict != Py_None) {
     return PyErr_Format (PyExc_TypeError,
