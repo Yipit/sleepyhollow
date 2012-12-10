@@ -117,12 +117,6 @@ continuous-integration () {
     export NON_VERBOSE="yes"
     cleanup
     compile
-    (make distcheck 2>&1) 2>&1>>sleepy.log
-    if [ "$?" != "0" ]; then
-        echo
-        cat sleepy.log
-        exit 1;
-    fi
 
     if [ ! -e $WORKON_HOME/$VENVNAME ]; then
         mkvirtualenv --distribute --no-site-packages $VENVNAME
