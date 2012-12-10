@@ -18,3 +18,10 @@ def clear_server(context):
 
 
 server_test_case = scenario(prepare_server, clear_server)
+
+
+def mac_only(func):
+    if os.uname()[0] != 'Darwin':
+        return lambda: None
+
+    return func

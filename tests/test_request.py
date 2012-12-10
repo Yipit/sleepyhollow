@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 from sure import expect
-from tests.helpers import server_test_case
+from tests.helpers import server_test_case, mac_only
 from sleepyhollow import (
     SleepyHollow, Response, InvalidUrlError, ConnectionRefusedError
 )
@@ -247,6 +247,7 @@ def test_get_sending_headers(context):
     })
 
 
+@mac_only
 @server_test_case
 def test_getting_js_errors(context):
     "response objects should contain js errors"
