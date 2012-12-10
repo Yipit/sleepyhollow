@@ -131,7 +131,10 @@ continuous-integration () {
         echo
         cat sleepy.log
     fi
-    tests
+    server.start 5000
+    # Making it easier to run the tests
+    (make 2>&1) 2>&1 >>sleepy.log
+    test.nose
     ec=$?
     if [ "$ec" != "0" ]; then
         exit $ec;
@@ -152,8 +155,8 @@ continuous-integration () {
     else
         echo "OK";
     fi
-
-    exit $?
+    server.stop
+    exit $ec
 }
 
 compile () {
@@ -231,13 +234,16 @@ tests () {
         compile
     fi
 
-    # Running the tests
-    $LAUNCHER nosetests --stop --verbosity=2 -s tests
-
+    test.nose
     exit_status="$?"
 
     server.stop
     exit $exit_status
+}
+
+test.nose () {
+    # Running the tests
+    $LAUNCHER nosetests --stop --verbosity=2 -s tests
 }
 
 test.saks () {
