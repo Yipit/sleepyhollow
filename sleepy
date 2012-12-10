@@ -21,6 +21,13 @@ SHOULD_CLEANUP="yes"
 NON_VERBOSE="yes"
 SERVER_NAME=sleepyhollowtestserver
 
+if [ -z $DISPLAY ]; then
+    LAUNCHER=xvfb-run
+else
+    LAUNCHER=
+fi
+
+
 _complete_commands () {
     local cur opts
     COMPREPLY=()
@@ -203,11 +210,7 @@ tests () {
     fi
 
     # Running the tests
-    if [ $DISPLAY ]; then
-        nosetests --stop --verbosity=2 -s tests
-    else
-        xvfb-run --server-args="-screen 0 1024x768x24" nosetests --stop --verbosity=2 -s tests
-    fi
+    $LAUNCHER nosetests --stop --verbosity=2 -s tests
 
     exit_status="$?"
 
@@ -217,20 +220,21 @@ tests () {
 
 test.saks () {
     make 2>&1>/dev/null
-    python tests/saks.py
+    echo "Running saks using the launcher $LAUNCHER"
+    $LAUNCHER python tests/saks.py
 }
 test.banana () {
     make 2>&1>/dev/null
-    python tests/banana.py
+    $LAUNCHER python tests/banana.py
 }
 test.load () {
     (make 2>&1) 2>&1>/dev/null
     server.start 5000
-    python tests/load.py
+    $LAUNCHER python tests/load.py
     server.stop
 }
 shell () {
-    ipython
+    $LAUNCHER ipython
 }
 
 show-help () {
