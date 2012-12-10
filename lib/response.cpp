@@ -10,15 +10,13 @@ Response::Response (int statusCode,
                     const char* text,
                     const char* html,
                     const char* reason,
-                    StringHashMap& headers,
-                    JSErrorList& js_errors)
+                    StringHashMap& headers)
   : m_statusCode(statusCode)
   , m_text(strdup(text))
   , m_html(strdup(html))
   , m_reason(strdup(reason))
   , m_url(strdup(url))
   , m_headers(headers)
-  , m_js_errors(js_errors)
 {
 }
 
@@ -89,6 +87,12 @@ StringHashMap
 Response::getHeaders (void)
 {
   return m_headers;
+}
+
+void
+Response::setJSErrors (JSErrorList errors)
+{
+  m_js_errors = errors;
 }
 
 const JSErrorList

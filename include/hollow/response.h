@@ -20,8 +20,7 @@ public:
            const char* text,
            const char* html,
            const char* reason,
-           StringHashMap& headers,
-           JSErrorList& js_errors);
+           StringHashMap& headers);
   ~Response();
   int getStatusCode(void);
   const char* getURL(void);
@@ -29,6 +28,7 @@ public:
   const char* getHtml(void);
   const char* getReason(void);
   StringHashMap getHeaders(void);
+  void setJSErrors (JSErrorList errors);
   const JSErrorList getJSErrors (void);
 
 private:
