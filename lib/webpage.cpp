@@ -4,7 +4,6 @@
 #include <QWebPage>
 #include <QWebFrame>
 #include <QNetworkReply>
-#include <QDebug>
 
 #include <hollow/core.h>
 #include <hollow/networkaccessmanager.h>
@@ -86,6 +85,7 @@ WebPage::lastResponse()
     // by the html engine after finishing the request.
     m_lastResponse->setHtml(mainFrame()->toHtml().toUtf8().constData());
     m_lastResponse->setText(mainFrame()->toPlainText().toUtf8().constData());
+    m_lastResponse->setJSErrors(m_js_errors);
   }
   return m_lastResponse;
 }
@@ -104,7 +104,7 @@ WebPage::shouldInterruptJavaScript() {
 void
 WebPage::javaScriptConsoleMessage(const QString& message, int lineNumber, const QString& sourceID)
 {
-  qDebug() << "JS:" << message << " at line " << lineNumber << ": " << sourceID;
+  m_js_errors.push_back(JSError(lineNumber, message.toStdString(), sourceID.toStdString()));
 }
 
 
@@ -193,6 +193,5 @@ WebPage::buildResponseFromNetworkReply(QNetworkReply *reply)
                       "",
                       "",
                       TO_STRING(reason),
-                      headers,
-                      m_js_errors);
+                      headers);
 }
