@@ -7,8 +7,12 @@ AC_CONFIG_SRCDIR([lib/hollow.cpp])
 AC_CONFIG_HEADERS([config.h])
 AC_CONFIG_MACRO_DIR([m4])
 AC_CONFIG_AUX_DIR([build-aux])
-AM_INIT_AUTOMAKE([foreign -Wall])
+AM_INIT_AUTOMAKE([foreign])
 AM_PROG_AR
+
+# Being as picky as possible
+WARNING_FLAGS="-Wall -Wextra -Werror"
+AC_SUBST([WARNING_FLAGS])
 
 # Checks for programs.
 AC_PROG_CXX
