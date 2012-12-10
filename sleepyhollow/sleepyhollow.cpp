@@ -35,6 +35,19 @@ pydict_to_string_hash_map(PyObject *dict)
   return ret;
 }
 
+PyObject *
+string_hash_map_to_pydict(StringHashMap map)
+{
+  StringHashMapIterator iterator;
+  PyObject *dict = PyDict_New ();
+
+  for (iterator = map.begin(); iterator != map.end(); iterator++)
+    PyDict_SetItemString (dict, iterator->first.c_str(),
+                          PyUnicode_FromString (iterator->second.c_str()));
+  return dict;
+
+}
+
 /* The SleepyHollow class */
 
 static PyObject *
@@ -138,14 +151,8 @@ SleepyHollow_request (SleepyHollow *self, PyObject *args, PyObject *kw)
                         PyString_FromString (resp->getReason()));
 
   /* Adding the headers */
-  StringHashMap responseHeaders = resp->getHeaders();
-  StringHashMapIterator iterator;
-  PyObject *response_headers_dict = PyDict_New ();
-
+  PyObject *response_headers_dict = string_hash_map_to_pydict(resp->getHeaders());
   PyDict_SetItemString (dict, C_STR ("headers"), response_headers_dict);
-  for (iterator = responseHeaders.begin(); iterator != responseHeaders.end(); iterator++)
-    PyDict_SetItemString (response_headers_dict, iterator->first.c_str(),
-                          PyString_FromString (iterator->second.c_str()));
   return dict;
 }
 
