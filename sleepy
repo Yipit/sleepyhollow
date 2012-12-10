@@ -147,14 +147,6 @@ continuous-integration () {
     else
         echo "OK";
     fi
-    printf "Making sure it can scrape saks..."
-    test.saks
-    ec=$?
-    if [ "$ec" != "0" ]; then
-        exit $ec;
-    else
-        echo "OK";
-    fi
     server.stop
     exit $ec
 }
