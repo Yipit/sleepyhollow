@@ -14,13 +14,16 @@ class Hollow : public QObject
   Q_OBJECT
 
 public:
-  Hollow (QObject *parent=0);
+  Hollow (QObject *parent=0, bool disableCache=false);
   ~Hollow();
   Response* request(const char* method, const char* url, const char* payload, StringHashMap& headers);
 
   // The user *Must* call this function before using libhollow
   static void setup(void);
   static void teardown(void);
+
+private:
+  bool m_disableCache;
 };
 
 

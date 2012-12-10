@@ -83,6 +83,17 @@ js_error_list_to_pytuple(JSErrorList errors)
 }
 
 PyObject *
+stringlist_to_python_tuple(StringList list)
+{
+  int i;
+  StringListIterator iter;
+  PyObject *tuple = PyTuple_New (list.size ());
+  for (iter = list.begin (), i = 0; iter != list.end (); iter++, i++)
+    PyTuple_SetItem (tuple, i, PyString_FromString ((*iter).c_str()));
+  return tuple;
+}
+
+PyObject *
 prepare_sleepy_hollow_response (Response* response)
 {
   /*
@@ -111,6 +122,11 @@ prepare_sleepy_hollow_response (Response* response)
   PyObject *errors_tuple = js_error_list_to_pytuple(response->getJSErrors());
   PyDict_SetItemString (dict, C_STR ("js_errors"), errors_tuple);
 
+  /* Adding the list of requested resources */
+  PyObject *resources =
+    stringlist_to_python_tuple(response->getRequestedResources());
+  PyDict_SetItemString (dict, C_STR ("requested_resources"), resources);
+
   return dict;
 }
 
@@ -119,14 +135,18 @@ prepare_sleepy_hollow_response (Response* response)
 
 static PyObject *
 SleepyHollow_new (PyTypeObject *type,
-                  PyObject *UNUSED(args),
-                  PyObject *UNUSED(kwargs))
+                  PyObject *args,
+                  PyObject *kwargs)
 {
   SleepyHollow *self = NULL;
+  int disable_cache = 0;
+  static char *kwlist[] = { C_STR ("disable_cache"), NULL };
 
+  if (!PyArg_ParseTupleAndKeywords (args, kwargs, "|i", kwlist, &disable_cache))
+    return NULL;
   if ((self = (SleepyHollow *) type->tp_alloc (type, 0)) == NULL)
     return NULL;
-  if ((self->hollow = new Hollow) == NULL)
+  if ((self->hollow = new Hollow(0, disable_cache)) == NULL)
     {
       Py_DECREF (self);
       Py_RETURN_NONE;

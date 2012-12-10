@@ -19,8 +19,7 @@ Response::Response (int statusCode,
   , m_url(strdup(url))
   , m_headers(headers)
   , m_timestamp(unix_timestamp)
-{
-}
+{ }
 
 
 Response::~Response()
@@ -91,13 +90,15 @@ Response::getHeaders (void)
   return m_headers;
 }
 
+
 void
 Response::setJSErrors (JSErrorList errors)
 {
   m_js_errors = errors;
 }
 
-const JSErrorList
+
+JSErrorList
 Response::getJSErrors (void)
 {
   return m_js_errors;
@@ -108,4 +109,18 @@ utimestamp
 Response::getTimeStamp (void)
 {
   return m_timestamp;
+}
+
+
+void
+Response::setRequestedResources(StringList requestedResources)
+{
+  m_requestedResources = requestedResources;
+}
+
+
+StringList
+Response::getRequestedResources(void)
+{
+  return m_requestedResources;
 }

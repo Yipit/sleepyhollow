@@ -265,3 +265,21 @@ def test_getting_js_errors(context):
         'source_id': u'http://127.0.0.1:5000/media/js/jserror.js'
     },))
     expect("IT WORKS").to.be.within(response.html)
+
+
+@server_test_case
+def test_requested_resources(context):
+    "response object should contain the url of all subrequests"
+
+    sl = SleepyHollow(disable_cache=True)
+    response = sl.get(context.route_to('/fewresources'))
+
+    response.status_code.should.equal(200)
+    response.should.have.property('requested_resources').being.a(tuple)
+    response.requested_resources.should.have.length_of(4)
+    sorted(response.requested_resources).should.equal(sorted((
+        'http://127.0.0.1:5000/fewresources',
+        'http://127.0.0.1:5000/media/js/jquery-1.8.3.min.js',
+        'http://127.0.0.1:5000/media/js/fewresources.js',
+        'http://127.0.0.1:5000/media/img/funny.gif',
+    )))

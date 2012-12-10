@@ -22,6 +22,9 @@ typedef time_t utimestamp;
 typedef std::map<std::string, std::string> StringHashMap;
 typedef StringHashMap::iterator StringHashMapIterator;
 
+typedef std::list<std::string> StringList;
+typedef StringList::iterator StringListIterator;
+
 // We have to do that, cause the QThread::msleep() method is private :/
 class SleeperThread : public QThread {
 public:

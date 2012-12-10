@@ -30,9 +30,9 @@ public:
   const char* getHtml(void);
   const char* getReason(void);
   StringHashMap getHeaders(void);
-  void setJSErrors (JSErrorList errors);
-  const JSErrorList getJSErrors (void);
+  JSErrorList getJSErrors (void);
   utimestamp getTimeStamp(void);
+  StringList getRequestedResources(void);
 
 private:
   int m_statusCode;
@@ -41,10 +41,13 @@ private:
   char* m_reason;
   char* m_url;
   StringHashMap m_headers;
+  StringList m_requestedResources;
   JSErrorList m_js_errors;
   utimestamp m_timestamp;
   void setText(const char* text);
   void setHtml(const char* html);
+  void setJSErrors (JSErrorList errors);
+  void setRequestedResources(StringList requestedResources);
   friend class WebPage;
 };
 

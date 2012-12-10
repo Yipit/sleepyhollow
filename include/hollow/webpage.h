@@ -18,7 +18,7 @@ class WebPage : public QWebPage
   Q_OBJECT
 
 public:
-  WebPage(QObject *parent=0);
+  WebPage(QObject *parent=0, bool disableCache=false);
   Response *lastResponse();
   bool finished();
   bool hasErrors();
@@ -34,8 +34,9 @@ private:
   bool m_loadFinished;
   Response *m_lastResponse;
   JSErrorList m_js_errors;
+  StringList m_requestedResources;
   NetworkAccessManager *m_networkAccessManager;
-  QList<QUrl> m_requestedResources;
+
   Response *buildResponseFromNetworkReply(QNetworkReply *reply, utimestamp when);
   void javaScriptConsoleMessage(const QString& message, int lineNumber, const QString& sourceID);
 };

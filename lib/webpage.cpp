@@ -13,7 +13,7 @@
 #include <hollow/jserror.h>
 
 
-WebPage::WebPage(QObject *parent)
+WebPage::WebPage(QObject *parent, bool disableCache)
   : QWebPage(parent)
   , m_hasErrors(false)
   , m_loadFinished(false)
@@ -58,6 +58,13 @@ WebPage::WebPage(QObject *parent)
   settings()->setAttribute(QWebSettings::JavascriptCanOpenWindows, false);
   settings()->setAttribute(QWebSettings::JavascriptCanAccessClipboard, true);
   settings()->setAttribute(QWebSettings::AcceleratedCompositingEnabled, true);
+
+  // Currently, this is the only control we have over the cache, using
+  // it or not.
+  if (disableCache) {
+    QWebSettings::globalSettings()->setMaximumPagesInCache(0);
+    QWebSettings::globalSettings()->setObjectCacheCapacities(0, 0, 0);
+  }
 }
 
 // -- Public API --
@@ -65,7 +72,7 @@ WebPage::WebPage(QObject *parent)
 bool
 WebPage::finished()
 {
-  return m_loadFinished && m_requestedResources.isEmpty();
+  return m_loadFinished;
 }
 
 
@@ -86,6 +93,7 @@ WebPage::lastResponse()
     m_lastResponse->setHtml(mainFrame()->toHtml().toUtf8().constData());
     m_lastResponse->setText(mainFrame()->toPlainText().toUtf8().constData());
     m_lastResponse->setJSErrors(m_js_errors);
+    m_lastResponse->setRequestedResources(m_requestedResources);
   }
   return m_lastResponse;
 }
@@ -119,7 +127,7 @@ WebPage::handleLoadFinished(bool ok)
 void
 WebPage::handleResourceRequested(const QNetworkRequest& request)
 {
-  m_requestedResources.append(request.url());
+  m_requestedResources.push_back(request.url().toString().toStdString());
 }
 
 
@@ -128,9 +136,6 @@ WebPage::handleNetworkReplies(QNetworkReply *reply)
 {
   time_t now;
   now = time(NULL);
-
-  // Keeping the list of requested resources updated
-  m_requestedResources.removeOne(reply->url());
 
   // Making sure we're handling the right url
   QUrl url = mainFrame()->url();

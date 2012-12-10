@@ -6,8 +6,7 @@
 
 NetworkAccessManager::NetworkAccessManager(QObject *parent)
   : QNetworkAccessManager(parent)
-{
-}
+{ }
 
 
 QNetworkReply *
