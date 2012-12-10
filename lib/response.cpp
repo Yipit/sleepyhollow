@@ -10,13 +10,15 @@ Response::Response (int statusCode,
                     const char* text,
                     const char* html,
                     const char* reason,
-                    StringHashMap& headers)
+                    StringHashMap& headers,
+                    utimestamp unix_timestamp)
   : m_statusCode(statusCode)
   , m_text(strdup(text))
   , m_html(strdup(html))
   , m_reason(strdup(reason))
   , m_url(strdup(url))
   , m_headers(headers)
+  , m_timestamp(unix_timestamp)
 {
 }
 
@@ -99,4 +101,11 @@ const JSErrorList
 Response::getJSErrors (void)
 {
   return m_js_errors;
+}
+
+
+utimestamp
+Response::getTimeStamp (void)
+{
+  return m_timestamp;
 }

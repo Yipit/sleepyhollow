@@ -4,6 +4,7 @@
 #define HOLLOW_CORE_H
 
 #include <string>
+#include <time.h>
 #include <map>
 #include <QThread>
 #include <QNetworkReply>
@@ -16,6 +17,7 @@
 
 #define TO_STRING(x) ((x).toString().toStdString().c_str())
 
+typedef time_t utimestamp;
 
 typedef std::map<std::string, std::string> StringHashMap;
 typedef StringHashMap::iterator StringHashMapIterator;

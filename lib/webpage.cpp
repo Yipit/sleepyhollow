@@ -126,6 +126,9 @@ WebPage::handleResourceRequested(const QNetworkRequest& request)
 void
 WebPage::handleNetworkReplies(QNetworkReply *reply)
 {
+  time_t now;
+  now = time(NULL);
+
   // Keeping the list of requested resources updated
   m_requestedResources.removeOne(reply->url());
 
@@ -149,7 +152,7 @@ WebPage::handleNetworkReplies(QNetworkReply *reply)
   case QNetworkReply::NoError:
     // Creating the new response object with the info gathered from this
     // reply
-    m_lastResponse = buildResponseFromNetworkReply(reply);
+    m_lastResponse = buildResponseFromNetworkReply(reply, now);
     break;
 
   case QNetworkReply::ConnectionRefusedError:
@@ -160,7 +163,7 @@ WebPage::handleNetworkReplies(QNetworkReply *reply)
     // Maybe we can create a response when an error happens. If the
     // reply does not have all the data needed to create it, the method
     // buildResponseFromNetworkReply() will return NULL.
-    if ((m_lastResponse = buildResponseFromNetworkReply(reply)) == NULL)
+    if ((m_lastResponse = buildResponseFromNetworkReply(reply, now)) == NULL)
       Error::set(Error::UNKNOWN, C_STRING(reply->errorString()));
     break;
   }
@@ -171,7 +174,7 @@ WebPage::handleNetworkReplies(QNetworkReply *reply)
 
 
 Response *
-WebPage::buildResponseFromNetworkReply(QNetworkReply *reply)
+WebPage::buildResponseFromNetworkReply(QNetworkReply *reply, utimestamp when)
 {
   QVariant statusCode = reply->attribute(QNetworkRequest::HttpStatusCodeAttribute);
   QVariant reason = reply->attribute(QNetworkRequest::HttpReasonPhraseAttribute);
@@ -193,5 +196,6 @@ WebPage::buildResponseFromNetworkReply(QNetworkReply *reply)
                       "",
                       "",
                       TO_STRING(reason),
-                      headers);
+                      headers,
+                      when);
 }

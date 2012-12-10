@@ -36,7 +36,7 @@ private:
   JSErrorList m_js_errors;
   NetworkAccessManager *m_networkAccessManager;
   QList<QUrl> m_requestedResources;
-  Response *buildResponseFromNetworkReply(QNetworkReply *reply);
+  Response *buildResponseFromNetworkReply(QNetworkReply *reply, utimestamp when);
   void javaScriptConsoleMessage(const QString& message, int lineNumber, const QString& sourceID);
 };
 
