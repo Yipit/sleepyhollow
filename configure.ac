@@ -18,14 +18,16 @@ AC_PROG_CC
 AM_PROG_CC_C_O
 AC_PROG_LIBTOOL
 
-# AutoTroll with Qt.
-# Qt4 does not have the webkitwidgets package
+# AutoTroll to rule them all! Qt4 does not have the webkitwidgets
+# package, so we WILL have a warning when compiling with it
+AT_WITH_QT
 AT_REQUIRE_QT_VERSION([5.0.0],
-        [modules="+network +webkit +webkitwidgets +gui"],
-        [modules="+network +webkit +gui"])
-AT_WITH_QT([$modules])
+        [modules="+network +gui +webkit"],
+        [modules="+network +gui +webkit +webkitwidgets"]
+)
+AT_LOAD_MODULES([$modules])
 
-dnl python checks
+# Python checks
 AM_PATH_PYTHON(2.7.0)
 PY_PREFIX=`$PYTHON -c 'import sys ; print sys.prefix'`
 PYTHON_LIBS="-lpython$PYTHON_VERSION"

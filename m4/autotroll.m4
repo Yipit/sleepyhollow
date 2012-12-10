@@ -98,42 +98,9 @@ m4_ifdef([AX_INSTEAD_IF], [],
 m4_pattern_forbid([^AT_])dnl
 m4_pattern_forbid([^_AT_])dnl
 
-# AT_WITH_QT([QT_modules], [QT_config], [QT_misc], [RUN-IF-FAILED], [RUN-IF-OK])
-# ------------------------------------------------------------------------------
-# Enable Qt support and add an option --with-qt to the configure script.
-#
-# The QT_modules argument is optional and defines extra modules to enable or
-# disable (it's equivalent to the QT variable in .pro files). Modules can be
-# specified as follows:
-#
-# AT_WITH_QT   => No argument -> No QT value.
-#                                Qmake sets it to "core gui" by default.
-# AT_WITH_QT([xml])   => QT += xml
-# AT_WITH_QT([+xml])  => QT += xml
-# AT_WITH_QT([-gui])  => QT -= gui
-# AT_WITH_QT([xml -gui +sql svg])  => QT += xml sql svg
-#                                     QT -= gui
-#
-# The QT_config argument is also optional and follows the same convention as
-# QT_modules. Instead of changing the QT variable, it changes the CONFIG
-# variable, which is used to tweak configuration and compiler options.
-#
-# The last argument, QT_misc (also optional) will be copied as-is the .pro
-# file used to guess how to compile Qt apps. You may use it to further tweak
-# the build process of Qt apps if tweaking the QT or CONFIG variables isn't
-# enough for you.
-#
-# RUN-IF-FAILED is arbitrary code to execute if Qt cannot be found or if any
-# problem happens.  If this argument is omitted, then AC_MSG_ERROR will be
-# called.  RUN-IF-OK is arbitrary code to execute if Qt was successfully found.
-AC_DEFUN([AT_WITH_QT],
-[AC_REQUIRE([AC_CANONICAL_HOST])dnl
-AC_REQUIRE([AC_CANONICAL_BUILD])dnl
-AC_REQUIRE([AC_PROG_CXX])dnl
-echo "$as_me: this is autotroll.m4[]_AUTOTROLL_SERIAL" >&AS_MESSAGE_LOG_FD
-
-  test x"$TROLL" != x && echo 'ViM rox emacs.'
-
+# AT_WITH_QT
+# -----------------------------------------------------------------------------
+AC_DEFUN([AT_WITH_QT], [
 dnl Memo: AC_ARG_WITH(package, help-string, [if-given], [if-not-given])
   AC_ARG_WITH([qt],
               [AS_HELP_STRING([--with-qt],
@@ -212,6 +179,43 @@ dnl Memo: AC_ARG_WITH(package, help-string, [if-given], [if-not-given])
     break
   fi
   AC_SUBST([QT_PATH])
+])
+
+# AT_LOAD_MODULES([QT_modules], [QT_config], [QT_misc], [RUN-IF-FAILED], [RUN-IF-OK])
+# ------------------------------------------------------------------------------
+# Enable Qt support and add an option --with-qt to the configure script.
+#
+# The QT_modules argument is optional and defines extra modules to enable or
+# disable (it's equivalent to the QT variable in .pro files). Modules can be
+# specified as follows:
+#
+# AT_LOAD_MODULES   => No argument -> No QT value.
+#                                Qmake sets it to "core gui" by default.
+# AT_LOAD_MODULES([xml])   => QT += xml
+# AT_LOAD_MODULES([+xml])  => QT += xml
+# AT_LOAD_MODULES([-gui])  => QT -= gui
+# AT_LOAD_MODULES([xml -gui +sql svg])  => QT += xml sql svg
+#                                     QT -= gui
+#
+# The QT_config argument is also optional and follows the same convention as
+# QT_modules. Instead of changing the QT variable, it changes the CONFIG
+# variable, which is used to tweak configuration and compiler options.
+#
+# The last argument, QT_misc (also optional) will be copied as-is the .pro
+# file used to guess how to compile Qt apps. You may use it to further tweak
+# the build process of Qt apps if tweaking the QT or CONFIG variables isn't
+# enough for you.
+#
+# RUN-IF-FAILED is arbitrary code to execute if Qt cannot be found or if any
+# problem happens.  If this argument is omitted, then AC_MSG_ERROR will be
+# called.  RUN-IF-OK is arbitrary code to execute if Qt was successfully found.
+AC_DEFUN([AT_LOAD_MODULES],
+[AC_REQUIRE([AC_CANONICAL_HOST])dnl
+AC_REQUIRE([AC_CANONICAL_BUILD])dnl
+AC_REQUIRE([AC_PROG_CXX])dnl
+echo "$as_me: this is autotroll.m4[]_AUTOTROLL_SERIAL" >&AS_MESSAGE_LOG_FD
+
+  test x"$TROLL" != x && echo 'ViM rox emacs.'
 
   # Get ready to build a test-app with Qt.
   if mkdir conftest.dir && cd conftest.dir; then :; else
@@ -502,7 +506,7 @@ instead" >&AS_MESSAGE_LOG_FD
 # AT_REQUIRE_QT_VERSION(QT_version, RUN-IF-FAILED, RUN-IF-OK)
 # -----------------------------------------------------------
 # Check (using qmake) that Qt's version "matches" QT_version.
-# Must be run AFTER AT_WITH_QT. Requires autoconf 2.60.
+# Must be run AFTER AT_LOAD_MODULES. Requires autoconf 2.60.
 #
 # RUN-IF-FAILED is arbitrary code to execute if Qt cannot be found or if any
 # problem happens.  If this argument is omitted, then AC_MSG_ERROR will be
@@ -528,11 +532,10 @@ AC_DEFUN([AT_REQUIRE_QT_VERSION],
     break
   fi
   AC_SUBST([QT_VERSION], [$at_cv_QT_VERSION])
-  AS_VERSION_COMPARE([$QT_VERSION], [$1],
-    [AX_INSTEAD_IF([$2; break;], [This package requires Qt $1 or above.])])
 
-  # Run the user code
-  $3
+  # The user must issue his/her own warning message, this macro does not
+  # assume that it's a problem to don't have the required version.
+  AS_VERSION_COMPARE([$QT_VERSION], [$1], [$2], [$3])
 
   done  # end hack (useless for to be able to use break)
 ])
