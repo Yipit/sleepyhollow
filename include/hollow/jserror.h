@@ -19,6 +19,9 @@ public:
   ~JSError();
   const std::string getMessage(void);
   const std::string getSourceID(void);
+  const char* getMessageCString(void);
+  const char* getSourceIDCString(void);
+
   int getLineNumber(void);
 
 private:

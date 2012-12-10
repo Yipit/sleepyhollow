@@ -28,3 +28,15 @@ int
 JSError::getLineNumber(void) {
   return m_line_number;
 }
+
+const char*
+JSError::getMessageCString(void)
+{
+  return getMessage().c_str();
+}
+
+const char*
+JSError::getSourceIDCString(void)
+{
+  return getSourceID().c_str();
+}
