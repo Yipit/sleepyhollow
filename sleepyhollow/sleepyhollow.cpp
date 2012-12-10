@@ -48,6 +48,32 @@ string_hash_map_to_pydict(StringHashMap map)
 
 }
 
+PyObject *
+prepare_sleepy_hollow_response (Response* response)
+{
+  /*
+    Takes a Response instance and takes care of turning it into a
+    dictionary with the response that will be handled by the python
+    wrapper.
+   */
+  PyObject *dict;
+  dict = PyDict_New();
+  PyDict_SetItemString (dict, C_STR ("url"),
+                        PyUnicode_FromString (response->getURL()));
+  PyDict_SetItemString (dict, C_STR ("text"),
+                        PyUnicode_FromString (response->getText()));
+  PyDict_SetItemString (dict, C_STR ("html"),
+                        PyUnicode_FromString (response->getHtml()));
+  PyDict_SetItemString (dict, C_STR ("status_code"),
+                        PyInt_FromLong (response->getStatusCode()));
+  PyDict_SetItemString (dict, C_STR ("reason"),
+                        PyString_FromString (response->getReason()));
+
+  /* Adding the headers */
+  PyObject *response_headers_dict = string_hash_map_to_pydict(response->getHeaders());
+  PyDict_SetItemString (dict, C_STR ("headers"), response_headers_dict);
+  return dict;
+}
 /* The SleepyHollow class */
 
 static PyObject *
@@ -136,23 +162,7 @@ SleepyHollow_request (SleepyHollow *self, PyObject *args, PyObject *kw)
 
   /* Returning a dictionary with the values grabbed from the above
    * request call */
-  if ((dict = PyDict_New ()) == NULL)
-    return NULL;
-
-  PyDict_SetItemString (dict, C_STR ("url"),
-                        PyUnicode_FromString (resp->getURL()));
-  PyDict_SetItemString (dict, C_STR ("text"),
-                        PyUnicode_FromString (resp->getText()));
-  PyDict_SetItemString (dict, C_STR ("html"),
-                        PyUnicode_FromString (resp->getHtml()));
-  PyDict_SetItemString (dict, C_STR ("status_code"),
-                        PyInt_FromLong (resp->getStatusCode()));
-  PyDict_SetItemString (dict, C_STR ("reason"),
-                        PyString_FromString (resp->getReason()));
-
-  /* Adding the headers */
-  PyObject *response_headers_dict = string_hash_map_to_pydict(resp->getHeaders());
-  PyDict_SetItemString (dict, C_STR ("headers"), response_headers_dict);
+  dict = prepare_sleepy_hollow_response(resp);
   return dict;
 }
 
