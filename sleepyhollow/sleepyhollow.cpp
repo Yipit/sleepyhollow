@@ -30,9 +30,8 @@ pydict_to_string_hash_map(PyObject *dict)
   StringHashMap ret;
   PyObject *key, *value;
   Py_ssize_t pos = 0;
-  while (PyDict_Next (dict, &pos, &key, &value))
+  while (PyDict_Next(dict, &pos, &key, &value))
     ret[PyString_AsString(key)] = PyString_AsString(value);
-
   return ret;
 }
 
@@ -41,12 +40,10 @@ string_hash_map_to_pydict(StringHashMap map)
 {
   StringHashMapIterator iterator;
   PyObject *dict = PyDict_New ();
-
   for (iterator = map.begin(); iterator != map.end(); iterator++)
-    PyDict_SetItemString (dict, iterator->first.c_str(),
-                          PyUnicode_FromString (iterator->second.c_str()));
+    PyDict_SetItemString(dict, iterator->first.c_str(),
+                         PyUnicode_FromString(iterator->second.c_str()));
   return dict;
-
 }
 
 PyObject *
@@ -54,32 +51,25 @@ jserror_to_dict(JSError error)
 {
   /* Takes a JSError instance and turn it into a python dictionary */
 
-  PyObject *dict = PyDict_New ();
-  PyDict_SetItemString (dict, C_STR ("message"),
-                        PyUnicode_FromString (error.getMessageCString()));
-  PyDict_SetItemString (dict, C_STR ("source_id"),
-                        PyUnicode_FromString (error.getSourceIDCString()));
-  PyDict_SetItemString (dict, C_STR ("line_number"),
-                        PyInt_FromLong ((int)error.getLineNumber()));
+  PyObject *dict = PyDict_New();
+  PyDict_SetItemString(dict, C_STR("message"),
+                       PyUnicode_FromString(error.getMessageCString()));
+  PyDict_SetItemString(dict, C_STR("source_id"),
+                       PyUnicode_FromString(error.getSourceIDCString()));
+  PyDict_SetItemString(dict, C_STR("line_number"),
+                       PyInt_FromLong(error.getLineNumber()));
   return dict;
-
 }
 
 PyObject *
 js_error_list_to_pytuple(JSErrorList errors)
 {
-  PyObject *list;
-  JSErrorListIterator iterator;
-  int list_size = (int)errors.size();
-  int pos = 0;
-  list = PyTuple_New(list_size);
-
-  for (iterator = errors.begin(); iterator != errors.end(); iterator++) {
-    PyTuple_SetItem(list, pos, jserror_to_dict(*iterator));
-    pos++;
-  }
-
-  return list;
+  int pos;
+  JSErrorListIterator iter;
+  PyObject *tuple = PyTuple_New(errors.size ());
+  for (iter = errors.begin(), pos = 0; iter != errors.end(); iter++, pos++)
+    PyTuple_SetItem(tuple, pos, jserror_to_dict(*iter));
+  return tuple;
 }
 
 PyObject *
@@ -87,14 +77,14 @@ stringlist_to_python_tuple(StringList list)
 {
   int i;
   StringListIterator iter;
-  PyObject *tuple = PyTuple_New (list.size ());
-  for (iter = list.begin (), i = 0; iter != list.end (); iter++, i++)
-    PyTuple_SetItem (tuple, i, PyString_FromString ((*iter).c_str()));
+  PyObject *tuple = PyTuple_New(list.size ());
+  for (iter = list.begin(), i = 0; iter != list.end(); iter++, i++)
+    PyTuple_SetItem(tuple, i, PyString_FromString((*iter).c_str()));
   return tuple;
 }
 
 PyObject *
-prepare_sleepy_hollow_response (Response* response)
+prepare_sleepy_hollow_response(Response* response)
 {
   /*
     Takes a Response instance and takes care of turning it into a
@@ -103,68 +93,66 @@ prepare_sleepy_hollow_response (Response* response)
    */
   PyObject *dict;
   dict = PyDict_New();
-  PyDict_SetItemString (dict, C_STR ("url"),
-                        PyUnicode_FromString (response->getURL()));
-  PyDict_SetItemString (dict, C_STR ("text"),
-                        PyUnicode_FromString (response->getText()));
-  PyDict_SetItemString (dict, C_STR ("html"),
-                        PyUnicode_FromString (response->getHtml()));
-  PyDict_SetItemString (dict, C_STR ("status_code"),
-                        PyInt_FromLong (response->getStatusCode()));
-  PyDict_SetItemString (dict, C_STR ("reason"),
-                        PyString_FromString (response->getReason()));
+  PyDict_SetItemString(dict, C_STR("url"),
+                       PyUnicode_FromString(response->getURL()));
+  PyDict_SetItemString(dict, C_STR("text"),
+                       PyUnicode_FromString(response->getText()));
+  PyDict_SetItemString(dict, C_STR("html"),
+                       PyUnicode_FromString(response->getHtml()));
+  PyDict_SetItemString(dict, C_STR("status_code"),
+                       PyInt_FromLong(response->getStatusCode()));
+  PyDict_SetItemString(dict, C_STR("reason"),
+                       PyString_FromString(response->getReason()));
 
   /* Adding the headers */
-  PyObject *response_headers_dict = string_hash_map_to_pydict(response->getHeaders());
-  PyDict_SetItemString (dict, C_STR ("headers"), response_headers_dict);
+  PyObject *response_headers_dict =
+    string_hash_map_to_pydict(response->getHeaders());
+  PyDict_SetItemString(dict, C_STR("headers"), response_headers_dict);
 
   /* Adding the js errors */
-  PyObject *errors_tuple = js_error_list_to_pytuple(response->getJSErrors());
-  PyDict_SetItemString (dict, C_STR ("js_errors"), errors_tuple);
+  PyObject *errors_tuple =
+    js_error_list_to_pytuple(response->getJSErrors());
+  PyDict_SetItemString(dict, C_STR("js_errors"), errors_tuple);
 
   /* Adding the list of requested resources */
   PyObject *resources =
     stringlist_to_python_tuple(response->getRequestedResources());
-  PyDict_SetItemString (dict, C_STR ("requested_resources"), resources);
+  PyDict_SetItemString(dict, C_STR("requested_resources"), resources);
 
   return dict;
 }
 
-
 /* The SleepyHollow class */
 
 static PyObject *
-SleepyHollow_new (PyTypeObject *type,
-                  PyObject *args,
-                  PyObject *kwargs)
+SleepyHollow_new(PyTypeObject *type,
+                 PyObject *args,
+                 PyObject *kwargs)
 {
   SleepyHollow *self = NULL;
   int disable_cache = 0;
-  static char *kwlist[] = { C_STR ("disable_cache"), NULL };
+  static char *kwlist[] = { C_STR("disable_cache"), NULL };
 
-  if (!PyArg_ParseTupleAndKeywords (args, kwargs, "|i", kwlist, &disable_cache))
+  if (!PyArg_ParseTupleAndKeywords(args, kwargs, "|i", kwlist, &disable_cache))
     return NULL;
-  if ((self = (SleepyHollow *) type->tp_alloc (type, 0)) == NULL)
+  if ((self = (SleepyHollow *) type->tp_alloc(type, 0)) == NULL)
     return NULL;
-  if ((self->hollow = new Hollow(0, disable_cache)) == NULL)
-    {
-      Py_DECREF (self);
-      Py_RETURN_NONE;
-    }
+  if ((self->hollow = new Hollow(0, disable_cache)) == NULL) {
+    Py_DECREF(self);
+    Py_RETURN_NONE;
+  }
   return (PyObject *) self;
 }
 
-
 static void
-SleepyHollow_dealloc (SleepyHollow  *self)
+SleepyHollow_dealloc(SleepyHollow *self)
 {
   delete self->hollow;
-  self->ob_type->tp_free ((PyObject *) self);
+  self->ob_type->tp_free((PyObject *) self);
 }
 
-
 static PyObject *
-SleepyHollow_request (SleepyHollow *self, PyObject *args, PyObject *kw)
+SleepyHollow_request(SleepyHollow *self, PyObject *args, PyObject *kw)
 {
   PyObject *dict;
   Response *resp;
@@ -181,44 +169,40 @@ SleepyHollow_request (SleepyHollow *self, PyObject *args, PyObject *kw)
     NULL
   };
 
-  if (!PyArg_ParseTupleAndKeywords (args, kw, "ss|OO", kwlist, &method, &url,
-                                    &payload_str, &request_headers_dict))
+  if (!PyArg_ParseTupleAndKeywords(args, kw, "ss|OO", kwlist, &method, &url,
+                                   &payload_str, &request_headers_dict))
     return NULL;
 
   /* If params is not PyString or Py_None we raise a TypeError */
   if (PyString_Check(payload_str))
     payload = PyString_AsString(payload_str);
   else if (payload_str != Py_None)
-    return PyErr_Format (PyExc_TypeError,
-                         "The 'params' argument must be either a string or None");
+    return PyErr_Format(PyExc_TypeError,
+                        "The 'params' argument must be either a string or None");
 
   /* Checking if headers is a dict, and if so, we turn it into a StringHashMap */
   StringHashMap requestHeaders;
-  if (PyDict_Check (request_headers_dict))
-    {
-      requestHeaders = pydict_to_string_hash_map(request_headers_dict);
-    }
-  else if (request_headers_dict != Py_None) {
-    return PyErr_Format (PyExc_TypeError,
-                         "The 'headers' argument must be either a dict or None");
-  }
+  if (PyDict_Check(request_headers_dict))
+    requestHeaders = pydict_to_string_hash_map(request_headers_dict);
+  else if (request_headers_dict != Py_None)
+    return PyErr_Format(PyExc_TypeError,
+                        "The 'headers' argument must be either a dict or None");
 
   /* Performing the actuall request */
-  resp = self->hollow->request (method, url, payload, requestHeaders);
+  resp = self->hollow->request(method, url, payload, requestHeaders);
 
   /* Just making sure that everything worked */
   error = Error::last();
   if (resp == NULL && error == NULL)
-    return PyErr_Format (SleepyHollowError, "Both error and response are null");
+    return PyErr_Format(SleepyHollowError, "Both error and response are null");
   else if (error != NULL)
-    switch (error->code())
-      {
+    switch (error->code()) {
       case Error::INVALID_URL:
-        return PyErr_Format (InvalidUrlError, "%s", error->what());
+        return PyErr_Format(InvalidUrlError, "%s", error->what());
       case Error::CONNECTION_REFUSED:
-        return PyErr_Format (ConnectionRefusedError, "%s", error->what());
+        return PyErr_Format(ConnectionRefusedError, "%s", error->what());
       default:
-        return PyErr_Format (SleepyHollowError, "Unknown Error");
+        return PyErr_Format(SleepyHollowError, "Unknown Error");
       }
 
   /* Returning a dictionary with the values grabbed from the above
@@ -227,11 +211,9 @@ SleepyHollow_request (SleepyHollow *self, PyObject *args, PyObject *kw)
   return dict;
 }
 
-
 static struct PyMemberDef SleepyHollow_members[] = {
   { NULL, 0, 0, 0, 0 },   /* Sentinel */
 };
-
 
 static PyMethodDef SleepyHollow_methods[] = {
 
@@ -246,7 +228,7 @@ static PyTypeObject SleepyHollowType = {
   PyObject_HEAD_INIT(NULL)
   0,                                        /* ob_size */
   "_sleepyhollow.SleepyHollow",             /* tp_name */
-  sizeof (SleepyHollow),                    /* tp_basicsize */
+  sizeof(SleepyHollow),                     /* tp_basicsize */
   0,                                        /* tp_itemsize */
   (destructor) SleepyHollow_dealloc,        /* tp_dealloc */
   0,                                        /* tp_print */
@@ -297,14 +279,14 @@ static PyTypeObject SleepyHollowType = {
 /* The module definition */
 
 PyObject *
-SleepyHollow_setup (PyObject *UNUSED(self), PyObject *UNUSED(args))
+SleepyHollow_setup(PyObject *UNUSED(self), PyObject *UNUSED(args))
 {
   Hollow::setup();
   Py_RETURN_NONE;
 }
 
 PyObject *
-SleepyHollow_teardown (PyObject *UNUSED(self), PyObject *UNUSED(args))
+SleepyHollow_teardown(PyObject *UNUSED(self), PyObject *UNUSED(args))
 {
   Hollow::teardown();
   Py_RETURN_NONE;
@@ -324,46 +306,46 @@ init_sleepyhollow (void)
   PyObject *m;
   PyObject *d;
 
-  if (PyType_Ready (&SleepyHollowType) < 0)
+  if (PyType_Ready(&SleepyHollowType) < 0)
     return;
 
-  if ((m = Py_InitModule ("_sleepyhollow", module_methods)) == NULL)
+  if ((m = Py_InitModule("_sleepyhollow", module_methods)) == NULL)
     return;
 
   /* Getting the module dictionary */
-  if ((d = PyModule_GetDict (m)) == NULL)
+  if ((d = PyModule_GetDict(m)) == NULL)
     goto error;
 
   /* Adding our custom exceptions to the module */
 
   SleepyHollowError =
-    PyErr_NewException (C_STR ("sleepyhollow.Error"),
-                        PyExc_StandardError, NULL);
-  PyDict_SetItemString (d,
-                        C_STR ("Error"),
-                        SleepyHollowError);
+    PyErr_NewException(C_STR("sleepyhollow.Error"),
+                       PyExc_StandardError, NULL);
+  PyDict_SetItemString(d,
+                       C_STR("Error"),
+                       SleepyHollowError);
 
   InvalidUrlError =
-    PyErr_NewException (C_STR ("sleepyhollow.InvalidUrlError"),
-                        SleepyHollowError, NULL);
-  PyDict_SetItemString (d,
-                        C_STR ("InvalidUrlError"),
-                        InvalidUrlError);
+    PyErr_NewException(C_STR("sleepyhollow.InvalidUrlError"),
+                       SleepyHollowError, NULL);
+  PyDict_SetItemString(d,
+                       C_STR("InvalidUrlError"),
+                       InvalidUrlError);
 
   ConnectionRefusedError =
-    PyErr_NewException (C_STR ("sleepyhollow.ConnectionRefusedError"),
-                        SleepyHollowError, NULL);
-  PyDict_SetItemString (d,
-                        C_STR ("ConnectionRefusedError"),
-                        ConnectionRefusedError);
+    PyErr_NewException(C_STR ("sleepyhollow.ConnectionRefusedError"),
+                       SleepyHollowError, NULL);
+  PyDict_SetItemString(d,
+                       C_STR("ConnectionRefusedError"),
+                       ConnectionRefusedError);
 
   /* Adding the classes */
 
-  Py_INCREF (&SleepyHollowType);
-  PyModule_AddObject (m, "SleepyHollow", (PyObject *) &SleepyHollowType);
+  Py_INCREF(&SleepyHollowType);
+  PyModule_AddObject(m, "SleepyHollow", (PyObject *) &SleepyHollowType);
 
   /* Error Handling */
  error:
-  if (PyErr_Occurred ())
-    PyErr_SetString (PyExc_ImportError, "_sleepyhollow: init failed");
+  if (PyErr_Occurred())
+    PyErr_SetString(PyExc_ImportError, "_sleepyhollow: init failed");
 }
