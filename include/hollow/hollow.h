@@ -18,6 +18,11 @@ public:
   ~Hollow();
   Response* request(const char* method, const char* url, const char* payload, StringHashMap& headers);
 
+  // Just an informative variable that returns the Qt version that
+  // sleepy hollow was compiled with. It's helpful to write tests that
+  // won't run due to problems on Qt4.x
+  const static int QT_VERSION_NUMBER = QT_VERSION;
+
   // The user *Must* call this function before using libhollow
   static void setup(void);
   static void teardown(void);

@@ -1,5 +1,6 @@
 # -*- coding: utf-8 -*-
 import os
+import sleepyhollow
 from sure import scenario
 
 
@@ -20,8 +21,10 @@ def clear_server(context):
 server_test_case = scenario(prepare_server, clear_server)
 
 
-def mac_only(func):
-    if os.uname()[0] != 'Darwin':
-        return lambda: None
-
-    return func
+def qt_version_check(min_version):
+    def wrapper(func):
+        if sleepyhollow.QT_VERSION >= min_version:
+            return func
+        else:
+            return lambda: None
+    return wrapper

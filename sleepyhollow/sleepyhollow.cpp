@@ -316,6 +316,11 @@ init_sleepyhollow (void)
   if ((d = PyModule_GetDict(m)) == NULL)
     goto error;
 
+  /* Adding the QT_VERSION constant */
+  PyDict_SetItemString(d,
+                       C_STR("QT_VERSION"),
+                       PyInt_FromLong(Hollow::QT_VERSION_NUMBER));
+
   /* Adding our custom exceptions to the module */
 
   SleepyHollowError =
