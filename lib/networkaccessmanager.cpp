@@ -1,12 +1,16 @@
 #include <QNetworkAccessManager>
 #include <QNetworkRequest>
+#include <QNetworkCookieJar>
 #include <QNetworkReply>
 #include <hollow/networkaccessmanager.h>
 
 
 NetworkAccessManager::NetworkAccessManager(QObject *parent)
   : QNetworkAccessManager(parent)
-{ }
+  , m_cookieJar(new CookieJar(this))
+{
+  setCookieJar(m_cookieJar);
+}
 
 NetworkAccessManager*
 NetworkAccessManager::instance(void) {

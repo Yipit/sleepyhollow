@@ -7,6 +7,7 @@
 #include <QNetworkRequest>
 #include <QNetworkReply>
 
+#include <hollow/cookiejar.h>
 
 class NetworkAccessManager : public QNetworkAccessManager
 {
@@ -20,6 +21,9 @@ signals:
 
 protected:
   QNetworkReply* createRequest(Operation op, const QNetworkRequest& req, QIODevice* outgoingData=0);
+
+private:
+  CookieJar* m_cookieJar;
 };
 
 
