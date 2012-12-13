@@ -1,6 +1,7 @@
 #include <QSettings>
 #include <QNetworkCookie>
 #include <QNetworkCookieJar>
+#include <QDebug>
 
 #include <hollow/cookiejar.h>
 
@@ -20,7 +21,6 @@ CookieJar::setCookiesFromUrl(const QList<QNetworkCookie>& cookieList, const QUrl
   foreach (QNetworkCookie cookie, cookieList) {
     has_cookies = true;
     QByteArray rawCookie = cookie.toRawForm(QNetworkCookie::Full);
-    // qDebug() << "+++" << rawCookie << "+++" << url;
     myCookies.append(rawCookie);
   }
 
@@ -41,8 +41,12 @@ QList<QNetworkCookie> CookieJar::cookiesForUrl(const QUrl &url) const
   foreach (QVariant vCookie, m_cookiePot.value(key).toList()) {
     QByteArray rawCookie;
     rawCookie.append(vCookie.toString().toStdString().data());
-    // qDebug() << "@@@" << rawCookie << "@@@" << url;
+
     cookieList << QNetworkCookie::parseCookies(rawCookie);
+    if (cookieList.count() == 0) {
+      qWarning() << "FAILED TO PARSE COOKIES:" << rawCookie
+                 << url;
+    }
   }
   return cookieList;
 }
