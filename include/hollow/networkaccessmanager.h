@@ -6,6 +6,8 @@
 #include <QNetworkAccessManager>
 #include <QNetworkRequest>
 #include <QNetworkReply>
+#include <QSslSocket>
+#include <QSslConfiguration>
 
 #include <hollow/cookiejar.h>
 
@@ -23,7 +25,7 @@ protected:
   QNetworkReply* createRequest(Operation op, const QNetworkRequest& req, QIODevice* outgoingData=0);
 
 private:
-  CookieJar* m_cookieJar;
+  QSslConfiguration m_sslConfiguration;
 };
 
 
