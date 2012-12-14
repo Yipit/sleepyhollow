@@ -7,17 +7,15 @@
 
 #include <hollow/networkaccessmanager.h>
 
-
 NetworkAccessManager::NetworkAccessManager(QObject *parent)
   : QNetworkAccessManager(parent)
 {
-  setCookieJar(new CookieJar(qApp));
+    setCookieJar(new CookieJar(parent));
 
   if (QSslSocket::supportsSsl()) {
     m_sslConfiguration = QSslConfiguration::defaultConfiguration();
     m_sslConfiguration.setProtocol(QSsl::SslV3);
   }
-
 }
 
 NetworkAccessManager*
