@@ -33,7 +33,7 @@ WebPage::WebPage(QObject *parent, bool disableCache)
   // counter and we won't return untill all the requested resources are
   // downloaded. This is why we have to extend the network access
   // manager and add our custom instance here
-  m_networkAccessManager = new NetworkAccessManager(this);
+  m_networkAccessManager = NetworkAccessManager::instance();
   setNetworkAccessManager(m_networkAccessManager);
   connect(m_networkAccessManager, SIGNAL(resourceRequested(const QNetworkRequest&)),
           this, SLOT(handleResourceRequested(const QNetworkRequest&)),

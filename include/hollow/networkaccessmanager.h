@@ -14,7 +14,7 @@ class NetworkAccessManager : public QNetworkAccessManager
 
 public:
   NetworkAccessManager(QObject *parent=0);
-
+  static NetworkAccessManager* instance(void);
 signals:
   void resourceRequested(const QNetworkRequest&);
 
