@@ -63,6 +63,7 @@ Hollow::request (const char* method, const char* url, const char* payload, Strin
   // setting up the page and connecting it's loadFinished signal to our
   // exit function
   WebPage page(this, m_disableCache);
+  page.triggerAction(QWebPage::Stop);
 
   QNetworkAccessManager::Operation networkOp = QNetworkAccessManager::UnknownOperation;
 
