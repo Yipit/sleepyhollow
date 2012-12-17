@@ -23,14 +23,20 @@ public:
   bool finished();
   bool hasErrors();
 
+public slots:
+  void setJSReady();
+
 private slots:
   void handleLoadFinished(bool);
   void handleResourceRequested(const QNetworkRequest&);
   void handleNetworkReplies(QNetworkReply *);
   bool shouldInterruptJavaScript();
+  void prepareJS();
 
 private:
   bool m_hasErrors;
+  bool m_shouldWaitForJS;
+  bool m_jsReady;
   bool m_loadFinished;
   Response *m_lastResponse;
   JSErrorList m_js_errors;

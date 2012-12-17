@@ -16,6 +16,8 @@
 WebPage::WebPage(QObject *parent, bool disableCache)
   : QWebPage(parent)
   , m_hasErrors(false)
+  , m_shouldWaitForJS(false)
+  , m_jsReady(false)
   , m_loadFinished(false)
   , m_lastResponse(NULL)
 {
@@ -45,6 +47,10 @@ WebPage::WebPage(QObject *parent, bool disableCache)
           this, SLOT(handleNetworkReplies(QNetworkReply *)),
           Qt::DirectConnection);
 
+  connect(mainFrame(), SIGNAL(javaScriptWindowObjectCleared()),
+          this, SLOT(prepareJS()),
+          Qt::DirectConnection);
+
   // Setting the default style for our page
   settings()->setDefaultTextEncoding("utf-8");
   settings()->setFontSize(QWebSettings::MinimumFontSize, 10);
@@ -72,7 +78,10 @@ WebPage::WebPage(QObject *parent, bool disableCache)
 bool
 WebPage::finished()
 {
-  return m_loadFinished;
+  if (m_shouldWaitForJS)
+    return m_jsReady && m_loadFinished;
+  else
+    return m_loadFinished;
 }
 
 
@@ -108,6 +117,24 @@ WebPage::shouldInterruptJavaScript() {
   return false;
 }
 
+
+void
+WebPage::prepareJS()
+{
+  m_shouldWaitForJS = true;
+  m_jsReady = false;
+  m_loadFinished = false;
+  if (mainFrame()->evaluateJavaScript("typeof(window._SLEEPYHOLLOW) !== \"undefined\";").toBool() == false) {
+    mainFrame()->addToJavaScriptWindowObject("_SLEEPYHOLLOW", this);
+    mainFrame()->evaluateJavaScript("document.addEventListener('DOMContentLoaded', function(){window._SLEEPYHOLLOW.setJSReady();}, false)");
+  }
+}
+
+void
+WebPage::setJSReady()
+{
+  m_jsReady = true;
+}
 
 void
 WebPage::javaScriptConsoleMessage(const QString& message, int lineNumber, const QString& sourceID)
