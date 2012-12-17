@@ -63,7 +63,11 @@ WebPage::WebPage(QObject *parent, bool disableCache)
   settings()->setAttribute(QWebSettings::PluginsEnabled, false);
   settings()->setAttribute(QWebSettings::JavascriptCanOpenWindows, false);
   settings()->setAttribute(QWebSettings::JavascriptCanAccessClipboard, true);
-  settings()->setAttribute(QWebSettings::AcceleratedCompositingEnabled, true);
+  settings()->setAttribute(QWebSettings::AcceleratedCompositingEnabled, false);
+  settings()->setAttribute(QWebSettings::FrameFlatteningEnabled, true);
+
+  mainFrame()->setScrollBarPolicy(Qt::Horizontal, Qt::ScrollBarAlwaysOff);
+  mainFrame()->setScrollBarPolicy(Qt::Vertical, Qt::ScrollBarAlwaysOff);
 
   // Currently, this is the only control we have over the cache, using
   // it or not.
@@ -71,6 +75,7 @@ WebPage::WebPage(QObject *parent, bool disableCache)
     QWebSettings::globalSettings()->setMaximumPagesInCache(0);
     QWebSettings::globalSettings()->setObjectCacheCapacities(0, 0, 0);
   }
+  setViewportSize(QSize(1024, 768));
 }
 
 // -- Public API --
@@ -91,6 +96,41 @@ WebPage::hasErrors()
   return m_hasErrors;
 }
 
+QImage
+WebPage::renderImage()
+{
+    QSize contentsSize = mainFrame()->contentsSize();
+    if (contentsSize.width() < 320) {
+      contentsSize.setWidth(320);
+    }
+    QRect frameRect = QRect(QPoint(0, 0), contentsSize);
+
+    QImage buffer(frameRect.size(), QImage::Format_ARGB32);
+
+    QPainter painter;
+
+    setViewportSize(contentsSize);
+    painter.begin(&buffer);
+    painter.setCompositionMode(QPainter::CompositionMode_Source);
+
+    mainFrame()->render(&painter, QRegion(frameRect));
+
+    painter.end();
+
+    return buffer;
+}
+
+QByteArray
+WebPage::renderPNGBase64()
+{
+  QImage rawPageRendering = renderImage();
+
+  QByteArray bytes;
+  QBuffer buffer(&bytes);
+  buffer.open(QIODevice::WriteOnly);
+  rawPageRendering.save(&buffer, "PNG");
+  return bytes.toBase64();
+}
 
 Response *
 WebPage::lastResponse()
@@ -103,6 +143,7 @@ WebPage::lastResponse()
     m_lastResponse->setText(mainFrame()->toPlainText().toUtf8().constData());
     m_lastResponse->setJSErrors(m_js_errors);
     m_lastResponse->setRequestedResources(m_requestedResources);
+    m_lastResponse->setScreenshotData(renderPNGBase64().constData());
   }
   return m_lastResponse;
 }
@@ -228,6 +269,7 @@ WebPage::buildResponseFromNetworkReply(QNetworkReply *reply, utimestamp when)
                       "",
                       "",
                       TO_STRING(reason),
+                      "",
                       headers,
                       when);
 }

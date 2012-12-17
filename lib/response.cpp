@@ -10,6 +10,7 @@ Response::Response (int statusCode,
                     const char* text,
                     const char* html,
                     const char* reason,
+                    const char* screenshotData,
                     StringHashMap& headers,
                     utimestamp unix_timestamp)
   : m_statusCode(statusCode)
@@ -17,6 +18,7 @@ Response::Response (int statusCode,
   , m_html(strdup(html))
   , m_reason(strdup(reason))
   , m_url(strdup(url))
+  , m_screenshotData(strdup(screenshotData))
   , m_headers(headers)
   , m_timestamp(unix_timestamp)
 { }
@@ -27,6 +29,7 @@ Response::~Response()
   free (m_text);
   free (m_html);
   free (m_reason);
+  free (m_screenshotData);
   free (m_url);
 }
 
@@ -81,6 +84,21 @@ const char *
 Response::getReason (void)
 {
   return m_reason;
+}
+
+const char *
+Response::getScreenshotData(void)
+{
+  return m_screenshotData;
+}
+
+void
+Response::setScreenshotData(const char* screenshotData)
+{
+  if (m_screenshotData)
+    free(m_screenshotData);
+
+  m_screenshotData = strdup(screenshotData);
 }
 
 

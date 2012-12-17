@@ -7,6 +7,9 @@
 #include <QNetworkReply>
 #include <QWebPage>
 #include <QWebSettings>
+#include <QBuffer>
+#include <QImage>
+#include <QPainter>
 
 #include <hollow/core.h>
 #include <hollow/networkaccessmanager.h>
@@ -22,6 +25,8 @@ public:
   Response *lastResponse();
   bool finished();
   bool hasErrors();
+  QImage renderImage();
+  QByteArray renderPNGBase64();
 
 public slots:
   void setJSReady();

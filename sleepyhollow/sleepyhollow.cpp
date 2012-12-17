@@ -103,6 +103,8 @@ prepare_sleepy_hollow_response(Response* response)
                        PyInt_FromLong(response->getStatusCode()));
   PyDict_SetItemString(dict, C_STR("reason"),
                        PyString_FromString(response->getReason()));
+  PyDict_SetItemString(dict, C_STR("screenshot_bytes_base64"),
+                       PyString_FromString(response->getScreenshotData()));
 
   /* Adding the headers */
   PyObject *response_headers_dict =

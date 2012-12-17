@@ -2,6 +2,7 @@
 # -*- coding: utf-8 -*-
 
 import json
+import base64
 import urllib
 import urlparse
 
@@ -92,7 +93,8 @@ class SleepyHollow(_SleepyHollow):
 
 class Response(object):
     def __init__(self, status_code, url, text, html, reason, headers,
-                 js_errors, requested_resources):
+                 js_errors, requested_resources, screenshot_bytes_base64):
+
         self.status_code = status_code
         self.url = url
         self.text = unicode(text)
@@ -102,6 +104,7 @@ class Response(object):
         self.headers = headers
         self.js_errors = js_errors
         self.requested_resources = tuple(set(requested_resources))
+        self.screenshot_bytes = base64.decodestring(screenshot_bytes_base64)
 
     @property
     def json(self):
@@ -109,3 +112,8 @@ class Response(object):
             return json.loads(self.content)
         except ValueError:
             return None
+
+    def save_screenshot(self, path):
+        fd = open(path, 'wb')
+        fd.write(self.screenshot_bytes)
+        fd.close()

@@ -20,6 +20,7 @@ public:
            const char* text,
            const char* html,
            const char* reason,
+           const char* screenshotData,
            StringHashMap& headers,
            utimestamp unix_timestamp);
 
@@ -29,6 +30,7 @@ public:
   const char* getText(void);
   const char* getHtml(void);
   const char* getReason(void);
+  const char* getScreenshotData(void);
   StringHashMap getHeaders(void);
   JSErrorList getJSErrors (void);
   utimestamp getTimeStamp(void);
@@ -40,12 +42,14 @@ private:
   char* m_html;
   char* m_reason;
   char* m_url;
+  char* m_screenshotData;
   StringHashMap m_headers;
   StringList m_requestedResources;
   JSErrorList m_js_errors;
   utimestamp m_timestamp;
   void setText(const char* text);
   void setHtml(const char* html);
+  void setScreenshotData(const char* data);
   void setJSErrors (JSErrorList errors);
   void setRequestedResources(StringList requestedResources);
   friend class WebPage;
