@@ -52,25 +52,28 @@ WebPage::WebPage(QObject *parent, bool disableCache)
           Qt::DirectConnection);
 
   // Setting the default style for our page
-  settings()->setDefaultTextEncoding("utf-8");
-  settings()->setFontSize(QWebSettings::MinimumFontSize, 10);
-  settings()->setFontSize(QWebSettings::MinimumLogicalFontSize, 10);
-  settings()->setFontSize(QWebSettings::DefaultFontSize, 12);
-  settings()->setFontSize(QWebSettings::DefaultFixedFontSize, 14);
-  settings()->setAttribute(QWebSettings::LocalStorageEnabled, true);
-  settings()->setAttribute(QWebSettings::JavaEnabled, false);
-  settings()->setAttribute(QWebSettings::JavascriptEnabled, true);
-  settings()->setAttribute(QWebSettings::PluginsEnabled, false);
-  settings()->setAttribute(QWebSettings::JavascriptCanOpenWindows, false);
-  settings()->setAttribute(QWebSettings::JavascriptCanAccessClipboard, true);
-  settings()->setAttribute(QWebSettings::AcceleratedCompositingEnabled, false);
-  settings()->setAttribute(QWebSettings::FrameFlatteningEnabled, true);
+  QWebSettings::globalSettings()->setDefaultTextEncoding("utf-8");
+  QWebSettings::globalSettings()->setFontSize(QWebSettings::MinimumFontSize, 10);
+  QWebSettings::globalSettings()->setFontSize(QWebSettings::MinimumLogicalFontSize, 10);
+  QWebSettings::globalSettings()->setFontSize(QWebSettings::DefaultFontSize, 12);
+  QWebSettings::globalSettings()->setFontSize(QWebSettings::DefaultFixedFontSize, 14);
+  QWebSettings::globalSettings()->setAttribute(QWebSettings::LocalStorageEnabled, true);
+  QWebSettings::globalSettings()->setAttribute(QWebSettings::JavaEnabled, false);
+  QWebSettings::globalSettings()->setAttribute(QWebSettings::JavascriptEnabled, true);
+  QWebSettings::globalSettings()->setAttribute(QWebSettings::PluginsEnabled, true);
+  QWebSettings::globalSettings()->setAttribute(QWebSettings::JavascriptCanOpenWindows, false);
+  QWebSettings::globalSettings()->setAttribute(QWebSettings::JavascriptCanAccessClipboard, true);
+  QWebSettings::globalSettings()->setAttribute(QWebSettings::FrameFlatteningEnabled, true);
+  QWebSettings::globalSettings()->setAttribute(QWebSettings::DeveloperExtrasEnabled, true);
+  QWebSettings::globalSettings()->setAttribute(QWebSettings::LocalContentCanAccessRemoteUrls, true);
+  QWebSettings::globalSettings()->setAttribute(QWebSettings::DnsPrefetchEnabled, true);
 
   mainFrame()->setScrollBarPolicy(Qt::Horizontal, Qt::ScrollBarAlwaysOff);
   mainFrame()->setScrollBarPolicy(Qt::Vertical, Qt::ScrollBarAlwaysOff);
 
   // Currently, this is the only control we have over the cache, using
   // it or not.
+
   if (disableCache) {
     QWebSettings::globalSettings()->setMaximumPagesInCache(0);
     QWebSettings::globalSettings()->setObjectCacheCapacities(0, 0, 0);
