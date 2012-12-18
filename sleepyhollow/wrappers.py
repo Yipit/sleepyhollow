@@ -6,6 +6,8 @@ import base64
 import urllib
 import urlparse
 
+from functools import partial
+
 from _sleepyhollow import SleepyHollow as _SleepyHollow
 from _sleepyhollow import (
     Error,
@@ -23,7 +25,15 @@ __all__ = [
 
 
 class SleepyHollow(_SleepyHollow):
-    def request(self, method, url, params=None, headers=None):
+    def __init__(self):
+        # Can you hear that? It's Mjolnir!!!!
+        for method in 'get', 'post', 'put', 'head', 'delete':
+            setattr(self, method, partial(self.request, method))
+
+    def request(self, method, url, params=None, headers=None, config=None):
+
+        url, params = self._patch_querystring(url, params)
+
         if isinstance(params, dict):
             payload = urllib.urlencode(params)
         else:
@@ -41,7 +51,8 @@ class SleepyHollow(_SleepyHollow):
         try:
             response = super(SleepyHollow, self).request(method, url,
                                                          params=payload,
-                                                         headers=headers)
+                                                         headers=headers,
+                                                         config=config)
         except KeyboardInterrupt:
             raise SystemExit(1)
 
@@ -71,25 +82,6 @@ class SleepyHollow(_SleepyHollow):
         parts = (p.scheme, p.netloc, p.path, qs, p.fragment)
         return urlparse.urlunsplit(parts), _params
 
-    def get(self, url, params=None, headers=None):
-        url, params = self._patch_querystring(url, params)
-        return self.request('get', url=url, params=params, headers=headers)
-
-    def post(self, url, params=None, headers=None):
-        return self.request('post', url=url, params=params, headers=headers)
-
-    def put(self, url, params=None, headers=None):
-        url, params = self._patch_querystring(url, params)
-        return self.request('put', url=url, params=params, headers=headers)
-
-    def head(self, url, params=None, headers=None):
-        url, params = self._patch_querystring(url, params)
-        return self.request('head', url=url, params=params, headers=headers)
-
-    def delete(self, url, params=None, headers=None):
-        url, params = self._patch_querystring(url, params)
-        return self.request('delete', url=url, params=params, headers=headers)
-
 
 class Response(object):
     def __init__(self, status_code, url, text, html, reason, headers,
@@ -114,6 +106,10 @@ class Response(object):
             return None
 
     def save_screenshot(self, path):
+        if not self.screenshot_bytes:
+            raise ValueError(
+                "Screenshot should be enabled throught the config dict")
+
         fd = open(path, 'wb')
         fd.write(self.screenshot_bytes)
         fd.close()

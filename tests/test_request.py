@@ -283,3 +283,27 @@ def test_requested_resources(context):
         'http://127.0.0.1:5000/media/js/fewresources.js',
         'http://127.0.0.1:5000/media/img/funny.gif',
     )))
+
+
+@server_test_case
+def test_config_stuff(context):
+    "The config dictionary should be forwarded to the C layer"
+
+    sl = SleepyHollow()
+    response = sl.get(context.route_to('/simple'),
+                      config={'screenshot': True})
+
+    response.screenshot_bytes.shouldnt.be.empty
+
+
+@server_test_case
+def test_save_screenshot(context):
+    "The save_screenshot method should complain if screenshot is not enabled"
+
+    sl = SleepyHollow()
+    response = sl.get(context.route_to('/simple'),
+                      config={'screenshot': False})
+
+    response.save_screenshot.when.called_with('stuff.png').should.throw(
+        ValueError, "Screenshot should be enabled throught the config dict"
+    )

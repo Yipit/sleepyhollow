@@ -14,9 +14,13 @@ class Hollow : public QObject
   Q_OBJECT
 
 public:
-  Hollow (QObject *parent=0, bool cache=false);
+  Hollow (QObject *parent=0);
   ~Hollow();
-  Response* request(const char* method, const char* url, const char* payload, StringHashMap& headers);
+  Response* request(const char* method,
+                    const char* url,
+                    const char* payload,
+                    StringHashMap& headers,
+                    Config& config);
 
   // Just an informative variable that returns the Qt version that
   // sleepy hollow was compiled with. It's helpful to write tests that
@@ -26,9 +30,6 @@ public:
   // The user *Must* call this function before using libhollow
   static void setup(void);
   static void teardown(void);
-
-private:
-  bool m_cache;
 };
 
 

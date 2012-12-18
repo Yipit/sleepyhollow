@@ -17,13 +17,14 @@
 static const int cDefaultCacheCapacity = 8192 * 1024;
 
 
-WebPage::WebPage(QObject *parent, bool cache)
+WebPage::WebPage(QObject* parent, Config& config)
   : QWebPage(parent)
   , m_hasErrors(false)
   , m_shouldWaitForJS(false)
   , m_jsReady(false)
   , m_loadFinished(false)
   , m_lastResponse(NULL)
+  , m_config(config)
 {
   // Some more configuration to the page and to the page itself
   setForwardUnsupportedContent(true);
@@ -78,7 +79,7 @@ WebPage::WebPage(QObject *parent, bool cache)
   // Currently, this is the only control we have over the cache, using
   // it or not.
 
-  if (!cache) {
+  if (!config["cache"]) {
     QWebSettings::globalSettings()->setObjectCacheCapacities(0, 0, 0);
   } else {
     QWebSettings::globalSettings()->setObjectCacheCapacities(0, cDefaultCacheCapacity, cDefaultCacheCapacity);
@@ -151,7 +152,9 @@ WebPage::lastResponse()
     m_lastResponse->setText(mainFrame()->toPlainText().toUtf8().constData());
     m_lastResponse->setJSErrors(m_js_errors);
     m_lastResponse->setRequestedResources(m_requestedResources);
-    m_lastResponse->setScreenshotData(renderPNGBase64().constData());
+
+    if (m_config["screenshot"])
+      m_lastResponse->setScreenshotData(renderPNGBase64().constData());
   }
   return m_lastResponse;
 }

@@ -35,6 +35,17 @@ pydict_to_string_hash_map(PyObject *dict)
   return ret;
 }
 
+Config
+pydict_to_config(PyObject *dict)
+{
+  Config ret;
+  PyObject *key, *value;
+  Py_ssize_t pos = 0;
+  while (PyDict_Next(dict, &pos, &key, &value))
+    ret[PyString_AsString(key)] = PyBool_Check(value) && value == Py_True;
+  return ret;
+}
+
 PyObject *
 string_hash_map_to_pydict(StringHashMap map)
 {
@@ -127,19 +138,13 @@ prepare_sleepy_hollow_response(Response* response)
 /* The SleepyHollow class */
 
 static PyObject *
-SleepyHollow_new(PyTypeObject *type,
-                 PyObject *args,
-                 PyObject *kwargs)
+SleepyHollow_new(PyTypeObject *type, PyObject *UNUSED(args), PyObject *UNUSED(kwargs))
 {
   SleepyHollow *self = NULL;
-  int cache = 0;
-  static char *kwlist[] = { C_STR("cache"), NULL };
 
-  if (!PyArg_ParseTupleAndKeywords(args, kwargs, "|i", kwlist, &cache))
-    return NULL;
   if ((self = (SleepyHollow *) type->tp_alloc(type, 0)) == NULL)
     return NULL;
-  if ((self->hollow = new Hollow(0, cache)) == NULL) {
+  if ((self->hollow = new Hollow(0)) == NULL) {
     Py_DECREF(self);
     Py_RETURN_NONE;
   }
@@ -156,11 +161,11 @@ SleepyHollow_dealloc(SleepyHollow *self)
 static PyObject *
 SleepyHollow_request(SleepyHollow *self, PyObject *args, PyObject *kw)
 {
-  PyObject *dict;
   Response *resp;
   Error *error;
-  PyObject *payload_str;
-  PyObject *request_headers_dict;
+  PyObject *payload_str = NULL;
+  PyObject *request_headers_dict = NULL;
+  PyObject *config_dict = NULL;
   char *payload = NULL;
   const char *url, *method;
   static char *kwlist[] = {
@@ -168,11 +173,13 @@ SleepyHollow_request(SleepyHollow *self, PyObject *args, PyObject *kw)
     C_STR("url"),
     C_STR("params"),
     C_STR("headers"),
+    C_STR("config"),
     NULL
   };
 
-  if (!PyArg_ParseTupleAndKeywords(args, kw, "ss|OO", kwlist, &method, &url,
-                                   &payload_str, &request_headers_dict))
+  if (!PyArg_ParseTupleAndKeywords(args, kw, "ss|OOO", kwlist, &method, &url,
+                                   &payload_str, &request_headers_dict,
+                                   &config_dict))
     return NULL;
 
   /* If params is not PyString or Py_None we raise a TypeError */
@@ -190,8 +197,17 @@ SleepyHollow_request(SleepyHollow *self, PyObject *args, PyObject *kw)
     return PyErr_Format(PyExc_TypeError,
                         "The 'headers' argument must be either a dict or None");
 
+  /* Creating the Config object based on the dict we received from the
+   * python side of the force */
+  Config config;
+  if (config_dict && PyDict_Check(config_dict))
+    config = pydict_to_config(config_dict);
+  else if (config_dict != NULL && config_dict != Py_None)
+    return PyErr_Format(PyExc_TypeError,
+                        "The 'config' argument must be either a dict or None");
+
   /* Performing the actuall request */
-  resp = self->hollow->request(method, url, payload, requestHeaders);
+  resp = self->hollow->request(method, url, payload, requestHeaders, config);
 
   /* Just making sure that everything worked */
   error = Error::last();
@@ -209,8 +225,7 @@ SleepyHollow_request(SleepyHollow *self, PyObject *args, PyObject *kw)
 
   /* Returning a dictionary with the values grabbed from the above
    * request call */
-  dict = prepare_sleepy_hollow_response(resp);
-  return dict;
+  return prepare_sleepy_hollow_response(resp);
 }
 
 static struct PyMemberDef SleepyHollow_members[] = {

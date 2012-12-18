@@ -16,12 +16,26 @@
 #include <hollow/jserror.h>
 #include <hollow/response.h>
 
+
+// Statically allocating the data needed to create the default
+// configuration passed to a web page
+static std::pair<std::string, bool> map_data[] = {
+  std::make_pair("cache", false),
+  std::make_pair("screenshot", false)
+};
+
+
+static Config defaultConfig(map_data,
+                            map_data +
+                            sizeof(map_data) / sizeof(map_data[0]));
+
+
 class WebPage : public QWebPage
 {
   Q_OBJECT
 
 public:
-  WebPage(QObject *parent=0, bool cache=false);
+  WebPage(QObject *parent=0, Config& config=defaultConfig);
   Response *lastResponse();
   bool finished();
   bool hasErrors();
@@ -47,6 +61,7 @@ private:
   JSErrorList m_js_errors;
   StringList m_requestedResources;
   NetworkAccessManager *m_networkAccessManager;
+  Config m_config;
 
   Response *buildResponseFromNetworkReply(QNetworkReply *reply, utimestamp when);
   void javaScriptConsoleMessage(const QString& message, int lineNumber, const QString& sourceID);

@@ -25,6 +25,9 @@ typedef StringHashMap::iterator StringHashMapIterator;
 typedef std::list<std::string> StringList;
 typedef StringList::iterator StringListIterator;
 
+typedef std::map<std::string, bool> Config;
+typedef Config::iterator ConfigIterator;
+
 // We have to do that, cause the QThread::msleep() method is private :/
 class SleeperThread : public QThread {
 public:
