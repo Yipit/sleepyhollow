@@ -45,9 +45,3 @@ Notice that you don't need to remove the `-no-webkit` flag, cause the
 qtwebkit library is installed by a separate package.
 
 ps.: I didn't test this strategy yet, so it will probably fail! :)
-
-# Wait for Qt5
-
-There's a patch that separates the `QtWebKitWidgets` from the `QtWebKit`
-binding and ships two different shared libraries. So we'll probably give
-it a try when this version becomes stable.
