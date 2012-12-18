@@ -132,14 +132,14 @@ SleepyHollow_new(PyTypeObject *type,
                  PyObject *kwargs)
 {
   SleepyHollow *self = NULL;
-  int disable_cache = 0;
-  static char *kwlist[] = { C_STR("disable_cache"), NULL };
+  int cache_enabled = 0;
+  static char *kwlist[] = { C_STR("cache_enabled"), NULL };
 
-  if (!PyArg_ParseTupleAndKeywords(args, kwargs, "|i", kwlist, &disable_cache))
+  if (!PyArg_ParseTupleAndKeywords(args, kwargs, "|i", kwlist, &cache_enabled))
     return NULL;
   if ((self = (SleepyHollow *) type->tp_alloc(type, 0)) == NULL)
     return NULL;
-  if ((self->hollow = new Hollow(0, disable_cache)) == NULL) {
+  if ((self->hollow = new Hollow(0, cache_enabled)) == NULL) {
     Py_DECREF(self);
     Py_RETURN_NONE;
   }

@@ -9,7 +9,7 @@ from sleepyhollow import (
 @server_test_case
 def test_request_api(context):
     "the get method should return exactly the same thing of request(get)"
-    sl = SleepyHollow()
+    sl = SleepyHollow(cache_enabled=False)
     response1 = sl.request('get', context.route_to("/simple"))
     response2 = sl.get(context.route_to("/simple"))
 
@@ -22,7 +22,7 @@ def test_request_api(context):
 @server_test_case
 def test_invalid_url(context):
     "The request method should report an error if the received url is invalid"
-    sl = SleepyHollow()
+    sl = SleepyHollow(cache_enabled=False)
     sl.get.when.called_with('invalid url').should.throw(
         InvalidUrlError,
         'The url "invalid url" is not valid: You need to inform a scheme')
@@ -30,7 +30,7 @@ def test_invalid_url(context):
 
 def test_connection_refused():
     "The request method should fail for unreachable urls"
-    sl = SleepyHollow()
+    sl = SleepyHollow(cache_enabled=False)
     sl.get.when.called_with('http://blah').should.throw(
         ConnectionRefusedError)
 
@@ -38,7 +38,7 @@ def test_connection_refused():
 @server_test_case
 def test_response(context):
     "Retrieving the response object using the get method"
-    sl = SleepyHollow()
+    sl = SleepyHollow(cache_enabled=False)
     response = sl.get(context.route_to('/simple'))
 
     # Let's test the types
@@ -58,7 +58,7 @@ def test_response(context):
 @server_test_case
 def test_json_response(context):
     "Retrieving a JSON response object using the get method"
-    sl = SleepyHollow()
+    sl = SleepyHollow(cache_enabled=False)
     response = sl.get(context.route_to('/status-200.json'))
 
     # Let's test the types
@@ -78,7 +78,7 @@ def test_json_response(context):
 def test_response_status_codes(context):
     "The request method should report the right http status codes"
 
-    sl = SleepyHollow()
+    sl = SleepyHollow(cache_enabled=False)
 
     response = sl.get(context.route_to('/status-200'))
     response.status_code.should.equal(200)
@@ -99,7 +99,7 @@ def test_response_status_codes(context):
 @server_test_case
 def test_response_headers(context):
     "It should be possible to inspect the headers of a response object"
-    sl = SleepyHollow()
+    sl = SleepyHollow(cache_enabled=False)
     response = sl.get(context.route_to('/status-200'))
 
     response.should.have.property('headers').being.a(dict)
@@ -116,7 +116,7 @@ def test_response_headers(context):
 @server_test_case
 def test_get_parameters(context):
     "requesting with GET parameters"
-    sl = SleepyHollow()
+    sl = SleepyHollow(cache_enabled=False)
     response = sl.get(
         context.route_to('/status-200.json'),
         params={'name': 'Gabriel'}
@@ -139,7 +139,7 @@ def test_get_parameters(context):
 @server_test_case
 def test_post_parameters(context):
     "requesting with POST parameters"
-    sl = SleepyHollow()
+    sl = SleepyHollow(cache_enabled=False)
     response = sl.post(
         context.route_to('/status-200.json'),
         params={'name': 'Gabriel'},
@@ -162,7 +162,7 @@ def test_post_parameters(context):
 @server_test_case
 def test_put_parameters(context):
     "requesting with PUT parameters"
-    sl = SleepyHollow()
+    sl = SleepyHollow(cache_enabled=False)
     response = sl.put(
         context.route_to('/status-200.json'),
         params={'name': 'Gabriel'}
@@ -185,7 +185,7 @@ def test_put_parameters(context):
 @server_test_case
 def test_head_parameters(context):
     "requesting with HEAD parameters"
-    sl = SleepyHollow()
+    sl = SleepyHollow(cache_enabled=False)
     response = sl.head(
         context.route_to('/status-200.json'),
         params={'name': 'Gabriel'},
@@ -206,7 +206,7 @@ def test_head_parameters(context):
 @server_test_case
 def test_delete_parameters(context):
     "requesting with DELETE parameters"
-    sl = SleepyHollow()
+    sl = SleepyHollow(cache_enabled=False)
     response = sl.delete(
         context.route_to('/status-200.json'),
         params={'name': 'Gabriel'},
@@ -227,7 +227,7 @@ def test_delete_parameters(context):
 @server_test_case
 def test_get_sending_headers(context):
     "requesting with GET adding custom headers"
-    sl = SleepyHollow()
+    sl = SleepyHollow(cache_enabled=False)
     response = sl.get(
         context.route_to('/status-200.json'),
         headers={'X-Name': 'Gabriel'}
@@ -252,7 +252,7 @@ def test_get_sending_headers(context):
 def test_getting_js_errors(context):
     "response objects should contain js errors"
 
-    sl = SleepyHollow()
+    sl = SleepyHollow(cache_enabled=False)
     response = sl.get(context.route_to('/jserror'))
 
     # Let's test the types
@@ -271,7 +271,7 @@ def test_getting_js_errors(context):
 def test_requested_resources(context):
     "response object should contain the url of all subrequests"
 
-    sl = SleepyHollow(disable_cache=True)
+    sl = SleepyHollow(cache_enabled=False)
     response = sl.get(context.route_to('/fewresources'))
 
     response.status_code.should.equal(200)

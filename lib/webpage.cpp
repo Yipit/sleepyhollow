@@ -13,7 +13,7 @@
 #include <hollow/jserror.h>
 
 
-WebPage::WebPage(QObject *parent, bool disableCache)
+WebPage::WebPage(QObject *parent, bool cacheEnabled)
   : QWebPage(parent)
   , m_hasErrors(false)
   , m_shouldWaitForJS(false)
@@ -74,7 +74,7 @@ WebPage::WebPage(QObject *parent, bool disableCache)
   // Currently, this is the only control we have over the cache, using
   // it or not.
 
-  if (disableCache) {
+  if (!cacheEnabled) {
     QWebSettings::globalSettings()->setMaximumPagesInCache(0);
     QWebSettings::globalSettings()->setObjectCacheCapacities(0, 0, 0);
   }
