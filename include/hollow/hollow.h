@@ -14,7 +14,7 @@ class Hollow : public QObject
   Q_OBJECT
 
 public:
-  Hollow (QObject *parent=0, bool cacheEnabled=false);
+  Hollow (QObject *parent=0, bool cache=false);
   ~Hollow();
   Response* request(const char* method, const char* url, const char* payload, StringHashMap& headers);
 
@@ -28,7 +28,7 @@ public:
   static void teardown(void);
 
 private:
-  bool m_cacheEnabled;
+  bool m_cache;
 };
 
 

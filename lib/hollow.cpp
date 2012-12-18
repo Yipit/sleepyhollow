@@ -16,9 +16,9 @@ static int argc = 1;
 static char *argv[] = { (char *) "sleepy-hollow", 0 };
 static QApplication *app;
 
-Hollow::Hollow(QObject *parent, bool cacheEnabled)
+Hollow::Hollow(QObject *parent, bool cache)
   : QObject(parent)
-  , m_cacheEnabled(cacheEnabled)
+  , m_cache(cache)
 { }
 
 Hollow::~Hollow()
@@ -62,7 +62,7 @@ Hollow::request (const char* method, const char* url, const char* payload, Strin
 
   // setting up the page and connecting it's loadFinished signal to our
   // exit function
-  WebPage page(this, m_cacheEnabled);
+  WebPage page(this, m_cache);
   page.triggerAction(QWebPage::Stop);
 
   QNetworkAccessManager::Operation networkOp = QNetworkAccessManager::UnknownOperation;

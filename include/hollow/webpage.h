@@ -21,7 +21,7 @@ class WebPage : public QWebPage
   Q_OBJECT
 
 public:
-  WebPage(QObject *parent=0, bool cacheEnabled=false);
+  WebPage(QObject *parent=0, bool cache=false);
   Response *lastResponse();
   bool finished();
   bool hasErrors();

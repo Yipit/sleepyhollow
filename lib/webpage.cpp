@@ -13,7 +13,11 @@
 #include <hollow/jserror.h>
 
 
-WebPage::WebPage(QObject *parent, bool cacheEnabled)
+// Copied from WebCore/loader/cache/MemoryCache.cpp
+static const int cDefaultCacheCapacity = 8192 * 1024;
+
+
+WebPage::WebPage(QObject *parent, bool cache)
   : QWebPage(parent)
   , m_hasErrors(false)
   , m_shouldWaitForJS(false)
@@ -74,9 +78,10 @@ WebPage::WebPage(QObject *parent, bool cacheEnabled)
   // Currently, this is the only control we have over the cache, using
   // it or not.
 
-  if (!cacheEnabled) {
-    QWebSettings::globalSettings()->setMaximumPagesInCache(0);
+  if (!cache) {
     QWebSettings::globalSettings()->setObjectCacheCapacities(0, 0, 0);
+  } else {
+    QWebSettings::globalSettings()->setObjectCacheCapacities(0, cDefaultCacheCapacity, cDefaultCacheCapacity);
   }
   setViewportSize(QSize(1024, 768));
 }
