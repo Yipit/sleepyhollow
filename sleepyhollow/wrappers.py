@@ -31,8 +31,10 @@ class SleepyHollow(_SleepyHollow):
             setattr(self, method, partial(self.request, method))
 
     def request(self, method, url, params=None, headers=None, config=None):
+        method = method.lower()
 
-        url, params = self._patch_querystring(url, params)
+        if method != 'post':
+            url, params = self._patch_querystring(url, params)
 
         if isinstance(params, dict):
             payload = urllib.urlencode(params)
