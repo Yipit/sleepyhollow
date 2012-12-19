@@ -307,3 +307,15 @@ def test_save_screenshot(context):
     response.save_screenshot.when.called_with('stuff.png').should.throw(
         ValueError, "Screenshot should be enabled throught the config dict"
     )
+
+
+@server_test_case
+def test_can_authenticate_in_cookie_based_websites(context):
+    "Sleepy Hollow can keep the session in cookie based websites"
+
+    sl = SleepyHollow()
+    response1 = sl.get(context.route_to('/admin'), config={'screenshot': True})
+    response1.url.should.equal(u'http://127.0.0.1:5000/login')
+
+    response2 = sl.post(context.route_to('/login'), {'email': 'lincoln@comum.org'}, config={'screenshot': True})
+    response2.url.should.equal(u'http://127.0.0.1:5000/admin')
