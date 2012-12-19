@@ -41,3 +41,4 @@ server.log
 tests/sleepyhollow.py
 build-aux/py-compile
 sleepyhollow-*.*.*
+tests/server/session-*.json
