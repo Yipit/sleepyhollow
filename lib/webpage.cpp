@@ -200,6 +200,41 @@ WebPage::javaScriptConsoleMessage(const QString& message, int lineNumber, const 
 }
 
 void
+WebPage::javaScriptAlert(QWebFrame* frame, const QString& msg)
+{
+  // TODO: Save a list of those alerts and make them available in as
+  // attributes of the Response in the python layer
+  Q_UNUSED(frame);
+  Q_UNUSED(msg);
+}
+
+bool
+WebPage::javaScriptConfirm(QWebFrame* frame, const QString& msg)
+{
+  // TODO: implement a callback to be called in this situation, the
+  // python layer should provide this callback as a python callable
+  // that will end up being called here.
+
+  Q_UNUSED(frame);
+  Q_UNUSED(msg);
+  return true;
+}
+
+bool
+WebPage::javaScriptPrompt(QWebFrame* frame, const QString& msg, const QString& defaultValue, QString* result)
+{
+  // TODO: implement a callback to be called in this situation, the
+  // python layer should provide this callback as a python callable
+  // that will end up being called here.
+
+  Q_UNUSED(frame);
+  Q_UNUSED(msg);
+  Q_UNUSED(defaultValue);
+  Q_UNUSED(result);
+  return true;
+}
+
+void
 WebPage::handleLoadFinished(bool ok)
 {
   m_loadFinished = true;

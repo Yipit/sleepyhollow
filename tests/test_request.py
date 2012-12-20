@@ -343,3 +343,33 @@ def test_request_api_for_authentication_failing(context):
         context.route_to("/auth/simple"),
         auth=('wrong', 'credentials'),
     ).should.throw(BadCredentialsError)
+
+
+@server_test_case
+def test_js_alerts_doesnt_disrupt(context):
+    "SleepyHollow will not block sleepy hollow"
+    sl = SleepyHollow()
+    response = sl.get(context.route_to("/jsalert"))
+
+    response.status_code.should.equal(200)
+    expect("Alerts don't block").to.be.within(response.html)
+
+
+@server_test_case
+def test_js_prompts_doesnt_disrupt(context):
+    "SleepyHollow will not block sleepy hollow"
+    sl = SleepyHollow()
+    response = sl.get(context.route_to("/jsprompt"))
+
+    response.status_code.should.equal(200)
+    expect("Prompts don't block").to.be.within(response.html)
+
+
+@server_test_case
+def test_js_confirms_doesnt_disrupt(context):
+    "SleepyHollow will not block sleepy hollow"
+    sl = SleepyHollow()
+    response = sl.get(context.route_to("/jsconfirm"))
+
+    response.status_code.should.equal(200)
+    expect("Confirmation dialogs don't block").to.be.within(response.html)

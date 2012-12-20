@@ -64,6 +64,9 @@ private:
   Config m_config;
   Response *buildResponseFromNetworkReply(QNetworkReply *reply, utimestamp when);
   void javaScriptConsoleMessage(const QString& message, int lineNumber, const QString& sourceID);
+  void javaScriptAlert(QWebFrame* frame, const QString& msg);
+  bool javaScriptPrompt(QWebFrame* frame, const QString& msg, const QString& defaultValue, QString* result);
+  bool javaScriptConfirm(QWebFrame* frame, const QString& msg);
 };
 
 #endif  // HOLLOW_WEBVIEW_H
