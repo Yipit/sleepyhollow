@@ -230,6 +230,8 @@ tests () {
     exit_status="$?"
 
     server.stop
+    rm -f tests/server/session-*
+
     exit $exit_status
 }
 
