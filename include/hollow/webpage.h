@@ -19,9 +19,9 @@
 
 // Statically allocating the data needed to create the default
 // configuration passed to a web page
-static std::pair<std::string, bool> map_data[] = {
+static ConfigPair map_data[] = {
   std::make_pair("cache", false),
-  std::make_pair("screenshot", false)
+  std::make_pair("screenshot", false),
 };
 
 
@@ -29,18 +29,23 @@ static Config defaultConfig(map_data,
                             map_data +
                             sizeof(map_data) / sizeof(map_data[0]));
 
+static UsernamePasswordPair emptyCredentials = std::make_pair("", "");
 
 class WebPage : public QWebPage
 {
   Q_OBJECT
 
 public:
-  WebPage(QObject *parent=0, Config& config=defaultConfig);
+  WebPage(QObject *parent=0, UsernamePasswordPair& credentials=emptyCredentials, Config& config=defaultConfig);
   Response *lastResponse();
   bool finished();
   bool hasErrors();
   QImage renderImage();
   QByteArray renderPNGBase64();
+  void setAuthUsername(std::string& username);
+  std::string getAuthUsername(void);
+  void setAuthPassword(std::string& password);
+  std::string getAuthPassword(void);
 
 public slots:
   void setJSReady();
@@ -51,6 +56,7 @@ private slots:
   void handleNetworkReplies(QNetworkReply *);
   bool shouldInterruptJavaScript();
   void prepareJS();
+  void handleAuthentication(QNetworkReply*, QAuthenticator*);
 
 private:
   bool m_hasErrors;
@@ -62,7 +68,9 @@ private:
   StringList m_requestedResources;
   NetworkAccessManager *m_networkAccessManager;
   Config m_config;
-
+  std::string m_authUsername;
+  std::string m_authPassword;
+  int m_authAttempts;
   Response *buildResponseFromNetworkReply(QNetworkReply *reply, utimestamp when);
   void javaScriptConsoleMessage(const QString& message, int lineNumber, const QString& sourceID);
 };

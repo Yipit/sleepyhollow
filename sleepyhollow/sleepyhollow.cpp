@@ -46,6 +46,28 @@ pydict_to_config(PyObject *dict)
   return ret;
 }
 
+UsernamePasswordPair
+pytuple_to_credentials(PyObject *tuple, int size)
+{
+  UsernamePasswordPair creds;
+
+  if (size == 2) {
+    PyObject *username = NULL;
+    PyObject *password = NULL;
+
+    username = PyTuple_GetItem(tuple, 0);
+    password = PyTuple_GetItem(tuple, 1);
+
+    creds.first = std::string(PyString_AsString(username));
+    creds.second = std::string(PyString_AsString(password));
+  } else {
+    creds.first = "";
+    creds.second = "";
+  }
+
+  return creds;
+}
+
 PyObject *
 string_hash_map_to_pydict(StringHashMap map)
 {
@@ -165,6 +187,7 @@ SleepyHollow_request(SleepyHollow *self, PyObject *args, PyObject *kw)
   Error *error;
   PyObject *payload_str = NULL;
   PyObject *request_headers_dict = NULL;
+  PyObject *auth_tuple = NULL;
   PyObject *config_dict = NULL;
   char *payload = NULL;
   const char *url, *method;
@@ -173,13 +196,14 @@ SleepyHollow_request(SleepyHollow *self, PyObject *args, PyObject *kw)
     C_STR("url"),
     C_STR("params"),
     C_STR("headers"),
+    C_STR("auth"),
     C_STR("config"),
     NULL
   };
 
-  if (!PyArg_ParseTupleAndKeywords(args, kw, "ss|OOO", kwlist, &method, &url,
+  if (!PyArg_ParseTupleAndKeywords(args, kw, "ss|OOOO", kwlist, &method, &url,
                                    &payload_str, &request_headers_dict,
-                                   &config_dict))
+                                   &auth_tuple, &config_dict))
     return NULL;
 
   /* If params is not PyString or Py_None we raise a TypeError */
@@ -206,8 +230,22 @@ SleepyHollow_request(SleepyHollow *self, PyObject *args, PyObject *kw)
     return PyErr_Format(PyExc_TypeError,
                         "The 'config' argument must be either a dict or None");
 
+  /*  */
+  UsernamePasswordPair credentials;
+  if (auth_tuple && PyTuple_Check(auth_tuple)) {
+    int tuple_size = PyTuple_Size(auth_tuple);
+    if (tuple_size == 0 || tuple_size == 2)
+      credentials = pytuple_to_credentials(auth_tuple, tuple_size);
+    else
+      return PyErr_Format(PyExc_TypeError,
+                          "The 'auth' tuple should have either 0 or 2 elements");
+
+  } else if (auth_tuple != NULL)
+    return PyErr_Format(PyExc_TypeError,
+                        "The 'auth' argument must be a tuple");
+
   /* Performing the actuall request */
-  resp = self->hollow->request(method, url, payload, requestHeaders, config);
+  resp = self->hollow->request(method, url, payload, requestHeaders, credentials, config);
 
   /* Just making sure that everything worked */
   error = Error::last();

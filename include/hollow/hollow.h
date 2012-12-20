@@ -20,6 +20,7 @@ public:
                     const char* url,
                     const char* payload,
                     StringHashMap& headers,
+                    UsernamePasswordPair& credentials,
                     Config& config);
 
   // Just an informative variable that returns the Qt version that

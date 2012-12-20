@@ -1,6 +1,8 @@
+#include <QDebug>
 #include <iostream>
 #include <QApplication>
 #include <QUrl>
+#include <QAuthenticator>
 #include <QWebPage>
 #include <QWebFrame>
 #include <QNetworkReply>
@@ -17,7 +19,7 @@
 static const int cDefaultCacheCapacity = 8192 * 1024;
 
 
-WebPage::WebPage(QObject* parent, Config& config)
+WebPage::WebPage(QObject* parent, UsernamePasswordPair& credentials, Config& config)
   : QWebPage(parent)
   , m_hasErrors(false)
   , m_shouldWaitForJS(false)
@@ -25,16 +27,15 @@ WebPage::WebPage(QObject* parent, Config& config)
   , m_loadFinished(false)
   , m_lastResponse(NULL)
   , m_config(config)
+  , m_authUsername("")
+  , m_authPassword("")
+  , m_authAttempts(0)
 {
   // Some more configuration to the page and to the page itself
   setForwardUnsupportedContent(true);
 
-  // Setting the internal finished flag to true when the page finished
-  // loading. We use both this flag and the number of resources being
-  // downloaded to ensure that the page is loaded
-  connect(this, SIGNAL(loadFinished(bool)),
-          this, SLOT(handleLoadFinished(bool)),
-          Qt::DirectConnection);
+  m_authUsername = credentials.first;
+  m_authPassword = credentials.second;
 
   // Everytime a new resource is requested, we increment our internal
   // counter and we won't return untill all the requested resources are
@@ -42,8 +43,13 @@ WebPage::WebPage(QObject* parent, Config& config)
   // manager and add our custom instance here
   m_networkAccessManager = NetworkAccessManager::instance();
   setNetworkAccessManager(m_networkAccessManager);
+
   connect(m_networkAccessManager, SIGNAL(resourceRequested(const QNetworkRequest&)),
           this, SLOT(handleResourceRequested(const QNetworkRequest&)),
+          Qt::DirectConnection);
+
+  connect(m_networkAccessManager, SIGNAL(authenticationRequired(QNetworkReply*, QAuthenticator*)),
+          this, SLOT(handleAuthentication(QNetworkReply*, QAuthenticator*)),
           Qt::DirectConnection);
 
   // We need this object to track the replies and get info when the
@@ -54,6 +60,13 @@ WebPage::WebPage(QObject* parent, Config& config)
 
   connect(mainFrame(), SIGNAL(javaScriptWindowObjectCleared()),
           this, SLOT(prepareJS()),
+          Qt::DirectConnection);
+
+  // Setting the internal finished flag to true when the page finished
+  // loading. We use both this flag and the number of resources being
+  // downloaded to ensure that the page is loaded
+  connect(this, SIGNAL(loadFinished(bool)),
+          this, SLOT(handleLoadFinished(bool)),
           Qt::DirectConnection);
 
   // Setting the default style for our page
@@ -159,6 +172,30 @@ WebPage::lastResponse()
   return m_lastResponse;
 }
 
+void
+WebPage::setAuthUsername(std::string& username)
+{
+  m_authUsername = username;
+}
+
+std::string
+WebPage::getAuthUsername(void)
+{
+  return m_authUsername;
+}
+
+void
+WebPage::setAuthPassword(std::string& password)
+{
+  m_authPassword = password;
+}
+
+std::string
+WebPage::getAuthPassword(void)
+{
+  return m_authPassword;
+}
+
 
 // -- Slots --
 
@@ -193,7 +230,6 @@ WebPage::javaScriptConsoleMessage(const QString& message, int lineNumber, const 
 {
   m_js_errors.push_back(JSError(lineNumber, message.toStdString(), sourceID.toStdString()));
 }
-
 
 void
 WebPage::handleLoadFinished(bool ok)
@@ -283,4 +319,18 @@ WebPage::buildResponseFromNetworkReply(QNetworkReply *reply, utimestamp when)
                       "",
                       headers,
                       when);
+}
+
+
+void
+WebPage::handleAuthentication(QNetworkReply* reply, QAuthenticator* authenticator)
+{
+  if (m_authAttempts++ < 2) {
+    authenticator->setUser(QString::fromStdString(getAuthUsername()));
+    authenticator->setPassword(QString::fromStdString(getAuthPassword()));
+  } else {
+    m_authAttempts = 0;
+    this->handleNetworkReplies(reply);
+    reply->close();
+  }
 }

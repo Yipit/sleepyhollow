@@ -30,7 +30,9 @@ class SleepyHollow(_SleepyHollow):
         for method in 'get', 'post', 'put', 'head', 'delete':
             setattr(self, method, partial(self.request, method))
 
-    def request(self, method, url, params=None, headers=None, config=None):
+    def request(self, method, url, params=None, headers=None,
+                auth=(), config=None):
+
         method = method.lower()
 
         if method != 'post':
@@ -54,6 +56,7 @@ class SleepyHollow(_SleepyHollow):
             response = super(SleepyHollow, self).request(method, url,
                                                          params=payload,
                                                          headers=headers,
+                                                         auth=auth,
                                                          config=config)
         except KeyboardInterrupt:
             raise SystemExit(1)

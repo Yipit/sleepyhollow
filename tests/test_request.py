@@ -322,3 +322,13 @@ def test_can_authenticate_in_cookie_based_websites(context):
     response2.url.should.equal(u'http://127.0.0.1:5000/login')
     response2.status_code.should.equal(302)
     expect("Hello lincoln, welcome to the admin").to.be.within(response2.text)
+
+
+@server_test_case
+def test_request_api_for_authentication(context):
+    "SleepyHollow supports requests-based authentication"
+    sl = SleepyHollow()
+    response = sl.get(context.route_to("/auth/simple"), auth=('lincoln', 'gabriel'))
+
+    response.status_code.should.equal(200)
+    expect('Very Simple').to.be.within(response.text)

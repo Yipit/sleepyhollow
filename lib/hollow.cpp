@@ -45,6 +45,7 @@ Hollow::request (const char* method,
                  const char* url,
                  const char* payload,
                  StringHashMap& headers,
+                 UsernamePasswordPair& credentials,
                  Config& config)
 {
   QString operation(method);
@@ -63,9 +64,12 @@ Hollow::request (const char* method,
     return NULL;
   }
 
+  qurl.setUserName(QString::fromStdString(credentials.first));
+  qurl.setPassword(QString::fromStdString(credentials.second));
+
   // setting up the page and connecting it's loadFinished signal to our
   // exit function
-  WebPage page(this, config);
+  WebPage page(this, credentials, config);
   page.triggerAction(QWebPage::Stop);
 
   QNetworkAccessManager::Operation networkOp = QNetworkAccessManager::UnknownOperation;
@@ -94,6 +98,7 @@ Hollow::request (const char* method,
   // Setting the payload
   QByteArray body(payload);
   request.setUrl(qurl);
+
   page.mainFrame()->load(request, networkOp, body);
   page.setViewportSize(page.mainFrame()->contentsSize());
 
