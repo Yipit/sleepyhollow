@@ -191,7 +191,6 @@ class AuthHandler(SessionHandler):
         self.set_status(401)
         self.set_header('WWW-Authenticate', 'Basic realm=Restricted')
         self._transforms = []
-        self.finish()
 
     def require_auth(self):
         auth_header = self.request.headers.get('Authorization')
@@ -214,8 +213,9 @@ class AuthHandler(SessionHandler):
 
         if not passed:
             self.ask_for_pw()
-
-        self.render('{}.html'.format(name))
+            self.render('auth_failed.html')
+        else:
+            self.render('{}.html'.format(name))
 
 
 class IndexHandler(SessionHandler):
