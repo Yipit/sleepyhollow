@@ -1,4 +1,3 @@
-#include <QDebug>
 #include <iostream>
 #include <QApplication>
 #include <QUrl>
@@ -19,7 +18,7 @@
 static const int cDefaultCacheCapacity = 8192 * 1024;
 
 
-WebPage::WebPage(QObject* parent, UsernamePasswordPair& credentials, Config& config)
+WebPage::WebPage(QObject* parent, Config& config)
   : QWebPage(parent)
   , m_hasErrors(false)
   , m_shouldWaitForJS(false)
@@ -27,15 +26,9 @@ WebPage::WebPage(QObject* parent, UsernamePasswordPair& credentials, Config& con
   , m_loadFinished(false)
   , m_lastResponse(NULL)
   , m_config(config)
-  , m_authUsername("")
-  , m_authPassword("")
-  , m_authAttempts(0)
 {
   // Some more configuration to the page and to the page itself
   setForwardUnsupportedContent(true);
-
-  m_authUsername = credentials.first;
-  m_authPassword = credentials.second;
 
   // Everytime a new resource is requested, we increment our internal
   // counter and we won't return untill all the requested resources are
@@ -172,33 +165,8 @@ WebPage::lastResponse()
   return m_lastResponse;
 }
 
-void
-WebPage::setAuthUsername(std::string& username)
-{
-  m_authUsername = username;
-}
-
-std::string
-WebPage::getAuthUsername(void)
-{
-  return m_authUsername;
-}
-
-void
-WebPage::setAuthPassword(std::string& password)
-{
-  m_authPassword = password;
-}
-
-std::string
-WebPage::getAuthPassword(void)
-{
-  return m_authPassword;
-}
-
 
 // -- Slots --
-
 
 bool
 WebPage::shouldInterruptJavaScript() {
@@ -325,12 +293,9 @@ WebPage::buildResponseFromNetworkReply(QNetworkReply *reply, utimestamp when)
 void
 WebPage::handleAuthentication(QNetworkReply* reply, QAuthenticator* authenticator)
 {
-  if (m_authAttempts++ < 2) {
-    authenticator->setUser(QString::fromStdString(getAuthUsername()));
-    authenticator->setPassword(QString::fromStdString(getAuthPassword()));
-  } else {
-    m_authAttempts = 0;
-    this->handleNetworkReplies(reply);
-    reply->close();
-  }
+  Q_UNUSED(authenticator);
+  Error::set(Error::BAD_CREDENTIALS, C_STRING(reply->errorString()));
+
+  this->handleNetworkReplies(reply);
+  reply->close();
 }

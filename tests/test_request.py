@@ -2,7 +2,7 @@
 from sure import expect
 from tests.helpers import server_test_case, qt_version_check
 from sleepyhollow import (
-    SleepyHollow, Response, InvalidUrlError, ConnectionRefusedError
+    SleepyHollow, Response, InvalidUrlError, ConnectionRefusedError, BadCredentialsError
 )
 
 
@@ -332,3 +332,14 @@ def test_request_api_for_authentication(context):
 
     response.status_code.should.equal(200)
     expect('Very Simple').to.be.within(response.text)
+
+
+@server_test_case
+def test_request_api_for_authentication_failing(context):
+    "SleepyHollow supports requests-based authentication failing"
+    sl = SleepyHollow()
+
+    sl.get.when.called_with(
+        context.route_to("/auth/simple"),
+        auth=('wrong', 'credentials'),
+    ).should.throw(BadCredentialsError)

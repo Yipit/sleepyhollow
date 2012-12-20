@@ -13,6 +13,7 @@ from _sleepyhollow import (
     Error,
     InvalidUrlError,
     ConnectionRefusedError,
+    BadCredentialsError,
 )
 
 __all__ = [
@@ -21,6 +22,7 @@ __all__ = [
     'Error',
     'InvalidUrlError',
     'ConnectionRefusedError',
+    'BadCredentialsError',
 ]
 
 

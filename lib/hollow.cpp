@@ -69,7 +69,7 @@ Hollow::request (const char* method,
 
   // setting up the page and connecting it's loadFinished signal to our
   // exit function
-  WebPage page(this, credentials, config);
+  WebPage page(this, config);
   page.triggerAction(QWebPage::Stop);
 
   QNetworkAccessManager::Operation networkOp = QNetworkAccessManager::UnknownOperation;

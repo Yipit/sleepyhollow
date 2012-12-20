@@ -18,7 +18,8 @@ public:
     UNKNOWN,
     INVALID_URL,
     CONNECTION_REFUSED,
-    INVALID_METHOD
+    INVALID_METHOD,
+    BAD_CREDENTIALS
   };
 
 private:

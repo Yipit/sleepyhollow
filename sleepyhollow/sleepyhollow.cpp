@@ -20,7 +20,7 @@
 
 /* Exceptions */
 
-PyObject *SleepyHollowError, *InvalidUrlError, *ConnectionRefusedError;
+PyObject *SleepyHollowError, *InvalidUrlError, *ConnectionRefusedError, *BadCredentialsError;
 
 /* Helpers */
 
@@ -124,18 +124,35 @@ prepare_sleepy_hollow_response(Response* response)
     dictionary with the response that will be handled by the python
     wrapper.
    */
+
   PyObject *dict;
   dict = PyDict_New();
+
   PyDict_SetItemString(dict, C_STR("url"),
                        PyUnicode_FromString(response->getURL()));
   PyDict_SetItemString(dict, C_STR("text"),
                        PyUnicode_FromString(response->getText()));
   PyDict_SetItemString(dict, C_STR("html"),
                        PyUnicode_FromString(response->getHtml()));
+
+  Error *error;
+  int status_code;
+  const char *reason;
+
+  error = Error::last();
+  if (error != NULL && error->code() == Error::BAD_CREDENTIALS) {
+    status_code = 401;
+    reason = "UNAUTHORIZED";
+  } else {
+    status_code = response->getStatusCode();
+    reason = response->getReason();
+  }
+
   PyDict_SetItemString(dict, C_STR("status_code"),
-                       PyInt_FromLong(response->getStatusCode()));
+                       PyInt_FromLong(status_code));
   PyDict_SetItemString(dict, C_STR("reason"),
-                       PyString_FromString(response->getReason()));
+                       PyString_FromString(reason));
+
   PyDict_SetItemString(dict, C_STR("screenshot_bytes_base64"),
                        PyString_FromString(response->getScreenshotData()));
 
@@ -258,7 +275,10 @@ SleepyHollow_request(SleepyHollow *self, PyObject *args, PyObject *kw)
       case Error::CONNECTION_REFUSED:
         return PyErr_Format(ConnectionRefusedError, "%s", error->what());
       default:
-        return PyErr_Format(SleepyHollowError, "Unknown Error");
+        if (credentials.first.length() > 0 || credentials.second.length() > 0)
+          return PyErr_Format(BadCredentialsError, "Either username or password are wrong");
+        else
+          return PyErr_Format(SleepyHollowError, "Unknown Error");
       }
 
   /* Returning a dictionary with the values grabbed from the above
@@ -384,6 +404,13 @@ init_sleepyhollow (void)
   PyDict_SetItemString(d,
                        C_STR("Error"),
                        SleepyHollowError);
+
+  BadCredentialsError =
+    PyErr_NewException(C_STR("sleepyhollow.BadCredentialsError"),
+                       PyExc_StandardError, NULL);
+  PyDict_SetItemString(d,
+                       C_STR("BadCredentialsError"),
+                       BadCredentialsError);
 
   InvalidUrlError =
     PyErr_NewException(C_STR("sleepyhollow.InvalidUrlError"),

@@ -29,23 +29,17 @@ static Config defaultConfig(map_data,
                             map_data +
                             sizeof(map_data) / sizeof(map_data[0]));
 
-static UsernamePasswordPair emptyCredentials = std::make_pair("", "");
-
 class WebPage : public QWebPage
 {
   Q_OBJECT
 
 public:
-  WebPage(QObject *parent=0, UsernamePasswordPair& credentials=emptyCredentials, Config& config=defaultConfig);
+  WebPage(QObject *parent=0, Config& config=defaultConfig);
   Response *lastResponse();
   bool finished();
   bool hasErrors();
   QImage renderImage();
   QByteArray renderPNGBase64();
-  void setAuthUsername(std::string& username);
-  std::string getAuthUsername(void);
-  void setAuthPassword(std::string& password);
-  std::string getAuthPassword(void);
 
 public slots:
   void setJSReady();
@@ -68,9 +62,6 @@ private:
   StringList m_requestedResources;
   NetworkAccessManager *m_networkAccessManager;
   Config m_config;
-  std::string m_authUsername;
-  std::string m_authPassword;
-  int m_authAttempts;
   Response *buildResponseFromNetworkReply(QNetworkReply *reply, utimestamp when);
   void javaScriptConsoleMessage(const QString& message, int lineNumber, const QString& sourceID);
 };
