@@ -167,6 +167,7 @@ WebPage::lastResponse()
     m_lastResponse->setHtml(mainFrame()->toHtml().toUtf8().constData());
     m_lastResponse->setText(mainFrame()->toPlainText().toUtf8().constData());
     m_lastResponse->setJSErrors(m_js_errors);
+    m_lastResponse->setURL(mainFrame()->url().toString().toStdString().c_str());
     m_lastResponse->setRequestedResources(m_requestedResources);
 
     if (m_config["screenshot"])
