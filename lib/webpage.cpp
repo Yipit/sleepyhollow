@@ -245,7 +245,17 @@ WebPage::handleLoadFinished(bool ok)
 void
 WebPage::handleResourceRequested(const QNetworkRequest& request)
 {
-  m_requestedResources.push_back(request.url().toString().toStdString());
+  StringList::iterator iterator;
+  std::string resource = request.url().toString().toStdString();
+
+  for (iterator = m_requestedResources.begin();
+       iterator != m_requestedResources.end();
+       iterator++)
+    if ((*iterator).compare(resource) == 0)
+      return;
+
+
+  m_requestedResources.push_back(resource);
 }
 
 
