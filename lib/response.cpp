@@ -79,6 +79,14 @@ Response::setHtml(const char* html)
   m_html = strdup(html);
 }
 
+void
+Response::setURL(const char* url)
+{
+  if (m_url)
+    free(m_url);
+  m_url = strdup(url);
+}
+
 
 const char *
 Response::getReason (void)

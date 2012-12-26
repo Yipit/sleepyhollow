@@ -49,6 +49,7 @@ private:
   utimestamp m_timestamp;
   void setText(const char* text);
   void setHtml(const char* html);
+  void setURL(const char* url);
   void setScreenshotData(const char* data);
   void setJSErrors (JSErrorList errors);
   void setRequestedResources(StringList requestedResources);
