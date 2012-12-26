@@ -87,7 +87,8 @@ class SessionHandler(RequestHandler):
 
 class SimpleHandler(SessionHandler):
     def get(self, name):
-        data = {}
+        data = self.application.settings.copy()
+
         self.session['name'] = name
         for key in self.request.arguments:
             data[key] = self.get_argument(key)
@@ -230,6 +231,7 @@ class Server(object):
         self.options = {
             'template_path': LOCAL_FILE('templates'),
             'cookie_secret': 'cookie-monster',
+            'port': port,
         }
 
     @classmethod

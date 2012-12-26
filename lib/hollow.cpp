@@ -8,7 +8,7 @@
 #include <hollow/error.h>
 #include <hollow/webpage.h>
 #include <hollow/response.h>
-
+#include <QRegExp>
 #include "config.h"
 
 // Mocking the values to pass to QApplication
@@ -102,11 +102,20 @@ Hollow::request (const char* method,
   page.mainFrame()->load(request, networkOp, body);
   page.setViewportSize(page.mainFrame()->contentsSize());
 
+
   // Mainloop
   while (!page.finished()) {
     app->processEvents();
     SleeperThread::msleep(0.01);
   }
+
+  // if (page.mainFrame()->toHtml().contains(QRegExp("meta.*Refresh.*content[=]", Qt::CaseInsensitive))) {
+  //   page.triggerAction(QWebPage::Reload);
+  //   while (!page.finished()) {
+  //     app->processEvents();
+  //     SleeperThread::msleep(0.01);
+  //   }
+  // }
 
   if (page.hasErrors()) {
     // The error was properly set in the WebPage::handleNetworkReplies()

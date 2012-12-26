@@ -12,7 +12,7 @@
 #include <hollow/error.h>
 #include <hollow/response.h>
 #include <hollow/jserror.h>
-
+#include <QDebug>
 
 // Copied from WebCore/loader/cache/MemoryCache.cpp
 static const int cDefaultCacheCapacity = 8192 * 1024;
@@ -268,7 +268,7 @@ WebPage::handleNetworkReplies(QNetworkReply *reply)
     delete m_lastResponse;
     m_lastResponse = NULL;
   }
-
+  SleeperThread::msleep(2);
   // Error handling
   QNetworkReply::NetworkError errCode = reply->error();
   switch (errCode) {

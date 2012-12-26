@@ -221,10 +221,15 @@ server.stop () {
 tests () {
     server.start 5000
     # Making it easier to run the tests
+    color.yellow "Compiling changes... "
     (make 2>&1) 2>&1 >>sleepy.log
     if [ "$?" != "0" ]; then
+        color.red "FAILED\n"
         compile
+    else
+        color.green "OK\n"
     fi
+
 
     test.nose
     exit_status="$?"

@@ -373,3 +373,16 @@ def test_js_confirms_doesnt_disrupt(context):
 
     response.status_code.should.equal(200)
     expect("Confirmation dialogs don't block").to.be.within(response.html)
+
+
+@server_test_case
+def test_follows_meta_redirect(context):
+    "SleepyHollow will follow meta redirects"
+    sl = SleepyHollow()
+
+    response = sl.get(context.route_to("/metaredirect"))
+
+    response.status_code.should.equal(200)
+
+    expect("Successfully redirected!").to.be.within(response.html)
+    response.url.should.equal('http://127.0.0.1:5000/postredirect')
