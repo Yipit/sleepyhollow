@@ -319,7 +319,7 @@ def test_can_authenticate_in_cookie_based_websites(context):
     response1.status_code.should.equal(200)
 
     response2 = sl.post(context.route_to('/login'), {'email': 'lincoln@comum.org'})
-    response2.url.should.equal(u'http://127.0.0.1:5000/login')
+    response2.url.should.equal(u'http://127.0.0.1:5000/admin')
     response2.status_code.should.equal(302)
     expect("Hello lincoln, welcome to the admin").to.be.within(response2.text)
 
@@ -373,3 +373,16 @@ def test_js_confirms_doesnt_disrupt(context):
 
     response.status_code.should.equal(200)
     expect("Confirmation dialogs don't block").to.be.within(response.html)
+
+
+@server_test_case
+def test_follows_meta_redirect(context):
+    "SleepyHollow will follow meta redirects"
+    sl = SleepyHollow()
+
+    response = sl.get(context.route_to("/metaredirect"))
+
+    response.status_code.should.equal(200)
+
+    expect("Successfully redirected!").to.be.within(response.html)
+    response.url.should.equal('http://localhost:5000/postredirect')
