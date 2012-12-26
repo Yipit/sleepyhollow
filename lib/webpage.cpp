@@ -12,7 +12,6 @@
 #include <hollow/error.h>
 #include <hollow/response.h>
 #include <hollow/jserror.h>
-#include <QDebug>
 
 // Copied from WebCore/loader/cache/MemoryCache.cpp
 static const int cDefaultCacheCapacity = 8192 * 1024;
@@ -99,9 +98,20 @@ bool
 WebPage::finished()
 {
   if (m_shouldWaitForJS)
-    return m_jsReady && m_loadFinished;
+    return m_jsReady && m_loadFinished && allResourcesDownloaded();
   else
-    return m_loadFinished;
+    return m_loadFinished && allResourcesDownloaded();
+}
+
+bool
+WebPage::allResourcesDownloaded()
+{
+  StringList::iterator iterator;
+
+  int totalRequested = m_requestedResources.size();
+  int totalRetrieved = m_retrievedResources.size();
+
+  return totalRequested <= totalRetrieved;
 }
 
 
@@ -264,13 +274,15 @@ WebPage::handleNetworkReplies(QNetworkReply *reply)
 {
   time_t now;
   now = time(NULL);
+  m_retrievedResources.push_back(reply->url().toString().toStdString());
 
   // Making sure we're handling the right url
   QUrl url = mainFrame()->url();
   if (url.isEmpty())
     url = mainFrame()->requestedUrl();
-  if (url != reply->url())
+  if (url != reply->url()) {
     return;
+  }
 
   // Cleaning up the last response. Maybe it's a good place to track
   // which requests the caller made.
