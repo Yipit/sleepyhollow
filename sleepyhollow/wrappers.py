@@ -102,7 +102,7 @@ class Response(object):
         self.content = self.text.encode('utf-8')
         self.headers = headers
         self.js_errors = js_errors
-        self.requested_resources = tuple(set(requested_resources))
+        self.requested_resources = requested_resources
         self.screenshot_bytes = base64.decodestring(screenshot_bytes_base64)
 
     @property
