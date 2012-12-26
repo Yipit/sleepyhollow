@@ -192,7 +192,7 @@ WebPage::prepareJS()
   m_shouldWaitForJS = true;
   m_jsReady = false;
   m_loadFinished = false;
-  if (mainFrame()->evaluateJavaScript("typeof(window._SLEEPYHOLLOW) !== \"undefined\";").toBool() == false) {
+  if (mainFrame()->evaluateJavaScript("typeof(window._SLEEPYHOLLOW) !== 'undefined';").toBool() == false) {
     mainFrame()->addToJavaScriptWindowObject("_SLEEPYHOLLOW", this);
     mainFrame()->evaluateJavaScript("document.addEventListener('DOMContentLoaded', function(){window._SLEEPYHOLLOW.setJSReady();}, false)");
   }
