@@ -107,8 +107,6 @@ WebPage::finished()
 bool
 WebPage::allResourcesDownloaded()
 {
-  StringList::iterator iterator;
-
   int totalRequested = m_requestedResources.size();
   int totalRetrieved = m_retrievedResources.size();
 
