@@ -2,7 +2,7 @@
 # Process this file with autoconf to produce a configure script.
 
 AC_PREREQ([2.68])
-AC_INIT([sleepyhollow], [0.1.2], [coders@yipit.com])
+AC_INIT([sleepyhollow], [0.1.3], [coders@yipit.com])
 AC_CONFIG_SRCDIR([lib/hollow.cpp])
 AC_CONFIG_HEADERS([config.h])
 AC_CONFIG_MACRO_DIR([m4])
