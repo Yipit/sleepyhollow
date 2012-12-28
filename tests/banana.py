@@ -1,10 +1,15 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
+import re
 from lxml import html as lhtml
 from sleepyhollow import SleepyHollow
 
 
 class GetASaleProduct(object):
+    meta_redirect_url = re.compile(r'meta\s+'
+                                   'http-equiv="refresh"\s+'
+                                   'content="\d+;URL=(?P<url>.*?)"', re.I)
+
     def __init__(self):
         self.http = SleepyHollow()
 
@@ -13,8 +18,12 @@ class GetASaleProduct(object):
             url = 'http://www.bananarepublic.com/%s' % url.lstrip('/')
 
         response = self.http.get(url, config=dict(screenshot=True))
-        response.dom = lhtml.fromstring(response.html)
+        meta_refresh = self.meta_redirect_url.search(response.html)
 
+        if meta_refresh is not None:
+            return self.get_response_with_dom(meta_refresh.group('url'))
+
+        response.dom = lhtml.fromstring(response.html)
         return response
 
     def find_sale_links(self):
@@ -36,11 +45,9 @@ class GetASaleProduct(object):
         for category_link in self.find_sale_links():
             for product_link in self.find_product_links(category_link):
                 response = self.get_response_with_dom(product_link)
-                import ipdb;ipdb.set_trace()
-
                 img = response.dom.cssselect("#product_image")[0]
                 src = img.attrib['src']
                 assert src.lower().endswith('jpg'), 'Expected %r to be a JPG' % src
                 break
-
+            break
 GetASaleProduct().start()
