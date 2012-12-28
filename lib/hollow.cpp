@@ -54,13 +54,17 @@ Hollow::request (const char* method,
   // First of all, let's see if this url is valid and contains a valid
   // scheme
   QUrl qurl(QString::fromStdString(url));
+
   if (!qurl.isValid() || qurl.scheme().isEmpty()) {
     QString qerr = qurl.errorString();
     QString err("The url \"%1\" is not valid: %2");
     err = err.arg(url, (!qerr.isEmpty() ? qerr : "You need to inform a scheme"));
 
     // Reporting the error
-    Error::set(Error::INVALID_URL, err.toUtf8().data());
+    Error::set(Error::INVALID_URL,
+               err.toUtf8().data(),
+               "Hollow::request",
+               __LINE__);
     return NULL;
   }
 
@@ -86,7 +90,10 @@ Hollow::request (const char* method,
   } else if (operation == "delete") {
     networkOp = QNetworkAccessManager::DeleteOperation;
   } else {
-    Error::set(Error::INVALID_METHOD, operation.toUtf8().data());
+    Error::set(Error::INVALID_METHOD,
+               operation.toUtf8().data(),
+               "Hollow::request",
+               __LINE__);
     return NULL;
   }
 
@@ -109,6 +116,11 @@ Hollow::request (const char* method,
   }
 
   if (page.hasErrors()) {
+    Error::set(Error::PAGE_ERROR,
+               "WebPage hasErrors() return true",
+               "WebPage::request",
+               __LINE__);
+
     // The error was properly set in the WebPage::handleNetworkReplies()
     // method, so we just need to return NULL to notify the caller that
     // something didn't work.

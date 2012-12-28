@@ -39,6 +39,7 @@ public:
   bool finished();
   bool allResourcesDownloaded();
   bool hasErrors();
+
   QImage renderImage();
   QByteArray renderPNGBase64();
 
@@ -65,6 +66,7 @@ private:
   NetworkAccessManager *m_networkAccessManager;
   Config m_config;
   Response *buildResponseFromNetworkReply(QNetworkReply *reply, utimestamp when);
+  void setErrorFromReply(QNetworkReply *reply);
   void javaScriptConsoleMessage(const QString& message, int lineNumber, const QString& sourceID);
   void javaScriptAlert(QWebFrame* frame, const QString& msg);
   bool javaScriptPrompt(QWebFrame* frame, const QString& msg, const QString& defaultValue, QString* result);

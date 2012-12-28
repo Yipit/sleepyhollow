@@ -14,6 +14,8 @@ from _sleepyhollow import (
     InvalidUrlError,
     ConnectionRefusedError,
     BadCredentialsError,
+    HTTPError,
+    WebPageError,
 )
 
 __all__ = [
@@ -23,6 +25,8 @@ __all__ = [
     'InvalidUrlError',
     'ConnectionRefusedError',
     'BadCredentialsError',
+    'HTTPError',
+    'WebPageError',
 ]
 
 

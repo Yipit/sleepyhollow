@@ -5,6 +5,7 @@
 #include <QWebPage>
 #include <QWebFrame>
 #include <QNetworkReply>
+#include <QDebug>
 
 #include <hollow/core.h>
 #include <hollow/networkaccessmanager.h>
@@ -166,12 +167,18 @@ WebPage::lastResponse()
     m_lastResponse->setHtml(mainFrame()->toHtml().toUtf8().constData());
     m_lastResponse->setText(mainFrame()->toPlainText().toUtf8().constData());
     m_lastResponse->setJSErrors(m_js_errors);
-    m_lastResponse->setURL(mainFrame()->url().toString().toStdString().c_str());
     m_lastResponse->setRequestedResources(m_requestedResources);
 
     if (m_config["screenshot"])
       m_lastResponse->setScreenshotData(renderPNGBase64().constData());
-  }
+  } // else if (finished()){
+  //   m_lastResponse = new Res
+  // } else {
+  //   Error::set(Error::PAGE_ERROR,
+  //              "The load has not finished",
+  //              "WebPage::lastResponse",
+  //              __LINE__);
+  // }
   return m_lastResponse;
 }
 
@@ -280,15 +287,22 @@ WebPage::handleNetworkReplies(QNetworkReply *reply)
   QUrl url = mainFrame()->url();
   if (url.isEmpty())
     url = mainFrame()->requestedUrl();
-  if (url != reply->url()) {
-    return;
-  }
 
-  // Cleaning up the last response. Maybe it's a good place to track
-  // which requests the caller made.
-  if (m_lastResponse) {
-    delete m_lastResponse;
-    m_lastResponse = NULL;
+  // TODO: uncomment
+  bool urlsDontMatch = (url != reply->url());
+  // bool hasNoBasicAuth = (reply->url().authority().isEmpty());
+  // bool lastResponseIsNotEmpty = m_lastResponse != NULL;
+
+  if (urlsDontMatch) { // && hasNoBasicAuth && lastResponseIsNotEmpty) {
+    // std::string message;
+    // message.append(url.toString().toStdString().c_str());
+    // message.append(" != ");
+    // message.append(reply->url().toString().toStdString().c_str());
+    // Error::set(Error::URL_MISMATCH,
+    //            message.c_str(),
+    //            "WebPage::handleNetworkReplies",
+    //            __LINE__);
+    return;
   }
 
   // Error handling
@@ -298,25 +312,33 @@ WebPage::handleNetworkReplies(QNetworkReply *reply)
     // Creating the new response object with the info gathered from this
     // reply
     m_lastResponse = buildResponseFromNetworkReply(reply, now);
+
+    if (m_lastResponse == NULL) {
+      Error::set(Error::UNKNOWN,
+                 "NoError from the reply but the lastResponse() is NULL",
+                 "WebPage::handleNetworkReplies",
+                 __LINE__);
+    }
     break;
 
   case QNetworkReply::ConnectionRefusedError:
-    Error::set(Error::CONNECTION_REFUSED, C_STRING(reply->errorString()));
+
+    Error::set(Error::CONNECTION_REFUSED,
+               C_STRING(reply->errorString()),
+               "WebPage::handleNetworkReplies",
+               __LINE__);
     break;
 
   default:
-    // Maybe we can create a response when an error happens. If the
-    // reply does not have all the data needed to create it, the method
-    // buildResponseFromNetworkReply() will return NULL.
-    if ((m_lastResponse = buildResponseFromNetworkReply(reply, now)) == NULL)
-      Error::set(Error::UNKNOWN, C_STRING(reply->errorString()));
+    // // Maybe we can create a response when an error happens. If the
+    // // reply does not have all the data needed to create it, the method
+    // // buildResponseFromNetworkReply() will return NULL.
     break;
   }
 }
 
 
 // -- Helper methods/private API --
-
 
 Response *
 WebPage::buildResponseFromNetworkReply(QNetworkReply *reply, utimestamp when)
@@ -325,13 +347,23 @@ WebPage::buildResponseFromNetworkReply(QNetworkReply *reply, utimestamp when)
   QVariant reason = reply->attribute(QNetworkRequest::HttpReasonPhraseAttribute);
 
   // Not an HTTP error, let's give up
-  if (!statusCode.isValid())
+  if (!statusCode.isValid()) {
+    setErrorFromReply(reply);
     return NULL;
+  }
 
   // Iterating over the headers
   StringHashMap headers;
-  foreach (QByteArray headerName, reply->rawHeaderList())
+  foreach (QByteArray headerName, reply->rawHeaderList()) {
     headers[headerName.constData()] = reply->rawHeader(headerName).constData();
+  }
+
+  // WebPage::buildResponseFromNetworkReply is the responsible of
+  // cleaning up the m_lastResponse because it's the only place that
+  // allocates a new Response object
+  if (m_lastResponse != NULL) {
+    delete m_lastResponse;
+  }
 
   // We can't set the content right now, so we'll fill the text with an
   // empty string and let the ::lastResponse() method fill with the
@@ -346,12 +378,21 @@ WebPage::buildResponseFromNetworkReply(QNetworkReply *reply, utimestamp when)
                       when);
 }
 
+void
+WebPage::setErrorFromReply(QNetworkReply* reply)
+{
+  std::string message = reply->errorString().toStdString();
+  message.append(" when trying to access url: ");
+  message.append(reply->url().toString().toStdString().c_str());
+  Error::set(Error::HTTP_ERROR, message.c_str(), "WebPage::setErrorFromReply", __LINE__);
+}
+
 
 void
 WebPage::handleAuthentication(QNetworkReply* reply, QAuthenticator* authenticator)
 {
   Q_UNUSED(authenticator);
-  Error::set(Error::BAD_CREDENTIALS, C_STRING(reply->errorString()));
+  Error::set(Error::BAD_CREDENTIALS, C_STRING(reply->errorString()), "WebPage::handleAuthentication", __LINE__);
 
   this->handleNetworkReplies(reply);
   reply->close();

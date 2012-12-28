@@ -20,7 +20,12 @@
 
 /* Exceptions */
 
-PyObject *SleepyHollowError, *InvalidUrlError, *ConnectionRefusedError, *BadCredentialsError;
+PyObject *SleepyHollowError;
+PyObject *InvalidUrlError;
+PyObject *ConnectionRefusedError;
+PyObject *BadCredentialsError;
+PyObject *HTTPError;
+PyObject *WebPageError;
 
 /* Helpers */
 
@@ -126,6 +131,7 @@ prepare_sleepy_hollow_response(Response* response)
    */
 
   PyObject *dict;
+
   dict = PyDict_New();
 
   PyDict_SetItemString(dict, C_STR("url"),
@@ -173,6 +179,69 @@ prepare_sleepy_hollow_response(Response* response)
 
   return dict;
 }
+
+
+char *
+exception_message_from_error(Error *error)
+{
+  std::string msg;
+  char *line = error->line();
+
+  msg.append(error->what());
+  msg.append(" in ");
+  msg.append(error->sourceName());
+  msg.append(" line ");
+  msg.append(line);
+  msg.append("\n");
+
+  free(line);
+  return strdup(msg.c_str());
+}
+
+PyObject *
+error_to_python_exception(Error *error)
+{
+  PyObject *exc = NULL;
+  PyObject *ret = NULL;
+  char *msg = NULL;
+
+  switch (error->code()) {
+  case Error::INVALID_URL:
+    exc = InvalidUrlError;
+    break;
+
+  case Error::CONNECTION_REFUSED:
+    exc = ConnectionRefusedError;
+    break;
+
+  case Error::HTTP_ERROR:
+  case Error::URL_MISMATCH:
+    exc = HTTPError;
+    break;
+
+  case Error::PAGE_ERROR:
+    exc = WebPageError;
+    break;
+
+  case Error::UNKNOWN:
+    exc = SleepyHollowError;
+    break;
+
+  default:
+    exc = SleepyHollowError;
+    msg = strdup("Either username or password are wrong");
+    break;
+  }
+
+  if (msg == NULL) {
+    msg = exception_message_from_error(error);
+  }
+
+  ret = PyErr_Format(exc, "%s", msg);
+  free(msg);
+  return ret;
+}
+
 
 /* The SleepyHollow class */
 
@@ -269,17 +338,7 @@ SleepyHollow_request(SleepyHollow *self, PyObject *args, PyObject *kw)
   if (resp == NULL && error == NULL)
     return PyErr_Format(SleepyHollowError, "Both error and response are null");
   else if (error != NULL)
-    switch (error->code()) {
-      case Error::INVALID_URL:
-        return PyErr_Format(InvalidUrlError, "%s", error->what());
-      case Error::CONNECTION_REFUSED:
-        return PyErr_Format(ConnectionRefusedError, "%s", error->what());
-      default:
-        if (credentials.first.length() > 0 || credentials.second.length() > 0)
-          return PyErr_Format(BadCredentialsError, "Either username or password are wrong");
-        else
-          return PyErr_Format(SleepyHollowError, "Unknown Error");
-      }
+    return error_to_python_exception(error);
 
   /* Returning a dictionary with the values grabbed from the above
    * request call */
@@ -425,6 +484,15 @@ init_sleepyhollow (void)
   PyDict_SetItemString(d,
                        C_STR("ConnectionRefusedError"),
                        ConnectionRefusedError);
+
+
+  HTTPError = PyErr_NewException(C_STR ("sleepyhollow.HTTPError"),
+                                 SleepyHollowError, NULL);
+  PyDict_SetItemString(d, C_STR("HTTPError"), HTTPError);
+
+  WebPageError = PyErr_NewException(C_STR ("sleepyhollow.WebPageError"),
+                                 SleepyHollowError, NULL);
+  PyDict_SetItemString(d, C_STR("WebPageError"), WebPageError);
 
   /* Adding the classes */
 
