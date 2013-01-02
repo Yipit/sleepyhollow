@@ -1,7 +1,6 @@
 #include <iostream>
 #include <QObject>
 #include <QWebFrame>
-#include <QNetworkRequest>
 #include <QApplication>
 
 #include <hollow/hollow.h>
@@ -18,6 +17,7 @@ static QApplication *app;
 
 Hollow::Hollow(QObject *parent)
   : QObject(parent)
+  , m_lastPage(NULL)
 { }
 
 Hollow::~Hollow()
@@ -40,19 +40,20 @@ Hollow::teardown(void)
   app = 0;
 }
 
-Response *
-Hollow::request (const char* method,
-                 const char* url,
-                 const char* payload,
-                 StringHashMap& headers,
-                 UsernamePasswordPair& credentials,
-                 Config& config)
+void
+Hollow::waitForPage()
 {
-  QString operation(method);
-  QNetworkRequest request;
 
-  // First of all, let's see if this url is valid and contains a valid
-  // scheme
+  m_lastPage->setViewportSize(m_lastPage->mainFrame()->contentsSize());
+  while (!m_lastPage->finished()) {
+    app->processEvents();
+    SleeperThread::msleep(0.01);
+  }
+}
+
+QUrl
+Hollow::getValidURL(const char* url)
+{
   QUrl qurl(QString::fromStdString(url));
   if (!qurl.isValid() || qurl.scheme().isEmpty()) {
     QString qerr = qurl.errorString();
@@ -61,17 +62,27 @@ Hollow::request (const char* method,
 
     // Reporting the error
     Error::set(Error::INVALID_URL, err.toUtf8().data());
-    return NULL;
   }
+  return qurl;
+}
 
-  qurl.setUserName(QString::fromStdString(credentials.first));
-  qurl.setPassword(QString::fromStdString(credentials.second));
+QNetworkRequest
+Hollow::prepareNetworkRequest(QUrl url, StringHashMap headers)
+{
+  QNetworkRequest request;
 
-  // setting up the page and connecting it's loadFinished signal to our
-  // exit function
-  WebPage page(this, config);
-  page.triggerAction(QWebPage::Stop);
+  // setting the request headers coming from the python layer
+  StringHashMapIterator headerIter;
+  for (headerIter = headers.begin(); headerIter != headers.end(); headerIter++)
+    request.setRawHeader(headerIter->first.c_str(), headerIter->second.c_str());
 
+  request.setUrl(url);
+  return request;
+}
+
+QNetworkAccessManager::Operation
+Hollow::parseOperation(QString operation)
+{
   QNetworkAccessManager::Operation networkOp = QNetworkAccessManager::UnknownOperation;
 
   operation = operation.toLower();
@@ -87,28 +98,48 @@ Hollow::request (const char* method,
     networkOp = QNetworkAccessManager::DeleteOperation;
   } else {
     Error::set(Error::INVALID_METHOD, operation.toUtf8().data());
-    return NULL;
+    return networkOp;
   }
+  return networkOp;
+}
 
-  // setting the request headers coming from the python layer
-  StringHashMapIterator headerIter;
-  for (headerIter = headers.begin(); headerIter != headers.end(); headerIter++)
-    request.setRawHeader(headerIter->first.c_str(), headerIter->second.c_str());
+Response *
+Hollow::request (const char* method,
+                 const char* url,
+                 const char* payload,
+                 StringHashMap& headers,
+                 UsernamePasswordPair& credentials,
+                 Config& config)
+{
+  // First of all, let's see if this url is valid and contains a valid
+  // scheme
+  QUrl qURL = getValidURL(url);
+
+  // Then set its credentials if any
+  qURL.setUserName(QString::fromStdString(credentials.first));
+  qURL.setPassword(QString::fromStdString(credentials.second));
+
+  QNetworkRequest request = prepareNetworkRequest(qURL, headers);
+
+  // setting up the page and connecting it's loadFinished signal to our
+  // exit function
+  if (m_lastPage != NULL)
+    delete m_lastPage;
+
+  m_lastPage = new WebPage(this, config);
+  m_lastPage->triggerAction(QWebPage::Stop);
+
 
   // Setting the payload
   QByteArray body(payload);
-  request.setUrl(qurl);
 
-  page.mainFrame()->load(request, networkOp, body);
-  page.setViewportSize(page.mainFrame()->contentsSize());
+  QString action(method);
+  QNetworkAccessManager::Operation networkOp = parseOperation(action);
+  m_lastPage->mainFrame()->load(request, networkOp, body);
 
-  // Mainloop
-  while (!page.finished()) {
-    app->processEvents();
-    SleeperThread::msleep(0.01);
-  }
+  waitForPage();
 
-  if (page.hasErrors()) {
+  if (m_lastPage->hasErrors()) {
     // The error was properly set in the WebPage::handleNetworkReplies()
     // method, so we just need to return NULL to notify the caller that
     // something didn't work.
@@ -116,6 +147,19 @@ Hollow::request (const char* method,
   } else {
     // Yay! Let's return the response object created by the webpage
     // after receiving a network reply.
-    return page.lastResponse();
+    return m_lastPage->lastResponse();
   }
+}
+
+const char*
+Hollow::evaluateJavaScript(const char* script)
+{
+  QString returnValue;
+
+  if (m_lastPage == NULL)
+      return NULL;
+
+  QString qscript(script);
+  returnValue = m_lastPage->evaluateJavaScript(qscript);
+  return returnValue.toUtf8().data();
 }

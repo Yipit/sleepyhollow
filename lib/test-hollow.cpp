@@ -7,24 +7,18 @@
 #include <QMainWindow>
 #include <QWebView>
 
+#define URL "http://bananarepublic.gap.com/browse/product.do?cid=71294&vid=1&pid=236175002"
+
 int
-main (int argc, char **argv)
+main ()
 {
   Hollow hollow;
+  StringHashMap headers;
+  UsernamePasswordPair credentials;
+  Config config;
 
-  if (argc < 2) {
-    std::cerr << "Usage: " << argv[0] << ": <url-to-open>" << std::endl;
-    return 1;
-  }
+  hollow.setup();
+  hollow.request("get", URL, "", headers, credentials, config);
+  hollow.evaluateJavaScript("'123'");
 
-  QApplication app(argc, argv);
-  app.setApplicationName(QString("SleepyHollow"));
-  app.setApplicationVersion(QString("0.0.1"));
-
-  QMainWindow win;
-  QWebView view(&win);
-  view.load(QUrl(argv[0]));
-  win.show();
-
-  return app.exec();
 }

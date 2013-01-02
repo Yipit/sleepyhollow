@@ -5,8 +5,10 @@
 
 #include <QObject>
 #include <QApplication>
+#include <QNetworkRequest>
 
 #include <hollow/error.h>
+#include <hollow/webpage.h>
 #include <hollow/response.h>
 
 class Hollow : public QObject
@@ -31,6 +33,15 @@ public:
   // The user *Must* call this function before using libhollow
   static void setup(void);
   static void teardown(void);
+  const char* evaluateJavaScript(const char*);
+
+private:
+  WebPage* m_lastPage;
+
+  QUrl getValidURL(const char*);
+  QNetworkAccessManager::Operation parseOperation(QString);
+  QNetworkRequest prepareNetworkRequest(QUrl, StringHashMap);
+  void waitForPage();
 };
 
 
