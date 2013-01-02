@@ -32,6 +32,9 @@ class SleepyHollow(_SleepyHollow):
         for method in 'get', 'post', 'put', 'head', 'delete':
             setattr(self, method, partial(self.request, method))
 
+    def evaluate_javascript(self, script):
+        return super(SleepyHollow, self).evaluate_javascript(script)
+
     def request(self, method, url, params=None, headers=None,
                 auth=(), config=None):
 

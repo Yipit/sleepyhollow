@@ -157,12 +157,15 @@ WebPage::renderPNGBase64()
   return bytes.toBase64();
 }
 
-QString
+const char *
 WebPage::evaluateJavaScript(QString& script)
 {
   QVariant returnValue = mainFrame()->evaluateJavaScript(script);
-  qDebug() << "returnValue" << returnValue << "\n";
-  return returnValue.toString();
+  if (!returnValue.isValid()){
+    Error::set(Error::BAD_JSON_RETURN_VALUE, C_STRING(returnValue.toString()));
+    return NULL;
+  }
+  return returnValue.toString().toUtf8().data();
 }
 
 Response *

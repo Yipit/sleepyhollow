@@ -41,7 +41,7 @@ public:
   bool hasErrors();
   QImage renderImage();
   QByteArray renderPNGBase64();
-  QString evaluateJavaScript(QString&);
+  const char* evaluateJavaScript(QString&);
 
 public slots:
   void setJSReady();

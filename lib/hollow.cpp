@@ -17,8 +17,9 @@ static QApplication *app;
 
 Hollow::Hollow(QObject *parent)
   : QObject(parent)
-  , m_lastPage(NULL)
-{ }
+{
+  m_lastPage = new WebPage(this);
+}
 
 Hollow::~Hollow()
 { }

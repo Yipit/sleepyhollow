@@ -286,6 +286,28 @@ SleepyHollow_request(SleepyHollow *self, PyObject *args, PyObject *kw)
   return prepare_sleepy_hollow_response(resp);
 }
 
+static PyObject *
+SleepyHollow_evaluate_javascript(SleepyHollow *self, PyObject *args, PyObject *kw)
+{
+  const char *script = NULL;
+  const char *raw_json = NULL;
+  static char *kwlist[] = {
+    C_STR("script"),
+    NULL
+  };
+
+  if (!PyArg_ParseTupleAndKeywords(args, kw, "s", kwlist, &script))
+    return NULL;
+
+  raw_json = self->hollow->evaluateJavaScript(script);
+  if (raw_json == NULL){
+    Py_RETURN_NONE;
+  }
+  std::string json(raw_json);
+
+  return PyUnicode_FromString(json.data());
+}
+
 static struct PyMemberDef SleepyHollow_members[] = {
   { NULL, 0, 0, 0, 0 },   /* Sentinel */
 };
@@ -294,7 +316,8 @@ static PyMethodDef SleepyHollow_methods[] = {
 
   {"request", (PyCFunction) SleepyHollow_request,
    METH_VARARGS | METH_KEYWORDS, "Constructs and sends a Request. Returns Response object."},
-
+  {"evaluate_javascript", (PyCFunction) SleepyHollow_evaluate_javascript,
+   METH_VARARGS | METH_KEYWORDS, "Evaluates the given string as javascript and returns a json serialized string"},
   {NULL, NULL, 0, NULL},        /* Sentinel */
 };
 
