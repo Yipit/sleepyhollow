@@ -5,6 +5,7 @@
 #include <QWebPage>
 #include <QWebFrame>
 #include <QNetworkReply>
+#include <QDebug>
 
 #include <hollow/core.h>
 #include <hollow/networkaccessmanager.h>
@@ -154,6 +155,14 @@ WebPage::renderPNGBase64()
   buffer.open(QIODevice::WriteOnly);
   rawPageRendering.save(&buffer, "PNG");
   return bytes.toBase64();
+}
+
+QString
+WebPage::evaluateJavaScript(QString& script)
+{
+  QVariant returnValue = mainFrame()->evaluateJavaScript(script);
+  qDebug() << "returnValue" << returnValue << "\n";
+  return returnValue.toString();
 }
 
 Response *
