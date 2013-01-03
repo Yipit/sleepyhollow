@@ -33,7 +33,11 @@ class SleepyHollow(_SleepyHollow):
             setattr(self, method, partial(self.request, method))
 
     def evaluate_javascript(self, script):
-        return super(SleepyHollow, self).evaluate_javascript(script)
+        ret = super(SleepyHollow, self).evaluate_javascript(script)
+        try:
+            return json.loads(ret)
+        except ValueError:
+            return ret
 
     def request(self, method, url, params=None, headers=None,
                 auth=(), config=None):

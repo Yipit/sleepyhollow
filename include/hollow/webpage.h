@@ -42,6 +42,7 @@ public:
   QImage renderImage();
   QByteArray renderPNGBase64();
   const char* evaluateJavaScript(QString&);
+  std::string variantToJson(const QVariant&);
 
 public slots:
   void setJSReady();

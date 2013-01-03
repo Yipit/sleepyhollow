@@ -157,16 +157,102 @@ WebPage::renderPNGBase64()
   return bytes.toBase64();
 }
 
-const char *
+const char*
 WebPage::evaluateJavaScript(QString& script)
 {
-  QVariant returnValue = mainFrame()->evaluateJavaScript(script);
-  if (!returnValue.isValid()){
-    Error::set(Error::BAD_JSON_RETURN_VALUE, C_STRING(returnValue.toString()));
-    return NULL;
-  }
-  return returnValue.toString().toUtf8().data();
+  return variantToJson(mainFrame()->evaluateJavaScript(script)).data();
 }
+
+std::string
+WebPage::variantToJson(const QVariant& variant) {
+  std::string returnValue;
+  QStringList qslist;
+  QVariantList list;
+  QVariantMap map;
+  int length = 0;
+  int index = 0;
+
+  switch (variant.type()) {
+  case QVariant::Bool:
+    returnValue = variant.toBool() ? "true" : "false";
+    break;
+  case QVariant::Int:
+  case QVariant::Double:
+  case QVariant::LongLong:
+  case QVariant::ULongLong:
+  case QVariant::UInt:
+    returnValue = variant.toString().toStdString();
+    break;
+  case QVariant::String:
+    returnValue = "\"";
+    returnValue += variant.toString().toStdString();
+    returnValue += "\"";
+    break;
+  case QVariant::StringList:
+    returnValue = "[";
+    qslist = variant.toStringList();
+
+    index = 0;
+    length = qslist.length();
+    for (QStringList::const_iterator it = qslist.constBegin(); it != qslist.constEnd(); ++it) {
+      index++;
+      returnValue += (*it).toStdString();
+      if (index < length) {
+        returnValue += ", ";
+      }
+    }
+    returnValue += "]";
+    break;
+
+  case QVariant::List:
+    returnValue = "[";
+    list = variant.toList();
+
+    index = 0;
+    length = list.length();
+    for (QVariantList::const_iterator it = list.constBegin(); it != list.constEnd(); ++it) {
+      index++;
+      returnValue += variantToJson(*it);
+      if (index < length) {
+        returnValue += ", ";
+      }
+    }
+    returnValue += "]";
+    break;
+  case QVariant::RegExp:
+    returnValue = variant.toRegExp().pattern().toStdString();
+    break;
+  case QVariant::Hash:
+    returnValue = "hash";
+    break;
+  case QVariant::UserType:
+    returnValue = "user type";
+    break;
+  case QVariant::Map:
+
+    returnValue = "{";
+    map = variant.toMap();
+
+    qDebug() << "object: " << map << "\n";
+    index = 0;
+    length = map.keys().length();
+    for (QVariantMap::const_iterator it = map.constBegin(); it != map.constEnd(); ++it) {
+      index++;
+      returnValue += variantToJson(QVariant(it.key()));
+      returnValue += ": ";
+      returnValue += variantToJson(it.value());
+      if (index < length) {
+        returnValue += ", ";
+      }
+    }
+    returnValue += "}";
+    break;
+  default:
+    returnValue = "null";
+  }
+  return returnValue;
+}
+
 
 Response *
 WebPage::lastResponse()

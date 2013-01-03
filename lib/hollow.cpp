@@ -157,9 +157,6 @@ Hollow::evaluateJavaScript(const char* script)
 {
   QString returnValue;
 
-  if (m_lastPage == NULL)
-      return NULL;
-
   QString qscript(script);
   returnValue = m_lastPage->evaluateJavaScript(qscript);
   return returnValue.toUtf8().data();

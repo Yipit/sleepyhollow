@@ -289,6 +289,8 @@ SleepyHollow_request(SleepyHollow *self, PyObject *args, PyObject *kw)
 static PyObject *
 SleepyHollow_evaluate_javascript(SleepyHollow *self, PyObject *args, PyObject *kw)
 {
+  Error *error = NULL;
+
   const char *script = NULL;
   const char *raw_json = NULL;
   static char *kwlist[] = {
@@ -300,8 +302,15 @@ SleepyHollow_evaluate_javascript(SleepyHollow *self, PyObject *args, PyObject *k
     return NULL;
 
   raw_json = self->hollow->evaluateJavaScript(script);
+
+  error = Error::last();
+
   if (raw_json == NULL){
-    Py_RETURN_NONE;
+    if (error == NULL){
+      Py_RETURN_NONE;
+    } else {
+      return PyErr_Format(SleepyHollowError, "Invalid JSON return value");
+    }
   }
   std::string json(raw_json);
 
