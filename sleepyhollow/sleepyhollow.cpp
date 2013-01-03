@@ -304,17 +304,10 @@ SleepyHollow_evaluate_javascript(SleepyHollow *self, PyObject *args, PyObject *k
   raw_json = self->hollow->evaluateJavaScript(script);
 
   error = Error::last();
+  if (error != NULL)
+    return PyErr_Format(SleepyHollowError, "Invalid JSON return value: %s", error->what());
 
-  if (raw_json == NULL){
-    if (error == NULL){
-      Py_RETURN_NONE;
-    } else {
-      return PyErr_Format(SleepyHollowError, "Invalid JSON return value");
-    }
-  }
-  std::string json(raw_json);
-
-  return PyUnicode_FromString(json.data());
+  return PyUnicode_FromString(raw_json);
 }
 
 static struct PyMemberDef SleepyHollow_members[] = {

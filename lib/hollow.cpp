@@ -155,9 +155,6 @@ Hollow::request (const char* method,
 const char*
 Hollow::evaluateJavaScript(const char* script)
 {
-  QString returnValue;
-
   QString qscript(script);
-  returnValue = m_lastPage->evaluateJavaScript(qscript);
-  return returnValue.toUtf8().data();
+  return m_lastPage->evaluateJavaScript(qscript);
 }
