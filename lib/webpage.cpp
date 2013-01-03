@@ -5,7 +5,6 @@
 #include <QWebPage>
 #include <QWebFrame>
 #include <QNetworkReply>
-#include <QDebug>
 
 #include <hollow/core.h>
 #include <hollow/networkaccessmanager.h>
@@ -233,7 +232,6 @@ WebPage::variantToJson(const QVariant& variant) {
     returnValue = "{";
     map = variant.toMap();
 
-    qDebug() << "object: " << map << "\n";
     index = 0;
     length = map.keys().length();
     for (QVariantMap::const_iterator it = map.constBegin(); it != map.constEnd(); ++it) {
