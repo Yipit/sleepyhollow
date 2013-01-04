@@ -287,12 +287,6 @@ WebPage::variantToJson(const QVariant& variant) {
   case QVariant::RegExp:
     returnValue = variant.toRegExp().pattern().toStdString();
     break;
-  case QVariant::Hash:
-    returnValue = "hash";
-    break;
-  case QVariant::UserType:
-    returnValue = "user type";
-    break;
   case QVariant::Map:
 
     returnValue = "{";
