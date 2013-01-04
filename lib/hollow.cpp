@@ -140,16 +140,7 @@ Hollow::request (const char* method,
 
   waitForPage();
 
-  if (m_lastPage->hasErrors()) {
-    // The error was properly set in the WebPage::handleNetworkReplies()
-    // method, so we just need to return NULL to notify the caller that
-    // something didn't work.
-    return NULL;
-  } else {
-    // Yay! Let's return the response object created by the webpage
-    // after receiving a network reply.
-    return m_lastPage->lastResponse();
-  }
+  return m_lastPage->lastResponse();
 }
 
 const char*
