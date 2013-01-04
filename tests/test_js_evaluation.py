@@ -1,6 +1,6 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
-
+from sure import expect
 from tests.helpers import server_test_case
 from sleepyhollow import (
     SleepyHollow
@@ -11,7 +11,14 @@ from sleepyhollow import (
 def test_decode_string(context):
     "SleepyHollow#evaluate_javascript maps the type `string`"
     sl = SleepyHollow()
-    sl.evaluate_javascript("'GABRIEL'.toLowerCase()").should.equal("gabriel")
+    sl.evaluate_javascript(r'"GABRIEL\'s".toLowerCase()').should.equal("gabriel's")
+
+
+@server_test_case
+def test_decode_string_with_double_quotes(context):
+    "SleepyHollow#evaluate_javascript maps the type `string` with double quotes"
+    sl = SleepyHollow()
+    sl.evaluate_javascript(r'"\"NICE\""').should.equal('"NICE"')
 
 
 @server_test_case
@@ -40,3 +47,30 @@ def test_decode_dict(context):
     "SleepyHollow#evaluate_javascript maps the type `dict`"
     sl = SleepyHollow()
     sl.evaluate_javascript('(function(){return {name: "GABRIEL FALCÃO".toLowerCase()}})();').should.equal({'name': u'gabriel falcão'})
+
+
+@server_test_case
+def test_decode_complex_object(context):
+    "SleepyHollow#evaluate_javascript maps the type `dict`"
+    sl = SleepyHollow()
+    evaluated = sl.evaluate_javascript(r'''(function(){
+        var data = {};
+        data["name"] = "Gabriel Falcão \"gabrielfalcao\"";
+        data["github"] = "http://github.com/gabrielfalcao";
+        data["projects"] = ["cello", "sleepyhollow"];
+        data["coder"] = true;
+        data["age"] = 24;
+        data["weight"] = 77.5;
+        data["more"] = null;
+        return data;
+    })()''')
+
+    expect(evaluated).to.equal({
+        'name': u'Gabriel Falcão "gabrielfalcao"',
+        'github': 'http://github.com/gabrielfalcao',
+        'projects': ['cello', 'sleepyhollow'],
+        'coder': True,
+        'age': 24,
+        'weight': 77.5,
+        'more': "",
+    })

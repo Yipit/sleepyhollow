@@ -43,6 +43,7 @@ public:
   QByteArray renderPNGBase64();
   const char* evaluateJavaScript(QString&);
   std::string variantToJson(const QVariant&);
+  QString sanitizeString(QString str);
 
 public slots:
   void setJSReady();

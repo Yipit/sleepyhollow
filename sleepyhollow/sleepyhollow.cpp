@@ -307,7 +307,7 @@ SleepyHollow_evaluate_javascript(SleepyHollow *self, PyObject *args, PyObject *k
   if (error != NULL)
     return PyErr_Format(SleepyHollowError, "Invalid JSON return value: %s", error->what());
 
-  return PyUnicode_FromString(raw_json);
+  return PyString_FromString(raw_json);
 }
 
 static struct PyMemberDef SleepyHollow_members[] = {

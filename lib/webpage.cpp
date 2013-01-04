@@ -162,6 +162,38 @@ WebPage::evaluateJavaScript(QString& script)
   return variantToJson(mainFrame()->evaluateJavaScript(script)).data();
 }
 
+QString
+WebPage::sanitizeString(QString str)
+{
+  str.replace(QLatin1String( "\\" ), QLatin1String( "\\\\" ));
+
+  // escape unicode chars
+  unsigned int i = 0;
+  QString result;
+  const ushort* unicode = str.utf16();
+
+  while (unicode[i]) {
+    if (unicode[i] < 128) {
+      result.append(QChar(unicode[i]));
+    }
+    else {
+      QString hexCode = QString::number(unicode[ i ], 16).rightJustified(4, QLatin1Char('0'));
+      result.append(QLatin1String("\\u")).append(hexCode);
+    }
+    ++i;
+  }
+  str = result;
+
+  str.replace(QLatin1String( "\"" ), QLatin1String( "\\\"" ));
+  str.replace(QLatin1String( "\b" ), QLatin1String( "\\b" ));
+  str.replace(QLatin1String( "\f" ), QLatin1String( "\\f" ));
+  str.replace(QLatin1String( "\n" ), QLatin1String( "\\n" ));
+  str.replace(QLatin1String( "\r" ), QLatin1String( "\\r" ));
+  str.replace(QLatin1String( "\t" ), QLatin1String( "\\t" ));
+
+  return QString(QLatin1String("\"%1\"" )).arg(str);
+}
+
 std::string
 WebPage::variantToJson(const QVariant& variant) {
   std::string returnValue;
@@ -183,9 +215,7 @@ WebPage::variantToJson(const QVariant& variant) {
     returnValue = variant.toString().toStdString();
     break;
   case QVariant::String:
-    returnValue = "\"";
-    returnValue += variant.toString().toStdString();
-    returnValue += "\"";
+    returnValue += sanitizeString(variant.toString()).toStdString();
     break;
   case QVariant::StringList:
     returnValue = "[";
@@ -195,7 +225,7 @@ WebPage::variantToJson(const QVariant& variant) {
     length = qslist.length();
     for (QStringList::const_iterator it = qslist.constBegin(); it != qslist.constEnd(); ++it) {
       index++;
-      returnValue += (*it).toStdString();
+      returnValue += variantToJson(QVariant(*it));
       if (index < length) {
         returnValue += ", ";
       }
@@ -238,7 +268,7 @@ WebPage::variantToJson(const QVariant& variant) {
       index++;
       returnValue += variantToJson(QVariant(it.key()));
       returnValue += ": ";
-      returnValue += variantToJson(it.value());
+      returnValue += variantToJson(*it);
       if (index < length) {
         returnValue += ", ";
       }
