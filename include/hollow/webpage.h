@@ -36,14 +36,15 @@ class WebPage : public QWebPage
 public:
   WebPage(QObject *parent=0, Config& config=defaultConfig);
   Response *lastResponse();
-  bool finished();
-  bool allResourcesDownloaded();
-  bool hasErrors();
-  QImage renderImage();
-  QByteArray renderPNGBase64();
+  bool finished(void);
+  bool allResourcesDownloaded(void);
+  bool hasErrors(void);
+  QImage renderImage(void);
+  QByteArray renderPNGBase64(void);
   const char* evaluateJavaScript(QString&);
   std::string variantToJson(const QVariant&);
   QString sanitizeString(QString str);
+  const char* getJSTraceback(void);
 
 public slots:
   void setJSReady();

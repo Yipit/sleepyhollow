@@ -20,7 +20,7 @@
 
 /* Exceptions */
 
-PyObject *SleepyHollowError, *InvalidUrlError, *ConnectionRefusedError, *BadCredentialsError;
+PyObject *SleepyHollowError, *InvalidUrlError, *ConnectionRefusedError, *BadCredentialsError, *InvalidJSONError;
 
 /* Helpers */
 
@@ -305,7 +305,7 @@ SleepyHollow_evaluate_javascript(SleepyHollow *self, PyObject *args, PyObject *k
 
   error = Error::last();
   if (error != NULL)
-    return PyErr_Format(SleepyHollowError, "Invalid JSON return value: %s", error->what());
+    return PyErr_Format(InvalidJSONError, "Invalid JSON: %s", error->what());
 
   return PyString_FromString(raw_json);
 }
@@ -450,6 +450,14 @@ init_sleepyhollow (void)
   PyDict_SetItemString(d,
                        C_STR("ConnectionRefusedError"),
                        ConnectionRefusedError);
+
+
+  InvalidJSONError =
+    PyErr_NewException(C_STR ("sleepyhollow.InvalidJSONError"),
+                       SleepyHollowError, NULL);
+  PyDict_SetItemString(d,
+                       C_STR("InvalidJSONError"),
+                       InvalidJSONError);
 
   /* Adding the classes */
 

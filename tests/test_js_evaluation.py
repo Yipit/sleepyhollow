@@ -3,7 +3,7 @@
 from sure import expect
 from tests.helpers import server_test_case
 from sleepyhollow import (
-    SleepyHollow
+    SleepyHollow, InvalidJSONError
 )
 
 
@@ -74,3 +74,19 @@ def test_decode_complex_object(context):
         'weight': 77.5,
         'more': "",
     })
+
+
+@server_test_case
+def test_error_handling(context):
+    "SleepyHollow#evaluate_javascript handles errors"
+    sl = SleepyHollow()
+
+    script1 = r'''(function(){
+        return foo;
+    })()'''
+
+    expect(sl.evaluate_javascript).when.called_with(script1).to.throw(
+        InvalidJSONError,
+        "'ReferenceError: Can't find variable: foo' undefined:2"
+    )
+    sl.evaluate_javascript("'SUCCESS!'").should.equal("SUCCESS!")

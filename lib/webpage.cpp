@@ -159,7 +159,43 @@ WebPage::renderPNGBase64()
 const char*
 WebPage::evaluateJavaScript(QString& script)
 {
-  return variantToJson(mainFrame()->evaluateJavaScript(script)).data();
+  const char*json = NULL;
+  const char *error = NULL;
+
+  // Cleaning existing JS errors because we are about to execute our own js
+  m_js_errors.clear();
+  json = variantToJson(mainFrame()->evaluateJavaScript(script)).data();
+
+  lastResponse();
+
+  error = getJSTraceback();
+  if (error != NULL) {
+    Error::set(Error::BAD_JSON_RETURN_VALUE, error);
+    return NULL;
+  }
+  return json;
+}
+
+const char*
+WebPage::getJSTraceback(void)
+{
+  std::string traceback;
+  char lineno[20];
+
+
+  JSErrorListIterator iter;
+  int pos;
+  for (iter = m_js_errors.begin(), pos = 0; iter != m_js_errors.end(); iter++, pos++){
+    traceback += "'";
+    traceback += (*iter).getMessage();
+    traceback += "' ";
+    traceback += (*iter).getSourceID();
+    traceback += ":";
+    sprintf(lineno, "%d", (*iter).getLineNumber());
+    traceback += lineno;
+    traceback += "\n";
+  }
+  return traceback.length() > 0 ? traceback.data() : NULL;
 }
 
 QString
@@ -276,6 +312,7 @@ WebPage::variantToJson(const QVariant& variant) {
     returnValue += "}";
     break;
   default:
+    Error::set(Error::BAD_JSON_RETURN_VALUE, "javascript returned a bad value");
     returnValue = "null";
   }
   return returnValue;
