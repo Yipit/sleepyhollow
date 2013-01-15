@@ -274,6 +274,8 @@ SleepyHollow_request(SleepyHollow *self, PyObject *args, PyObject *kw)
         return PyErr_Format(InvalidUrlError, "%s", error->what());
       case Error::CONNECTION_REFUSED:
         return PyErr_Format(ConnectionRefusedError, "%s", error->what());
+      case Error::USER_ABORTED:
+        return PyErr_Format(PyExc_KeyboardInterrupt, "%s", error->what());
       default:
         if (credentials.first.length() > 0 || credentials.second.length() > 0)
           return PyErr_Format(BadCredentialsError, "Either username or password are wrong");

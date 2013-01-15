@@ -16,7 +16,19 @@
 
 // Copied from WebCore/loader/cache/MemoryCache.cpp
 static const int cDefaultCacheCapacity = 8192 * 1024;
+static int QUIT_IMMEDIATELY = 0;
 
+void abort_now(int signal)
+{
+  switch (signal) {
+  case SIGHUP:
+  case SIGINT:
+    QUIT_IMMEDIATELY = 1;
+    break;
+  default:
+    break;
+  }
+}
 
 WebPage::WebPage(QObject* parent, Config& config)
   : QWebPage(parent)
@@ -91,6 +103,8 @@ WebPage::WebPage(QObject* parent, Config& config)
     QWebSettings::globalSettings()->setObjectCacheCapacities(0, cDefaultCacheCapacity, cDefaultCacheCapacity);
   }
   setViewportSize(QSize(1024, 768));
+  signal(SIGINT, abort_now);
+  signal(SIGHUP, abort_now);
 }
 
 // -- Public API --
@@ -98,6 +112,12 @@ WebPage::WebPage(QObject* parent, Config& config)
 bool
 WebPage::finished()
 {
+
+  if (QUIT_IMMEDIATELY) {
+    Error::set(Error::USER_ABORTED, "You aborted the request");
+    return true;
+  }
+
   if (m_shouldWaitForJS)
     return m_jsReady && m_loadFinished && allResourcesDownloaded();
   else
@@ -164,7 +184,8 @@ WebPage::evaluateJavaScript(QString& script)
 
   // Cleaning existing JS errors because we are about to execute our own js
   m_js_errors.clear();
-  json = variantToJson(mainFrame()->evaluateJavaScript(script)).data();
+  QVariant variant = mainFrame()->evaluateJavaScript(script);
+  json = variantToJson(variant).data();
 
   lastResponse();
 
