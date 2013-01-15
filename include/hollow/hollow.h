@@ -33,7 +33,7 @@ public:
   // The user *Must* call this function before using libhollow
   static void setup(void);
   static void teardown(void);
-  const char* evaluateJavaScript(const char*);
+  QVariant evaluateJavaScript(const char*);
 
 private:
   WebPage* m_lastPage;

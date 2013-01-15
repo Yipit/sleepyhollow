@@ -18,6 +18,11 @@
 
 #define C_STR(x) ((char *) x)
 
+/* using recursion depth to avoid evaluating deserializing js objects
+   that are too big */
+#define HOLLOW_MAX_RECURSION_DEPTH 50
+static int recursion_depth = 0;
+
 /* Exceptions */
 
 PyObject *SleepyHollowError, *InvalidUrlError, *ConnectionRefusedError, *BadCredentialsError, *InvalidJSONError;
@@ -289,12 +294,84 @@ SleepyHollow_request(SleepyHollow *self, PyObject *args, PyObject *kw)
 }
 
 static PyObject *
+SleepyHollow_deserialize_qvariant(QVariant variant)
+{
+  PyObject *return_value = NULL;
+  QStringList qslist;
+  QVariantList list;
+  QVariantMap map;
+
+  if (recursion_depth >= HOLLOW_MAX_RECURSION_DEPTH) {
+    // if the recursion depth is too big it returns None
+    Py_RETURN_NONE;
+  }
+  recursion_depth++;
+
+  switch (variant.type()) {
+  case QVariant::Bool:
+    return_value = variant.toBool() ? Py_True : Py_False;
+    Py_INCREF(return_value);
+    break;
+  case QVariant::Int:
+  case QVariant::UInt:
+    return_value = PyInt_FromLong(variant.toInt());
+    break;
+  case QVariant::Double:
+  case QVariant::LongLong:
+  case QVariant::ULongLong:
+    return_value = PyFloat_FromDouble(variant.toDouble());
+    break;
+  case QVariant::String:
+    return_value = PyUnicode_FromString(variant.toString().toUtf8().data());
+    break;
+  case QVariant::StringList:
+    return_value = PyList_New(0);
+    qslist = variant.toStringList();
+
+    for (QStringList::const_iterator it = qslist.constBegin(); it != qslist.constEnd(); ++it) {
+      PyList_Append(return_value, SleepyHollow_deserialize_qvariant(QVariant(*it)));
+    }
+
+    break;
+
+  case QVariant::List:
+    return_value = PyList_New(0);
+    list = variant.toList();
+
+    for (QVariantList::const_iterator it = list.constBegin(); it != list.constEnd(); ++it) {
+      PyList_Append(return_value, SleepyHollow_deserialize_qvariant(QVariant(*it)));
+    }
+    break;
+
+  case QVariant::RegExp:
+    return_value = PyUnicode_FromFormat("/%s/", variant.toRegExp().pattern().toUtf8().data());
+    break;
+
+  case QVariant::Map:
+    return_value = PyDict_New();
+    map = variant.toMap();
+
+    for (QVariantMap::const_iterator it = map.constBegin(); it != map.constEnd(); ++it) {
+      PyDict_SetItem(return_value,
+                     SleepyHollow_deserialize_qvariant(QVariant(it.key())),
+                     SleepyHollow_deserialize_qvariant(QVariant(*it)));
+    }
+    break;
+  default:
+    return_value = Py_None;
+    Py_INCREF(return_value);
+    break;
+  }
+  recursion_depth--;
+  return return_value;
+}
+
+static PyObject *
 SleepyHollow_evaluate_javascript(SleepyHollow *self, PyObject *args, PyObject *kw)
 {
   Error *error = NULL;
 
   const char *script = NULL;
-  const char *raw_json = NULL;
   static char *kwlist[] = {
     C_STR("script"),
     NULL
@@ -303,13 +380,13 @@ SleepyHollow_evaluate_javascript(SleepyHollow *self, PyObject *args, PyObject *k
   if (!PyArg_ParseTupleAndKeywords(args, kw, "s", kwlist, &script))
     return NULL;
 
-  raw_json = self->hollow->evaluateJavaScript(script);
+  QVariant variant = self->hollow->evaluateJavaScript(script);
 
   error = Error::last();
   if (error != NULL)
     return PyErr_Format(InvalidJSONError, "Invalid JSON: %s", error->what());
 
-  return PyString_FromString(raw_json);
+  return SleepyHollow_deserialize_qvariant(variant);
 }
 
 static struct PyMemberDef SleepyHollow_members[] = {

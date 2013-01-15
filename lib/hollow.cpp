@@ -143,7 +143,7 @@ Hollow::request (const char* method,
   return m_lastPage->lastResponse();
 }
 
-const char*
+QVariant
 Hollow::evaluateJavaScript(const char* script)
 {
   QString qscript(script);

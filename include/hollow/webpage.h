@@ -41,9 +41,7 @@ public:
   bool hasErrors(void);
   QImage renderImage(void);
   QByteArray renderPNGBase64(void);
-  const char* evaluateJavaScript(QString&);
-  std::string variantToJson(const QVariant&);
-  QString sanitizeString(QString str);
+  QVariant evaluateJavaScript(QString&);
   const char* getJSTraceback(void);
 
 public slots:

@@ -176,25 +176,23 @@ WebPage::renderPNGBase64()
   return bytes.toBase64();
 }
 
-const char*
+QVariant
 WebPage::evaluateJavaScript(QString& script)
 {
-  const char*json = NULL;
   const char *error = NULL;
 
-  // Cleaning existing JS errors because we are about to execute our own js
+  // Cleaning existing JS errors because we are about to execute our
+  // own js
   m_js_errors.clear();
   QVariant variant = mainFrame()->evaluateJavaScript(script);
-  json = variantToJson(variant).data();
 
   lastResponse();
 
   error = getJSTraceback();
   if (error != NULL) {
     Error::set(Error::BAD_JSON_RETURN_VALUE, error);
-    return NULL;
   }
-  return json;
+  return variant;
 }
 
 const char*
@@ -217,120 +215,6 @@ WebPage::getJSTraceback(void)
     traceback += "\n";
   }
   return traceback.length() > 0 ? traceback.data() : NULL;
-}
-
-QString
-WebPage::sanitizeString(QString str)
-{
-  str.replace(QLatin1String( "\\" ), QLatin1String( "\\\\" ));
-
-  // escape unicode chars
-  unsigned int i = 0;
-  QString result;
-  const ushort* unicode = str.utf16();
-
-  while (unicode[i]) {
-    if (unicode[i] < 128) {
-      result.append(QChar(unicode[i]));
-    }
-    else {
-      QString hexCode = QString::number(unicode[ i ], 16).rightJustified(4, QLatin1Char('0'));
-      result.append(QLatin1String("\\u")).append(hexCode);
-    }
-    ++i;
-  }
-  str = result;
-
-  str.replace(QLatin1String( "\"" ), QLatin1String( "\\\"" ));
-  str.replace(QLatin1String( "\b" ), QLatin1String( "\\b" ));
-  str.replace(QLatin1String( "\f" ), QLatin1String( "\\f" ));
-  str.replace(QLatin1String( "\n" ), QLatin1String( "\\n" ));
-  str.replace(QLatin1String( "\r" ), QLatin1String( "\\r" ));
-  str.replace(QLatin1String( "\t" ), QLatin1String( "\\t" ));
-
-  return QString(QLatin1String("\"%1\"" )).arg(str);
-}
-
-std::string
-WebPage::variantToJson(const QVariant& variant) {
-  std::string returnValue;
-  QStringList qslist;
-  QVariantList list;
-  QVariantMap map;
-  int length = 0;
-  int index = 0;
-
-  switch (variant.type()) {
-  case QVariant::Bool:
-    returnValue = variant.toBool() ? "true" : "false";
-    break;
-  case QVariant::Int:
-  case QVariant::Double:
-  case QVariant::LongLong:
-  case QVariant::ULongLong:
-  case QVariant::UInt:
-    returnValue = variant.toString().toStdString();
-    break;
-  case QVariant::String:
-    returnValue += sanitizeString(variant.toString()).toStdString();
-    break;
-  case QVariant::StringList:
-    returnValue = "[";
-    qslist = variant.toStringList();
-
-    index = 0;
-    length = qslist.length();
-    for (QStringList::const_iterator it = qslist.constBegin(); it != qslist.constEnd(); ++it) {
-      index++;
-      returnValue += variantToJson(QVariant(*it));
-      if (index < length) {
-        returnValue += ", ";
-      }
-    }
-    returnValue += "]";
-    break;
-
-  case QVariant::List:
-    returnValue = "[";
-    list = variant.toList();
-
-    index = 0;
-    length = list.length();
-    for (QVariantList::const_iterator it = list.constBegin(); it != list.constEnd(); ++it) {
-      index++;
-      returnValue += variantToJson(*it);
-      if (index < length) {
-        returnValue += ", ";
-      }
-    }
-    returnValue += "]";
-    break;
-  case QVariant::RegExp:
-    returnValue = variant.toRegExp().pattern().toStdString();
-    break;
-  case QVariant::Map:
-
-    returnValue = "{";
-    map = variant.toMap();
-
-    index = 0;
-    length = map.keys().length();
-    for (QVariantMap::const_iterator it = map.constBegin(); it != map.constEnd(); ++it) {
-      index++;
-      returnValue += variantToJson(QVariant(it.key()));
-      returnValue += ": ";
-      returnValue += variantToJson(*it);
-      if (index < length) {
-        returnValue += ", ";
-      }
-    }
-    returnValue += "}";
-    break;
-  default:
-    Error::set(Error::BAD_JSON_RETURN_VALUE, "javascript returned a bad value");
-    returnValue = "null";
-  }
-  return returnValue;
 }
 
 
