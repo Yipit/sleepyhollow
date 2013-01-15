@@ -33,7 +33,7 @@ class SleepyHollow(_SleepyHollow):
             setattr(self, method, partial(self.request, method))
 
     def evaluate_javascript(self, script):
-        return super(SleepyHollow, self).evaluate_javascript('(%s)' % script)
+        return super(SleepyHollow, self).evaluate_javascript('(%s)' % script.strip(';'))
 
     def request(self, method, url, params=None, headers=None,
                 auth=(), config=None):
