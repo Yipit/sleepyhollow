@@ -10,6 +10,8 @@
 #include <QBuffer>
 #include <QImage>
 #include <QPainter>
+#include <signal.h>
+#include <stdio.h>
 
 #include <hollow/core.h>
 #include <hollow/networkaccessmanager.h>
