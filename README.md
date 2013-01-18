@@ -1,5 +1,5 @@
 # Sleepy Hollow
-> version 0.1.4
+> version 0.1.7
 
 ![http://f.cl.ly/items/0O350E410p1Y2w18292F/sleepy-hollow.jpg](http://f.cl.ly/items/0O350E410p1Y2w18292F/sleepy-hollow.jpg)
 
@@ -16,21 +16,28 @@ need a full-stack browser and yet, we need it to be headless.
 
 ### install dependencies
 
-#### 1. Install [QT](http://qt-project.org/doc/qt-4.8/qtwebkit.html), the core library for the browser
+#### 1. Install [QT5](http://qt-project.org/wiki/Building_Qt_5_from_Git), the core library for the browser
 
 ```bash
 brew upgrade
-brew install qt autogen automake autoconf
+brew tap yipit/yipit
+brew install yipit/yipit/qt5
 ```
 
-#### 2. Create a virtual env and install dependencies
+#### 2. Install build dependencies
+
+```bash
+brew install autogen automake autoconf
+```
+
+#### 3. Create a virtual env and install dependencies
 
 ```bash
 mkvirtualenv sleepy-hollow
 pip install -r requirements.pip
 ```
 
-#### 3. Use the `sleepy` command to test it
+#### 4. Use the `sleepy` command to test it
 
 ```bash
 ./sleepy test
