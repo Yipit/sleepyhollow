@@ -12,6 +12,16 @@ best: scraping.
 We need to scrape websites after processing CSS and JS, therefore we
 need a full-stack browser and yet, we need it to be headless.
 
+## Production notes
+
+When running production make sure to export the environment variable:
+
+```shell
+export QT_QPA_GENERIC_PLUGINS=minimal
+```
+
+It will ensure that QT5 will load smoothly on GNU/Linux
+
 ## Hacking
 
 ### install dependencies
