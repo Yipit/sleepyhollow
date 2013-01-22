@@ -66,7 +66,7 @@ def test_decode_complex_object(context):
     })()''')
 
     expect(evaluated).to.equal({
-        'name': u'Gabriel Falcão "gabrielfalcao"',
+        'name': 'Gabriel Falcão "gabrielfalcao"',
         'github': 'http://github.com/gabrielfalcao',
         'projects': ['cello', 'sleepyhollow'],
         'coder': True,
