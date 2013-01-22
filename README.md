@@ -50,20 +50,20 @@ pip install -r requirements.pip
 #### 4. Use the `sleepy` command to test it
 
 ```bash
-./sleepy test
+./hollow test
 ```
 
 or if you want to debug the output, use the `--verbose` mode:
 
 ```bash
-./sleepy -v test
-./sleepy --verbose test
+./hollow -v test
+./hollow --verbose test
 ```
 
 ### distributing
 
 ```bash
-./sleepy release
+./hollow release
 ```
 
 ### running the test server manually
@@ -72,7 +72,7 @@ Sleepy Hollow test suite comes with a builtin tornado server, you can
 run it with
 
 ```bash
-./sleepy server 4000
+./hollow server 4000
 ```
 
 ![http://f.cl.ly/items/1j030T0w1J2V1O171F0N/Screen%20Shot%202012-12-03%20at%201.22.52%20PM.png](http://f.cl.ly/items/1j030T0w1J2V1O171F0N/Screen%20Shot%202012-12-03%20at%201.22.52%20PM.png)
