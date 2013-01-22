@@ -17,7 +17,7 @@ need a full-stack browser and yet, we need it to be headless.
 When running production make sure to export the environment variable:
 
 ```shell
-export QT_QPA_GENERIC_PLUGINS=minimal
+export QT_QPA_PLATFORM=minimal
 ```
 
 It will ensure that QT5 will load smoothly on GNU/Linux
