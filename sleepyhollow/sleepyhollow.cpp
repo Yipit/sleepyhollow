@@ -322,7 +322,7 @@ SleepyHollow_deserialize_qvariant(QVariant variant)
     return_value = PyFloat_FromDouble(variant.toDouble());
     break;
   case QVariant::String:
-    return_value = PyUnicode_FromString(variant.toString().toUtf8().data());
+    return_value = PyString_FromString(variant.toString().toUtf8().data());
     break;
   case QVariant::StringList:
     return_value = PyList_New(0);
