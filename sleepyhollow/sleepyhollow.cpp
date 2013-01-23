@@ -322,7 +322,7 @@ SleepyHollow_deserialize_qvariant(QVariant variant)
     return_value = PyFloat_FromDouble(variant.toDouble());
     break;
   case QVariant::String:
-    return_value = PyString_FromString(variant.toString().toUtf8().data());
+    return_value = PyUnicode_FromString(variant.toString().toUtf8().data());
     break;
   case QVariant::StringList:
     return_value = PyList_New(0);
@@ -372,14 +372,29 @@ SleepyHollow_evaluate_javascript(SleepyHollow *self, PyObject *args, PyObject *k
   Error *error = NULL;
 
   const char *script = NULL;
+  PyObject *unicode_script = NULL;
+  PyObject *utf8bytes_script = NULL;
+
   static char *kwlist[] = {
     C_STR("script"),
     NULL
   };
 
-  if (!PyArg_ParseTupleAndKeywords(args, kw, "s", kwlist, &script))
+  if (!PyArg_ParseTupleAndKeywords(args, kw, "O", kwlist, &unicode_script))
     return NULL;
 
+  if (PyString_Check(unicode_script))
+    return PyErr_Format(PyExc_TypeError,
+                        "SleepyHollow.evaluate_javascript "
+                        "takes an unicode object as parameter, "
+                        "got a bytestring instead");
+
+  utf8bytes_script = PyUnicode_AsUTF8String(unicode_script);
+  if (utf8bytes_script == NULL)
+    return PyErr_Format(PyExc_ValueError,
+                        "The given javascript cannot be encoded as utf-8");
+
+  script = PyString_AsString(utf8bytes_script);
   QVariant variant = self->hollow->evaluateJavaScript(script);
 
   error = Error::last();
