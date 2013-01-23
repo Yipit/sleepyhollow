@@ -48,7 +48,7 @@ def test_decode_list(context):
 def test_decode_dict(context):
     "SleepyHollow#evaluate_javascript maps the type `dict`"
     sl = SleepyHollow()
-    sl.evaluate_javascript('(function(){return {name: "GABRIEL FALCÃO".toLowerCase()}})();').should.equal({'name': 'gabriel falcão'.decode('utf-8')})
+    sl.evaluate_javascript('(function(){return {name: "GABRIEL FALCÃO".toLowerCase()}})();').should.equal({'name': 'gabriel falcão'})
 
 
 @server_test_case
@@ -68,25 +68,13 @@ def test_decode_complex_object(context):
     })()''')
 
     expect(evaluated).to.equal({
-        'name': 'Gabriel Falcão "gabrielfalcao"'.decode('utf-8'),
+        'name': 'Gabriel Falcão "gabrielfalcao"',
         'github': u'http://github.com/gabrielfalcao',
         'projects': [u'cello', u'sleepyhollow'],
         'coder': True,
         'age': 24,
         'weight': 77.5,
         'more': "",
-    })
-
-
-@server_test_case
-def test_js_evaluation_works_with_custom_codec(context):
-    ("SleepyHollow#evaluate_javascript should work with unicode "
-     "objects that were already encoded with a preferred codec such as latin1")
-
-    sl = SleepyHollow()
-    latin1_unicode = '({"poem": "My ♥ is beating fast"})'.decode("latin1")
-    sl.evaluate_javascript(latin1_unicode).should.equal({
-        "poem": "My ♥ is beating fast".decode("latin1")
     })
 
 

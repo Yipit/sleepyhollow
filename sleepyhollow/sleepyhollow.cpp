@@ -215,6 +215,31 @@ pyunicode_to_utf8_bytestring(PyObject *unicode_string, const char *source)
 
   return PyString_AsString(bytestring);
 }
+
+/* Takes a `char *` and returns a newly allocated `PyString`
+   bytestring encoded as UTF-8
+*/
+PyObject *
+pystring_utf8_from_char_pointer(const char* data)
+{
+  PyObject *tmp = NULL;
+  PyObject *retval = NULL;
+
+  /* turning `char*` into a PyUnicode */
+  tmp = PyUnicode_FromString(data);
+
+  /* creating a new `PyString` from the `PyUnicode` above using the
+     UTF8 codec
+  */
+  retval = PyUnicode_AsUTF8String(tmp);
+
+  /* decreasing the pyunicode  reference*/
+  Py_XDECREF(tmp);
+
+  /* returning the newly allocated UTF-8 python bytestring */
+  return retval;
+}
+
 /* The SleepyHollow class */
 
 static PyObject *
@@ -358,7 +383,7 @@ SleepyHollow_deserialize_qvariant(QVariant variant)
     return_value = PyFloat_FromDouble(variant.toDouble());
     break;
   case QVariant::String:
-    return_value = PyUnicode_FromString(variant.toString().toUtf8().data());
+    return_value = pystring_utf8_from_char_pointer(variant.toString().toUtf8().data());
     break;
   case QVariant::StringList:
     return_value = PyList_New(0);
