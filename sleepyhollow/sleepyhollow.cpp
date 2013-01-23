@@ -179,22 +179,23 @@ prepare_sleepy_hollow_response(Response* response)
   return dict;
 }
 
+
+/* Takes a `PyObject` that must be a `PyUNICODE*` and returns a UTF-8
+   encoded char*, and a char* with the source name.
+
+   If the given PyObject is not an unicode object, setting a
+   TypeError exception appropriately with PyErr_SetObject.
+
+   Return value:
+
+   An internal reference to the char * within the UTF-8 encoded
+   bytestring or `NULL` in case the given object is not an unicode
+   object, so that it can be handled by the callee appropriately,
+   raising the exception set with `PyErr_SetObject`.
+*/
 const char *
-pyunicode_to_utf8_bytestring(PyObject *unicode_string, const char*source)
+pyunicode_to_utf8_bytestring(PyObject *unicode_string, const char *source)
 {
-  /* takes a PyObject that must be a PyUNICODE* and returns a UTF-8
-     encoded char*, and a char* with the source name,
-
-     If the given PyObject is not an unicode object, setting a
-     TypeError exception appropriately with PyErr_SetObject.
-
-     Return value:
-
-     an internal reference to the char * within the UTF-8 encoded
-     bytestring or NULL in case the given object is not an unicode
-     object, so that it can be handled by the callee appropriately,
-     raising the exception set with PyErr_SetObject
-   */
   PyObject *bytestring = NULL;
   PyObject *errorstring = NULL;
 
