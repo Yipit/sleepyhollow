@@ -77,6 +77,18 @@ def test_decode_complex_object(context):
 
 
 @server_test_case
+def test_js_evaluation_works_with_custom_codec(context):
+    ("SleepyHollow#evaluate_javascript should work with unicode "
+     "objects that were already encoded with a preferred codec such as latin1")
+
+    sl = SleepyHollow()
+    latin1_unicode = '({"poem": "My ♥ is beating fast"})'.decode("latin1")
+    sl.evaluate_javascript(latin1_unicode).should.equal({
+        "poem": "My ♥ is beating fast".decode("latin1")
+    })
+
+
+@server_test_case
 def test_error_handling(context):
     "SleepyHollow#evaluate_javascript handles errors"
     sl = SleepyHollow()

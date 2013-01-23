@@ -391,8 +391,7 @@ SleepyHollow_evaluate_javascript(SleepyHollow *self, PyObject *args, PyObject *k
 
   utf8bytes_script = PyUnicode_AsUTF8String(unicode_script);
   if (utf8bytes_script == NULL)
-    return PyErr_Format(PyExc_ValueError,
-                        "The given javascript cannot be encoded as utf-8");
+    return NULL;
 
   script = PyString_AsString(utf8bytes_script);
   QVariant variant = self->hollow->evaluateJavaScript(script);
