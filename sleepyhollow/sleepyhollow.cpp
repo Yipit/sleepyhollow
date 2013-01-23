@@ -179,6 +179,41 @@ prepare_sleepy_hollow_response(Response* response)
   return dict;
 }
 
+const char *
+pyunicode_to_utf8_bytestring(PyObject *unicode_string, const char*source)
+{
+  /* takes a PyObject that must be a PyUNICODE* and returns a UTF-8
+     encoded char*, and a char* with the source name,
+
+     If the given PyObject is not an unicode object, setting a
+     TypeError exception appropriately with PyErr_SetObject.
+
+     Return value:
+
+     an internal reference to the char * within the UTF-8 encoded
+     bytestring or NULL in case the given object is not an unicode
+     object, so that it can be handled by the callee appropriately,
+     raising the exception set with PyErr_SetObject
+   */
+  PyObject *bytestring = NULL;
+  PyObject *errorstring = NULL;
+
+  if (!PyUnicode_Check(unicode_string)) {
+    errorstring = PyUnicode_FromFormat("%s takes an unicode object as parameter, got a %s instead",
+                                       source,
+                                       unicode_string->ob_type->tp_name);
+
+    PyErr_SetObject(PyExc_TypeError, errorstring);
+    Py_XDECREF(errorstring);
+    return NULL;
+  }
+
+  bytestring = PyUnicode_AsUTF8String(unicode_string);
+  if (bytestring == NULL)
+    return NULL;
+
+  return PyString_AsString(bytestring);
+}
 /* The SleepyHollow class */
 
 static PyObject *
@@ -373,7 +408,6 @@ SleepyHollow_evaluate_javascript(SleepyHollow *self, PyObject *args, PyObject *k
 
   const char *script = NULL;
   PyObject *unicode_script = NULL;
-  PyObject *utf8bytes_script = NULL;
 
   static char *kwlist[] = {
     C_STR("script"),
@@ -383,17 +417,11 @@ SleepyHollow_evaluate_javascript(SleepyHollow *self, PyObject *args, PyObject *k
   if (!PyArg_ParseTupleAndKeywords(args, kw, "O", kwlist, &unicode_script))
     return NULL;
 
-  if (PyString_Check(unicode_script))
-    return PyErr_Format(PyExc_TypeError,
-                        "SleepyHollow.evaluate_javascript "
-                        "takes an unicode object as parameter, "
-                        "got a bytestring instead");
-
-  utf8bytes_script = PyUnicode_AsUTF8String(unicode_script);
-  if (utf8bytes_script == NULL)
+  script = pyunicode_to_utf8_bytestring(unicode_script,
+                                        "SleepyHollow.evaluate_javascript");
+  if (script == NULL)
     return NULL;
 
-  script = PyString_AsString(utf8bytes_script);
   QVariant variant = self->hollow->evaluateJavaScript(script);
 
   error = Error::last();

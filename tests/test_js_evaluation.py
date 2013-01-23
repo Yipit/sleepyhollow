@@ -6,6 +6,8 @@ from sleepyhollow import (
     SleepyHollow, InvalidJSONError
 )
 
+from _sleepyhollow import SleepyHollow as _SleepyHollow
+
 
 @server_test_case
 def test_decode_string(context):
@@ -86,6 +88,17 @@ def test_js_evaluation_works_with_custom_codec(context):
     sl.evaluate_javascript(latin1_unicode).should.equal({
         "poem": "My ♥ is beating fast".decode("latin1")
     })
+
+
+@server_test_case
+def test_js_evaluation_raises_exception_upon_sending_nonunicode(context):
+    ("_sleepyhollow.SleepyHollow#evaluate_javascript should raise a "
+     "TypeError if the given object is not an unicode object")
+
+    _sl = _SleepyHollow()
+    _sl.evaluate_javascript.when.called_with({}).should.throw(
+        TypeError,
+        "SleepyHollow.evaluate_javascript takes an unicode object as parameter, got a dict instead")
 
 
 @server_test_case
