@@ -126,14 +126,14 @@ continuous-integration () {
         fi
     fi
 
-    pip install -r requirements.pip 2>&1>>sleepy.log
+    pip install -r requirements.pip 2>&1>>hollow.log
     if [ "$?" != "0" ]; then
         echo
-        cat sleepy.log
+        cat hollow.log
     fi
     server.start 5000
     # Making it easier to run the tests
-    (make 2>&1) 2>&1 >>sleepy.log
+    (make 2>&1) 2>&1 >>hollow.log
     test.nose
     ec=$?
     if [ "$ec" != "0" ]; then
@@ -153,29 +153,29 @@ continuous-integration () {
 
 compile () {
     # Compilation
-    cleanup > sleepy.log
+    cleanup > hollow.log
 
     if [ "$NON_VERBOSE" == "yes" ]; then
         printf "Preparing to compile..."
-        (./autogen.sh 2>&1) 2>&1>> sleepy.log
+        (./autogen.sh 2>&1) 2>&1>> hollow.log
     else
         ./autogen.sh
     fi
     if [ "$?" != "0" ]; then
         echo
-        cat sleepy.log
+        cat hollow.log
     else
         echo.nonverbose "OK"
     fi
     if [ "$NON_VERBOSE" == "yes" ]; then
         printf "Compiling sleepy hollow..."
-        (make 2>&1) 2>&1>> sleepy.log
+        (make 2>&1) 2>&1>> hollow.log
     else
         make
     fi
     if [ "$?" != "0" ]; then
         echo
-        cat sleepy.log
+        cat hollow.log
     else
         echo.nonverbose "OK"
     fi
@@ -221,7 +221,7 @@ server.stop () {
 tests () {
     server.start 5000
     # Making it easier to run the tests
-    (make 2>&1) 2>&1 >>sleepy.log
+    (make 2>&1) 2>&1 >>hollow.log
     if [ "$?" != "0" ]; then
         compile
     fi
