@@ -134,7 +134,7 @@ continuous-integration () {
     server.start 5000
     # Making it easier to run the tests
     (make 2>&1) 2>&1 >>hollow.log
-    test.nose
+    test.nose_nonstop
     ec=$?
     if [ "$ec" != "0" ]; then
         exit $ec;
@@ -238,6 +238,11 @@ tests () {
 test.nose () {
     # Running the tests
     $LAUNCHER nosetests --stop --verbosity=2 -s tests
+}
+
+test.nose_nonstop () {
+    # Running the tests
+    $LAUNCHER nosetests --verbosity=2 -s tests
 }
 
 test.saks () {
