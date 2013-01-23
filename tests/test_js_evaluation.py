@@ -48,14 +48,14 @@ def test_decode_list(context):
 def test_decode_dict(context):
     "SleepyHollow#evaluate_javascript maps the type `dict`"
     sl = SleepyHollow()
-    sl.evaluate_javascript('(function(){return {name: "GABRIEL FALCÃO".toLowerCase()}})();').should.equal({'name': u'gabriel falcão'})
+    sl.evaluate_javascript('(function(){return {name: "GABRIEL FALCÃO".toLowerCase()}})();').should.equal({'name': 'gabriel falcão'.decode('utf-8')})
 
 
 @server_test_case
 def test_decode_complex_object(context):
     "SleepyHollow#evaluate_javascript maps the type `dict`"
     sl = SleepyHollow()
-    evaluated = sl.evaluate_javascript(ur'''(function(){
+    evaluated = sl.evaluate_javascript(r'''(function(){
         var data = {};
         data["name"] = "Gabriel Falcão \"gabrielfalcao\"";
         data["github"] = "http://github.com/gabrielfalcao";
@@ -68,7 +68,7 @@ def test_decode_complex_object(context):
     })()''')
 
     expect(evaluated).to.equal({
-        'name': u'Gabriel Falcão "gabrielfalcao"',
+        'name': 'Gabriel Falcão "gabrielfalcao"'.decode('utf-8'),
         'github': u'http://github.com/gabrielfalcao',
         'projects': [u'cello', u'sleepyhollow'],
         'coder': True,
