@@ -180,8 +180,13 @@ prepare_sleepy_hollow_response(Response* response)
 }
 
 
-/* Takes a `PyObject` that must be a `PyUNICODE*` and returns a UTF-8
-   encoded char*, and a char* with the source name.
+/* Takes a `PyObject` that must be either a `PyUNICODE*` or a
+   `PyString*` and returns a UTF-8 encoded char*, and a char* with the
+   source name.
+
+   If a `PyUNICODE*` is passed it will convert it to UTF-8.  If a
+   `PyString*` is passed then we assume it is already UTF-8, otherwise
+   the return value will be invalid.
 
    If the given PyObject is not an unicode object, setting a
    TypeError exception appropriately with PyErr_SetObject.
@@ -199,7 +204,7 @@ pyunicode_to_utf8_bytestring(PyObject *unicode_string, const char *source)
   PyObject *bytestring = NULL;
   PyObject *errorstring = NULL;
 
-  if (!PyUnicode_Check(unicode_string)) {
+  if (!PyUnicode_Check(unicode_string) && !PyString_Check(unicode_string)) {
     errorstring = PyUnicode_FromFormat("%s takes an unicode object as parameter, got a %s instead",
                                        source,
                                        unicode_string->ob_type->tp_name);
@@ -209,7 +214,13 @@ pyunicode_to_utf8_bytestring(PyObject *unicode_string, const char *source)
     return NULL;
   }
 
-  bytestring = PyUnicode_AsUTF8String(unicode_string);
+  if (PyUnicode_Check(unicode_string))
+    bytestring = PyUnicode_AsUTF8String(unicode_string);
+  else
+    /* if a bytestring is passed we assume it is appropriately encoded
+       as UTF-8 */
+    bytestring = unicode_string;
+
   if (bytestring == NULL)
     return NULL;
 

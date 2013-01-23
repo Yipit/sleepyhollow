@@ -48,7 +48,7 @@ def test_decode_list(context):
 def test_decode_dict(context):
     "SleepyHollow#evaluate_javascript maps the type `dict`"
     sl = SleepyHollow()
-    sl.evaluate_javascript('(function(){return {name: "GABRIEL FALCÃO".toLowerCase()}})();').should.equal({'name': 'gabriel falcão'})
+    sl.evaluate_javascript(u'(function(){return {name: "GABRIEL FALCÃO".toLowerCase()}})();').should.equal({'name': 'gabriel falcão'})
 
 
 @server_test_case
