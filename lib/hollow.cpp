@@ -149,3 +149,63 @@ Hollow::evaluateJavaScript(const char* script)
   QString qscript(script);
   return m_lastPage->evaluateJavaScript(qscript);
 }
+
+QWebElement
+Hollow::document(void)
+{
+  return m_lastPage->mainFrame()->documentElement();
+}
+
+QWebElementCollection
+Hollow::querySelectorAll(const char* selector)
+{
+  return m_lastPage->mainFrame()->findAllElements(QString(selector));
+}
+
+QWebElement
+Hollow::querySelector(const char* selector)
+{
+  return m_lastPage->mainFrame()->findFirstElement(QString(selector));
+}
+
+Response*
+Hollow::lastResponse(void)
+{
+  return m_lastPage->lastResponse();
+}
+
+
+QImage
+Hollow::renderImage(QWebFrame* frame)
+{
+    QSize contentsSize = frame->contentsSize();
+    if (contentsSize.width() < 320) {
+      contentsSize.setWidth(320);
+    }
+    QRect frameRect = QRect(QPoint(0, 0), contentsSize);
+
+    QImage buffer(frameRect.size(), QImage::Format_ARGB32);
+
+    QPainter painter;
+
+    painter.begin(&buffer);
+    painter.setCompositionMode(QPainter::CompositionMode_Source);
+
+    frame->render(&painter, QRegion(frameRect));
+
+    painter.end();
+
+    return buffer;
+}
+
+QByteArray
+Hollow::renderPNGBase64(QWebFrame *frame)
+{
+  QImage rawPageRendering = renderImage(frame);
+
+  QByteArray bytes;
+  QBuffer buffer(&bytes);
+  buffer.open(QIODevice::WriteOnly);
+  rawPageRendering.save(&buffer, "PNG");
+  return bytes.toBase64();
+}

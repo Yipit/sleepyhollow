@@ -23,7 +23,47 @@ __all__ = [
     'InvalidUrlError',
     'ConnectionRefusedError',
     'BadCredentialsError',
+    'Query',
+    'WebElement',
 ]
+
+
+class Query(object):
+    def __init__(self, root):
+        self._root = root
+        self._elements = []
+        self._values = []
+
+    def query(self, selector):
+        self._elements = map(WebElement, self._root.cssselect(selector))
+        return self
+
+    def attr(self, name=None):
+        func = lambda i: name and i.attrib.get(name) or dict(i.attrib)
+        self._values = map(func, self._elements)
+        return self
+
+    def text(self):
+        return self._one_or_many(map(lambda i: i.text().strip(),
+                                     self._elements) or '')
+
+    def html(self):
+        return self._one_or_many(map(lambda i: i.html().strip(),
+                                     self._elements) or '')
+
+    def raw(self):
+        ret = self._values or self._elements
+        return self._one_or_many(ret)
+
+    def one(self):
+        raw = self.raw()
+        if isinstance(raw, list):
+            return raw[0]
+        else:
+            return raw
+
+    def _one_or_many(self, ret):
+        return len(ret) is 1 and ret[-1] or ret
 
 
 class SleepyHollow(_SleepyHollow):
@@ -31,6 +71,13 @@ class SleepyHollow(_SleepyHollow):
         # Can you hear that? It's Mjolnir!!!!
         for method in 'get', 'post', 'put', 'head', 'delete':
             setattr(self, method, partial(self.request, method))
+
+    @property
+    def dom(self):
+        return Query(WebElement(self.get_dom()))
+
+    def get_response(self):
+        return Response(**super(SleepyHollow, self).get_response())
 
     def request(self, method, url, params=None, headers=None,
                 auth=(), config=None):
@@ -117,3 +164,42 @@ class Response(object):
         fd = open(path, 'wb')
         fd.write(self.screenshot_bytes)
         fd.close()
+
+
+class WebElement(object):
+    def __init__(self, element):
+        self._element = element
+
+    @property
+    def attrib(self):
+        keys = self._element.get_attribute_names()
+        values = map(self._element.get_attribute, keys)
+        return dict(zip(keys, values))
+
+    def html(self):
+        return self._element.get_outer_html().strip()
+
+    def text(self):
+        return self._element.get_text().strip()
+
+    def attr(self, name):
+        return self.attrib.get(name, '')
+
+    def __getattr__(self, attr):
+        if attr not in ['_element', 'text', 'html', 'attrib']:
+            return getattr(self._element, attr)
+
+        return super(WebElement, self).__getattribute__(attr)
+
+    def evaluate_javascript(self, script):
+        return self._element.evaluate_javascript(script)
+
+    def click(self):
+        return self.evaluate_javascript('this.click()')
+
+    def focus(self):
+        return self.evaluate_javascript('this.focus()')
+
+    @property
+    def style(self):
+        return self.evaluate_javascript('getComputedStyle(this).cssText')

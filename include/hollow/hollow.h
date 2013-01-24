@@ -6,6 +6,8 @@
 #include <QObject>
 #include <QApplication>
 #include <QNetworkRequest>
+#include <QWebElement>
+#include <QWebElementCollection>
 
 #include <hollow/error.h>
 #include <hollow/webpage.h>
@@ -34,6 +36,12 @@ public:
   static void setup(void);
   static void teardown(void);
   QVariant evaluateJavaScript(const char*);
+  QWebElement document(void);
+  QWebElementCollection querySelectorAll(const char*);
+  QWebElement querySelector(const char*);
+  Response* lastResponse(void);
+  QImage renderImage(QWebFrame* frame);
+  QByteArray renderPNGBase64(QWebFrame *frame);
 
 private:
   WebPage* m_lastPage;
