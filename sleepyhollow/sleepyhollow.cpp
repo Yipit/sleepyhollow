@@ -445,13 +445,15 @@ SleepyHollow_evaluate_javascript(SleepyHollow *self, PyObject *args, PyObject *k
 
   const char *script = NULL;
   PyObject *unicode_script = NULL;
-
+  PyObject *pedantic = NULL;
+  int should_be_pedantic = 0;
   static char *kwlist[] = {
     C_STR("script"),
+    C_STR("pedantic"),
     NULL
   };
 
-  if (!PyArg_ParseTupleAndKeywords(args, kw, "O", kwlist, &unicode_script))
+  if (!PyArg_ParseTupleAndKeywords(args, kw, "O|O", kwlist, &unicode_script, &pedantic))
     return NULL;
 
   script = pyunicode_to_utf8_bytestring(unicode_script,
@@ -459,10 +461,12 @@ SleepyHollow_evaluate_javascript(SleepyHollow *self, PyObject *args, PyObject *k
   if (script == NULL)
     return NULL;
 
+  should_be_pedantic = pedantic != NULL && PyBool_Check(pedantic) && pedantic == Py_True;
+
   QVariant variant = self->hollow->evaluateJavaScript(script);
 
   error = Error::last();
-  if (error != NULL)
+  if (should_be_pedantic && (error != NULL))
     return PyErr_Format(InvalidJSONError, "Invalid JSON: %s", error->what());
 
   return SleepyHollow_deserialize_qvariant(variant);

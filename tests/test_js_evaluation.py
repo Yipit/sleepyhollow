@@ -90,6 +90,15 @@ def test_js_evaluation_raises_exception_upon_sending_nonunicode(context):
 
 
 @server_test_case
+def test_error_handling_non_strict(context):
+    "SleepyHollow#evaluate_javascript returns None if code is invalid"
+    sl = SleepyHollow()
+
+    script1 = r'''(foo)'''
+    expect(sl.evaluate_javascript(script1)).to.be.none
+
+
+@server_test_case
 def test_error_handling(context):
     "SleepyHollow#evaluate_javascript handles errors"
     sl = SleepyHollow()
@@ -98,7 +107,7 @@ def test_error_handling(context):
         return foo;
     })()'''
 
-    expect(sl.evaluate_javascript).when.called_with(script1).to.throw(
+    expect(sl.evaluate_javascript).when.called_with(script1, pedantic=True).to.throw(
         InvalidJSONError,
         "'ReferenceError: Can't find variable: foo' undefined:2"
     )
