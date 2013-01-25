@@ -14,13 +14,42 @@ need a full-stack browser and yet, we need it to be headless.
 
 ## Production notes
 
-When running production make sure to export the environment variable:
+### The QPA platform
+
+QT has something called QT Platform Application, it basically says
+what are the available platforms for QT: cocoa, windows, X11
+
+That can be set through the environment variable `QT_QPA_PLATFORM`.
+
+When running sleepyhollow in production server we want to make QT work
+in a way that is compatible with embedded systems which is not much of
+a different than we hav ein our amazon instances.
+
+#### Setting up the environment variable
+
+Make sure to export `QT_QPA_PLATFORM` as `minimal`, like below:
 
 ```shell
 export QT_QPA_PLATFORM=minimal
 ```
 
-It will ensure that QT5 will load smoothly on GNU/Linux
+
+### Fonts
+
+When running in `minimal` (see "QPA Platform" above), QT doesn't know
+where to find fonts and therefore type rendering wouldn't work.
+
+As it turns out, the `minimal` backend will look for fonts in
+`/path-to-qt5-installation/lib/fonts`
+
+All it requires is a basic set of fonts, most of which can be solved
+by using a [single font file](http://unifoundry.com/unifont.html) that contains all the glyphs for all the
+existing languages, it can be downloaded from the
+[Unifoundry](http://unifoundry.com/) website.
+
+Although, we have our own font package available, ready to be put in
+the QT font installation dir, it's available at:
+[yipit-software-packages/qt5/qt-fonts.tar.bz2](https://s3.amazonaws.com/yipit-software-packages/qt5/qt-fonts.tar.bz2)
 
 ## Hacking
 
