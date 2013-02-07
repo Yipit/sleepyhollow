@@ -503,8 +503,8 @@ instead" >&AS_MESSAGE_LOG_FD
   done  # end hack (useless for to be able to use break)
 ])
 
-# AT_REQUIRE_QT_VERSION(QT_version, RUN-IF-FAILED, RUN-IF-OK)
-# -----------------------------------------------------------
+# AT_REQUIRE_QT_VERSION(QT_version, RUN-IF-LOWER, RUN-IF-EQUALS, RUN-IF-GREATER)
+# ------------------------------------------------------------------------------
 # Check (using qmake) that Qt's version "matches" QT_version.
 # Must be run AFTER AT_LOAD_MODULES. Requires autoconf 2.60.
 #
@@ -535,7 +535,7 @@ AC_DEFUN([AT_REQUIRE_QT_VERSION],
 
   # The user must issue his/her own warning message, this macro does not
   # assume that it's a problem to don't have the required version.
-  AS_VERSION_COMPARE([$QT_VERSION], [$1], [$2], [$3])
+  AS_VERSION_COMPARE([$QT_VERSION], [$1], [$2], [$3], [$4])
 
   done  # end hack (useless for to be able to use break)
 ])

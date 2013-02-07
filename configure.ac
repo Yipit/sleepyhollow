@@ -24,12 +24,18 @@ AC_PROG_LIBTOOL
 
 # AutoTroll to rule them all! Qt4 does not have the webkitwidgets
 # package, so we WILL have a warning when compiling with it
+qtversion=5.0.0
+
 AT_WITH_QT
-AT_REQUIRE_QT_VERSION([5.0.0],
+AT_REQUIRE_QT_VERSION([$qtversion],
         [modules="+network +gui +webkit"],
+        [modules="+network +gui +webkit +webkitwidgets"],
         [modules="+network +gui +webkit +webkitwidgets"]
 )
-AT_LOAD_MODULES([$modules])
+AT_LOAD_MODULES([$modules], [], [],
+        AC_MSG_ERROR([Failed to load the modules "$modules"]),
+        AC_MSG_RESULT([Loaded modules "$modules"])
+)
 
 # Python checks
 AM_PATH_PYTHON(2.7.0)
