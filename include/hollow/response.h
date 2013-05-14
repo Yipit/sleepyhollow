@@ -34,7 +34,7 @@ public:
   StringHashMap getHeaders(void);
   JSErrorList getJSErrors (void);
   utimestamp getTimeStamp(void);
-  StringList getRequestedResources(void);
+  StringHashMapList getRetrievedResources(void);
 
 private:
   int m_statusCode;
@@ -44,7 +44,7 @@ private:
   char* m_url;
   char* m_screenshotData;
   StringHashMap m_headers;
-  StringList m_requestedResources;
+  StringHashMapList m_retrievedResources;
   JSErrorList m_js_errors;
   utimestamp m_timestamp;
   void setText(const char* text);
@@ -52,7 +52,7 @@ private:
   void setURL(const char* url);
   void setScreenshotData(const char* data);
   void setJSErrors (JSErrorList errors);
-  void setRequestedResources(StringList requestedResources);
+  void setRetrievedResources(StringHashMapList retrievedResources);
   friend class WebPage;
 };
 

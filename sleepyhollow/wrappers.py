@@ -99,7 +99,11 @@ class Response(object):
         self.content = self.text.encode('utf-8')
         self.headers = headers
         self.js_errors = js_errors
-        self.requested_resources = requested_resources
+        self.requested_resources = []
+        for rsc in requested_resources:
+            rsc['status'] = int(rsc['status'])
+            self.requested_resources.append(rsc)
+
         self.screenshot_bytes = base64.decodestring(screenshot_bytes_base64)
 
     @property

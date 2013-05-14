@@ -122,6 +122,19 @@ stringlist_to_python_tuple(StringList list)
 }
 
 PyObject *
+stringhashmaplist_to_python_tuple(StringHashMapList list)
+{
+  int i;
+  StringHashMapListIterator iter;
+  PyObject *tuple = PyTuple_New(list.size ());
+  for (iter = list.begin(), i = 0; iter != list.end(); iter++, i++)
+    PyTuple_SetItem(tuple, i, string_hash_map_to_pydict(*iter));
+  return tuple;
+}
+
+
+
+PyObject *
 prepare_sleepy_hollow_response(Response* response)
 {
   /*
@@ -173,7 +186,7 @@ prepare_sleepy_hollow_response(Response* response)
 
   /* Adding the list of requested resources */
   PyObject *resources =
-    stringlist_to_python_tuple(response->getRequestedResources());
+    stringhashmaplist_to_python_tuple(response->getRetrievedResources());
   PyDict_SetItemString(dict, C_STR("requested_resources"), resources);
 
   return dict;

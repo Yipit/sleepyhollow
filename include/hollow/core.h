@@ -25,6 +25,9 @@ typedef StringHashMap::iterator StringHashMapIterator;
 typedef std::list<std::string> StringList;
 typedef StringList::iterator StringListIterator;
 
+typedef std::list<StringHashMap> StringHashMapList;
+typedef StringHashMapList::iterator StringHashMapListIterator;
+
 typedef std::pair<std::string, bool> ConfigPair;
 typedef std::map<std::string, bool> Config;
 typedef Config::iterator ConfigIterator;

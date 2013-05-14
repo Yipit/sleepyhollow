@@ -139,14 +139,14 @@ Response::getTimeStamp (void)
 
 
 void
-Response::setRequestedResources(StringList requestedResources)
+Response::setRetrievedResources(StringHashMapList retrievedResources)
 {
-  m_requestedResources = requestedResources;
+  m_retrievedResources = retrievedResources;
 }
 
 
-StringList
-Response::getRequestedResources(void)
+StringHashMapList
+Response::getRetrievedResources(void)
 {
-  return m_requestedResources;
+  return m_retrievedResources;
 }

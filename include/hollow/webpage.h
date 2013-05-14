@@ -65,7 +65,7 @@ private:
   Response *m_lastResponse;
   JSErrorList m_js_errors;
   StringList m_requestedResources;
-  StringList m_retrievedResources;
+  StringHashMapList m_retrievedResources;
   NetworkAccessManager *m_networkAccessManager;
   Config m_config;
   Response *buildResponseFromNetworkReply(QNetworkReply *reply, utimestamp when);

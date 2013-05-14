@@ -130,7 +130,6 @@ Hollow::request (const char* method,
   m_lastPage = new WebPage(this, config);
   m_lastPage->triggerAction(QWebPage::Stop);
 
-
   // Setting the payload
   QByteArray body(payload);
 

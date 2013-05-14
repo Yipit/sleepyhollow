@@ -275,14 +275,30 @@ def test_requested_resources(context):
     response = sl.get(context.route_to('/fewresources'))
 
     response.status_code.should.equal(200)
-    response.should.have.property('requested_resources').being.a(tuple)
-    response.requested_resources.should.have.length_of(4)
-    sorted(response.requested_resources).should.equal(sorted((
-        'http://127.0.0.1:5000/fewresources',
-        'http://127.0.0.1:5000/media/js/jquery-1.8.3.min.js',
-        'http://127.0.0.1:5000/media/js/fewresources.js',
-        'http://127.0.0.1:5000/media/img/funny.gif',
-    )))
+    response.should.have.property('requested_resources').being.a(list)
+    response.requested_resources.should.have.length_of(5)
+    sorted(response.requested_resources).should.equal(sorted([
+        {
+            'status': 200,
+            'url': u'http://127.0.0.1:5000/fewresources'
+        },
+        {
+            'status': 200,
+            'url': u'http://127.0.0.1:5000/media/js/jquery-1.8.3.min.js'
+        },
+        {
+            'status': 200,
+            'url': u'http://127.0.0.1:5000/media/js/fewresources.js'
+        },
+        {
+            'status': 200,
+            'url': u'http://127.0.0.1:5000/media/js/fewresources.js'
+        },
+        {
+            'status': 200,
+            'url': u'http://127.0.0.1:5000/media/img/funny.gif'
+        }
+    ]))
 
 
 @server_test_case

@@ -229,7 +229,7 @@ WebPage::lastResponse()
     m_lastResponse->setText(mainFrame()->toPlainText().toUtf8().constData());
     m_lastResponse->setJSErrors(m_js_errors);
     m_lastResponse->setURL(mainFrame()->url().toString().toStdString().c_str());
-    m_lastResponse->setRequestedResources(m_requestedResources);
+    m_lastResponse->setRetrievedResources(m_retrievedResources);
 
     if (m_config["screenshot"])
       m_lastResponse->setScreenshotData(renderPNGBase64().constData());
@@ -336,7 +336,11 @@ WebPage::handleNetworkReplies(QNetworkReply *reply)
 {
   time_t now;
   now = time(NULL);
-  m_retrievedResources.push_back(reply->url().toString().toStdString());
+  StringHashMap meta;
+  meta["status"] = reply->attribute(QNetworkRequest::HttpStatusCodeAttribute).toString().toStdString();
+  meta["url"] = reply->url().toString().toStdString();
+
+  m_retrievedResources.push_back(meta);
 
   // Making sure we're handling the right url
   QUrl url = mainFrame()->url();
