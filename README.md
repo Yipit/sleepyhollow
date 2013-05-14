@@ -1,5 +1,4 @@
 # Sleepy Hollow
-> version 0.1.8
 
 ![http://f.cl.ly/items/0O350E410p1Y2w18292F/sleepy-hollow.jpg](http://f.cl.ly/items/0O350E410p1Y2w18292F/sleepy-hollow.jpg)
 

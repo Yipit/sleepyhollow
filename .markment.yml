@@ -1,0 +1,13 @@
+project:
+  name: SleepyHollow
+  version: 0.1.9
+  description: Headless browser in python
+  github_maintainer: Yipit
+  github_url: http://github.com/Yipit/SleepyHollow
+  github_fork_url: https://github.com/Yipit/SleepyHollow/archive/master.tar.gz
+  github_maintainer_url: http://github.com/Yipit
+  github_maintainer_gravatar: https://secure.gravatar.com/avatar/3fa0df5c54f5ac0f8652d992d7d24039?s=64
+  tarball_download_url: https://github.com/Yipit/SleepyHollow/archive/master.tar.gz
+
+documentation:
+  index: index.md
