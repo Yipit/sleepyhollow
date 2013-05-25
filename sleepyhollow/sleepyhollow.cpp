@@ -47,7 +47,7 @@ pydict_to_config(PyObject *dict)
   PyObject *key, *value;
   Py_ssize_t pos = 0;
   while (PyDict_Next(dict, &pos, &key, &value))
-    ret[PyString_AsString(key)] = PyBool_Check(value) && value == Py_True;
+    ret[PyString_AsString(key)] = PyInt_Check(value) ? PyInt_AS_LONG(value) : 0;
   return ret;
 }
 

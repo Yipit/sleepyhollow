@@ -141,11 +141,11 @@ WebPage::hasErrors()
 }
 
 QImage
-WebPage::renderImage()
+WebPage::renderImage(int width, int height)
 {
     QSize contentsSize = mainFrame()->contentsSize();
-    if (contentsSize.width() < 320) {
-      contentsSize.setWidth(320);
+    if (contentsSize.width() < width) {
+      contentsSize.setWidth(height);
     }
     QRect frameRect = QRect(QPoint(0, 0), contentsSize);
 
@@ -165,9 +165,9 @@ WebPage::renderImage()
 }
 
 QByteArray
-WebPage::renderPNGBase64()
+WebPage::renderPNGBase64(int width, int height)
 {
-  QImage rawPageRendering = renderImage();
+  QImage rawPageRendering = renderImage(width, height);
 
   QByteArray bytes;
   QBuffer buffer(&bytes);
@@ -232,7 +232,7 @@ WebPage::lastResponse()
     m_lastResponse->setRetrievedResources(m_retrievedResources);
 
     if (m_config["screenshot"])
-      m_lastResponse->setScreenshotData(renderPNGBase64().constData());
+      m_lastResponse->setScreenshotData(renderPNGBase64(m_config["width"], m_config["height"]).constData());
   }
   return m_lastResponse;
 }

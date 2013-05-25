@@ -28,8 +28,8 @@ typedef StringList::iterator StringListIterator;
 typedef std::list<StringHashMap> StringHashMapList;
 typedef StringHashMapList::iterator StringHashMapListIterator;
 
-typedef std::pair<std::string, bool> ConfigPair;
-typedef std::map<std::string, bool> Config;
+typedef std::pair<std::string, int> ConfigPair;
+typedef std::map<std::string, int> Config;
 typedef Config::iterator ConfigIterator;
 
 typedef std::pair<std::string, std::string> UsernamePasswordPair;

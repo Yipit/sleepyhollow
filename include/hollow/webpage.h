@@ -22,8 +22,10 @@
 // Statically allocating the data needed to create the default
 // configuration passed to a web page
 static ConfigPair map_data[] = {
-  std::make_pair("cache", false),
-  std::make_pair("screenshot", false),
+  std::make_pair("cache", 0),
+  std::make_pair("screenshot", 0),
+  std::make_pair("width", 1024),
+  std::make_pair("height", 768),
 };
 
 
@@ -41,8 +43,8 @@ public:
   bool finished(void);
   bool allResourcesDownloaded(void);
   bool hasErrors(void);
-  QImage renderImage(void);
-  QByteArray renderPNGBase64(void);
+  QImage renderImage(int, int);
+  QByteArray renderPNGBase64(int, int);
   QVariant evaluateJavaScript(QString&);
   const char* getJSTraceback(void);
 
@@ -58,6 +60,8 @@ private slots:
   void handleAuthentication(QNetworkReply*, QAuthenticator*);
 
 private:
+  int m_width;
+  int m_height;
   bool m_hasErrors;
   bool m_shouldWaitForJS;
   bool m_jsReady;
