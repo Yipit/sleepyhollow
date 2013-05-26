@@ -145,7 +145,10 @@ WebPage::renderImage(int width, int height)
 {
     QSize contentsSize = mainFrame()->contentsSize();
     if (contentsSize.width() < width) {
-      contentsSize.setWidth(height);
+      contentsSize.setWidth(width);
+    }
+    if (contentsSize.height() < height) {
+      contentsSize.setHeight(height);
     }
     QRect frameRect = QRect(QPoint(0, 0), contentsSize);
 
